@@ -5,7 +5,7 @@ module.exports = withNativeFederation({
   name: 'seis-mfe-gestion-usuario',
 
   exposes: {
-    './Component': './projects/seis-mfe-gestion-usuario/src/app/app.component.ts',
+    './AppRoutingModule': 'projects/seis-mfe-gestion-usuario/src/app/app-routing.module.ts',
   },
 
   shared: {
