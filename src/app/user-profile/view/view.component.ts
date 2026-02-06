@@ -11,4 +11,9 @@ export class ViewComponent {
   userName: string = 'María González Pérez';
   userEmail: string = 'maria.gonzalez@empresa.com';
   userPosition: string = 'Gerente de Proyectos';
+
+  logout() {
+    // Aquí puedes agregar la lógica para cerrar sesión, como limpiar tokens, redirigir, etc.
+    console.log('Cerrar sesión');
+  }
 }

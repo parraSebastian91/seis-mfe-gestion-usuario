@@ -22,20 +22,60 @@
     padding: 0;
 }
 
-.header-inner {
-    width: 100%;
-    padding: 20px 40px;
-    color: #2c3e50;
+.profile-header {
 
-    h1 {
-        margin: 0;
-        font-size: 28px;
-        font-weight: 700;
+    .header-inner {
+        width: 100%;
+        padding: 20px 40px;
         color: #2c3e50;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+            color: #2c3e50;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            letter-spacing: 0.5px;
+        }
+    }
+
+    .logout {
+        display: none;
     }
 }
+
+/* Botón de Logout */
+.logout-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    color: #e74c3c;
+
+    &:hover {
+        background: rgba(231, 76, 60, 0.1);
+        transform: scale(1.1);
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
+}
+
+.logout-icon {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
+}
+
 
 /* Banner */
 .profile-banner {
@@ -296,13 +336,23 @@
     }
 
     .profile-header {
+
         // margin-bottom: 20px;
         // padding: 15px;
-        color: #2c3e50;
 
-        h1 {
-            font-size: 20px;
 
+        .header-inner {
+            color: #2c3e50;
+            padding: 15px 25px;
+
+            h1 {
+                font-size: 20px;
+            }
+        }
+
+        .logout {
+            display: flex;
+            margin-right: 2.5em;
         }
     }
 

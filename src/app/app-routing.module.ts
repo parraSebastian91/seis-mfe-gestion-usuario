@@ -6,6 +6,11 @@ const routes: Routes = [
   {
     path: "gestion-usuario",
     loadChildren: () => import('./user-profile/user-profile.module').then(m => m.UserProfileModule)
+  },
+  {
+    redirectTo: "gestion-usuario/view-profile",
+    pathMatch: "full",
+    path: "**"
   }
 ];
 
