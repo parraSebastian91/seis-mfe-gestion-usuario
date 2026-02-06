@@ -1,128 +1,131 @@
 <div class="user-profile-container">
-  <!-- Header -->
-  <header class="profile-header">
-    <div class="header-inner">
-      <h1>Perfil de Usuario</h1>
-    </div>
-  </header>
-
-  <!-- Banner con imagen de fondo y datos del usuario -->
-  <div class="profile-banner">
-    <div class="banner-background">
-      <!-- Imagen de fondo del banner -->
-      <img src="https://images.unsplash.com/photo-1557683316-973673baf926?w=1200" alt="Banner" class="banner-image">
-    </div>
-    
-    <!-- Información del usuario -->
-    <div class="user-info">
-      <div class="profile-picture">
-        <img src="https://i.pravatar.cc/150?img=12" alt="Foto de perfil" class="avatar">
-      </div>
-      <div class="user-details">
-        <h2 class="user-name">{{ userName }}</h2>
-        <p class="user-email">{{ userEmail }}</p>
-        <p class="user-position">{{ userPosition }}</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Contenido principal -->
-  <div class="content-wrapper">
-    <!-- Sección de información personal -->
-    <section class="profile-section">
-      <div class="section-header">
-        <h3>Información Personal</h3>
-      </div>
-      <div class="section-content">
-        <div class="info-grid">
-          <div class="info-card">
-            <label>Nombre Completo</label>
-            <p>{{ userName }}</p>
-          </div>
-          <div class="info-card">
-            <label>Correo Electrónico</label>
-            <p>{{ userEmail }}</p>
-          </div>
-          <div class="info-card">
-            <label>Cargo</label>
-            <p>{{ userPosition }}</p>
-          </div>
-          <div class="info-card">
-            <label>Departamento</label>
-            <p>Desarrollo de Proyectos</p>
-          </div>
-          <div class="info-card">
-            <label>Teléfono</label>
-            <p>+34 912 34 56 78</p>
-          </div>
-          <div class="info-card">
-            <label>Ubicación</label>
-            <p>Madrid, España</p>
-          </div>
+    <!-- Header -->
+    <header class="profile-header">
+        <div class="header-inner">
+            <h1>Perfil de Usuario</h1>
         </div>
-      </div>
-    </section>
+    </header>
 
-    <!-- Sección de estadísticas -->
-    <section class="profile-section">
-      <div class="section-header">
-        <h3>Estadísticas</h3>
-      </div>
-      <div class="section-content">
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-number">24</div>
-            <div class="stat-label">Proyectos</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-number">156</div>
-            <div class="stat-label">Horas Trabajadas</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-number">92%</div>
-            <div class="stat-label">Tareas Completadas</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-number">18</div>
-            <div class="stat-label">Equipo</div>
-          </div>
-        </div>
-      </div>
-    </section>
+    <!-- Banner con imagen de fondo y datos del usuario -->
+    <div class="contenido">
+        <div class="profile-banner">
+            <div class="banner-background">
+                <!-- Imagen de fondo del banner -->
+                <img src="https://images.unsplash.com/photo-1557683316-973673baf926?w=1200" alt="Banner"
+                    class="banner-image">
+            </div>
 
-    <!-- Sección de habilidades -->
-    <section class="profile-section">
-      <div class="section-header">
-        <h3>Habilidades</h3>
-      </div>
-      <div class="section-content">
-        <div class="skills-list">
-          <div class="skill-item">
-            <span class="skill-name">Angular</span>
-            <div class="skill-bar">
-              <div class="skill-progress" style="width: 90%"></div>
+            <!-- Información del usuario -->
+            <div class="user-info">
+                <div class="profile-picture">
+                    <img src="https://i.pravatar.cc/150?img=12" alt="Foto de perfil" class="avatar">
+                </div>
+                <div class="user-details">
+                    <h2 class="user-name">{{ userName }}</h2>
+                    <p class="user-email">{{ userEmail }}</p>
+                    <p class="user-position">{{ userPosition }}</p>
+                </div>
             </div>
-          </div>
-          <div class="skill-item">
-            <span class="skill-name">TypeScript</span>
-            <div class="skill-bar">
-              <div class="skill-progress" style="width: 85%"></div>
-            </div>
-          </div>
-          <div class="skill-item">
-            <span class="skill-name">SCSS/CSS</span>
-            <div class="skill-bar">
-              <div class="skill-progress" style="width: 88%"></div>
-            </div>
-          </div>
-          <div class="skill-item">
-            <span class="skill-name">Gestión de Proyectos</span>
-            <div class="skill-bar">
-              <div class="skill-progress" style="width: 80%"></div>
-            </div>
-          </div>
         </div>
-      </div>
-    </section>
-  </div>
+
+        <!-- Contenido principal -->
+        <div class="content-wrapper">
+            <!-- Sección de información personal -->
+            <section class="profile-section">
+                <div class="section-header">
+                    <h3>Información Personal</h3>
+                </div>
+                <div class="section-content">
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <label>Nombre Completo</label>
+                            <p>{{ userName }}</p>
+                        </div>
+                        <div class="info-card">
+                            <label>Correo Electrónico</label>
+                            <p>{{ userEmail }}</p>
+                        </div>
+                        <div class="info-card">
+                            <label>Cargo</label>
+                            <p>{{ userPosition }}</p>
+                        </div>
+                        <div class="info-card">
+                            <label>Departamento</label>
+                            <p>Desarrollo de Proyectos</p>
+                        </div>
+                        <div class="info-card">
+                            <label>Teléfono</label>
+                            <p>+34 912 34 56 78</p>
+                        </div>
+                        <div class="info-card">
+                            <label>Ubicación</label>
+                            <p>Madrid, España</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección de estadísticas -->
+            <section class="profile-section">
+                <div class="section-header">
+                    <h3>Estadísticas</h3>
+                </div>
+                <div class="section-content">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number">24</div>
+                            <div class="stat-label">Proyectos</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">156</div>
+                            <div class="stat-label">Horas Trabajadas</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">92%</div>
+                            <div class="stat-label">Tareas Completadas</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">18</div>
+                            <div class="stat-label">Equipo</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección de habilidades -->
+            <section class="profile-section">
+                <div class="section-header">
+                    <h3>Habilidades</h3>
+                </div>
+                <div class="section-content">
+                    <div class="skills-list">
+                        <div class="skill-item">
+                            <span class="skill-name">Angular</span>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 90%"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item">
+                            <span class="skill-name">TypeScript</span>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 85%"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item">
+                            <span class="skill-name">SCSS/CSS</span>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 88%"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item">
+                            <span class="skill-name">Gestión de Proyectos</span>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 80%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
 </div>

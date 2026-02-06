@@ -3,9 +3,14 @@
     position: relative;
 }
 
+.contenido {
+    position: relative;
+    top: -75px;
+}
+
 /* Header */
 .profile-header {
-    position: fixed;
+    position: sticky;
     top: 0;
     left: 0;
     right: 0;
@@ -20,12 +25,13 @@
 .header-inner {
     width: 100%;
     padding: 20px 40px;
+    color: #2c3e50;
 
     h1 {
         margin: 0;
         font-size: 28px;
         font-weight: 700;
-        color: #ffffff;
+        color: #2c3e50;
         text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         letter-spacing: 0.5px;
     }
@@ -292,9 +298,11 @@
     .profile-header {
         // margin-bottom: 20px;
         // padding: 15px;
+        color: #2c3e50;
 
         h1 {
             font-size: 20px;
+
         }
     }
 
