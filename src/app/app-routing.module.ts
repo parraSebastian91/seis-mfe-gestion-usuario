@@ -5,12 +5,12 @@ import { AppComponent } from './app.component';
 const routes: Routes = [
   {
     path: "gestion-usuario",
-    component: AppComponent,
+    loadChildren: () => import('./user-profile/user-profile.module').then(m => m.UserProfileModule)
   }
 ];
 
 @NgModule({
-  imports: [RouterModule.forChild(routes)],
+  imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }
