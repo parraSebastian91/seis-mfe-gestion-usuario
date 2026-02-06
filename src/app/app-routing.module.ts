@@ -1,16 +1,17 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { AppComponent } from './app.component';
+import { ViewComponent } from './user-profile/view/view.component';
+import { EditComponent } from './user-profile/edit/edit.component';
 
 const routes: Routes = [
   {
-    path: "gestion-usuario",
+    path: "",
     loadChildren: () => import('./user-profile/user-profile.module').then(m => m.UserProfileModule)
   },
   {
-    redirectTo: "gestion-usuario/view-profile",
+    redirectTo: "view-profile",
     pathMatch: "full",
-    path: "**"
+    path: ""
   }
 ];
 

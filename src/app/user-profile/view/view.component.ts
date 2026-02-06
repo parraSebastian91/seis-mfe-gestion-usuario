@@ -16,4 +16,9 @@ export class ViewComponent {
     // Aquí puedes agregar la lógica para cerrar sesión, como limpiar tokens, redirigir, etc.
     console.log('Cerrar sesión');
   }
+
+  goTo(edit: string) {
+    // Aquí puedes agregar la lógica para navegar a la página de edición, por ejemplo usando el router
+    console.log('Navegar a:', edit);
+  }
 }

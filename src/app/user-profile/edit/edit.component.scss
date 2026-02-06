@@ -61,7 +61,7 @@
  .banner-edit-btn {
 	 position: absolute;
 	 right: 20px;
-	 bottom: 20px;
+	 bottom: 40px;
 	 padding: 10px 14px;
 	 border: none;
 	 border-radius: 8px;
@@ -217,8 +217,22 @@
 	 }
 
 	 .profile-picture {
-		  position: static;
-		  padding: 15px 20px 0;
+		  position: relative;
+		  left: 50%;
+		  transform: translateX(-50%);
+		  margin-top: -0px;
+		  padding: 16px 20px;
+		  background: rgba(255, 255, 255, 0.95);
+		  border-radius: 12px;
+		  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+		  backdrop-filter: blur(10px);
+		  align-items: center;
+		  width: calc(100% - 30px);
+		  max-width: 320px;
+	 }
+
+	 .avatar-edit-btn {
+		  align-self: center;
 	 }
 
 	 .content-wrapper {
@@ -232,7 +246,7 @@
 
  @media (max-width: 480px) {
 	 .banner-background {
-		  height: 160px;
+		  height: 200px;
 	 }
 
 	 .content-wrapper {
