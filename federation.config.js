@@ -1,16 +1,20 @@
 const { withNativeFederation, shareAll } = require('@angular-architects/native-federation/config');
+const { sharedConfig } = require('../../shared-federation.config');
 
 module.exports = withNativeFederation({
 
   name: 'seis-mfe-gestion-usuario',
 
   exposes: {
-    './UserProfileRoutingModule': './projects/seis-mfe-gestion-usuario/src/app/user-profile/user-profile-routing.module.ts',
+    './UserProfileRoutingModule': 'projects/seis-mfe-gestion-usuario/src/app/user-profile/user-profile-routing.module.ts',
   },
+  
+    shared: sharedConfig,
 
-  shared: {
-    ...shareAll({ singleton: true, strictVersion: true, requiredVersion: 'auto' }),
-  },
+  // shared: {
+  //   ...shareAll({ singleton: true, strictVersion: true, requiredVersion: 'auto' }),
+  //   '@angular/material/menu': { singleton: true, strictVersion: true, requiredVersion: 'auto' },
+  // },
 
   skip: [
     'rxjs/ajax',

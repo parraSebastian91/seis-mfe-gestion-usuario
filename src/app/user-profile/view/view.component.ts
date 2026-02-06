@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-view',
@@ -12,6 +13,8 @@ export class ViewComponent {
   userEmail: string = 'maria.gonzalez@empresa.com';
   userPosition: string = 'Gerente de Proyectos';
 
+  constructor(private router: Router) { }
+
   logout() {
     // Aquí puedes agregar la lógica para cerrar sesión, como limpiar tokens, redirigir, etc.
     console.log('Cerrar sesión');
@@ -20,5 +23,6 @@ export class ViewComponent {
   goTo(edit: string) {
     // Aquí puedes agregar la lógica para navegar a la página de edición, por ejemplo usando el router
     console.log('Navegar a:', edit);
+    this.router.navigate([edit]);
   }
 }
