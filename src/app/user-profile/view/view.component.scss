@@ -5,16 +5,21 @@
 
 /* Header */
 .profile-header {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
     z-index: 10;
-    padding: 20px 40px;
+    margin-bottom: 0;
     background: linear-gradient(to bottom, rgb(255 255 255 / 100%), rgb(255 255 255 / 50%));
     backdrop-filter: blur(10px);
-    margin-bottom: 0;
     border-radius: 0px 0px 20px 20px;
+    padding: 0;
+}
+
+.header-inner {
+    width: 100%;
+    padding: 20px 40px;
 
     h1 {
         margin: 0;
@@ -285,8 +290,8 @@
     }
 
     .profile-header {
-        margin-bottom: 20px;
-        padding: 15px;
+        // margin-bottom: 20px;
+        // padding: 15px;
 
         h1 {
             font-size: 20px;
