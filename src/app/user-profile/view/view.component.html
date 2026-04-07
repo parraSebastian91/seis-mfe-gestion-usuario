@@ -41,9 +41,9 @@
                     <img src="https://i.pravatar.cc/150?img=12" alt="Foto de perfil" class="avatar">
                 </div>
                 <div class="user-details">
-                    <h2 class="user-name">{{ userName }}</h2>
-                    <p class="user-email">{{ userEmail }}</p>
-                    <p class="user-position">{{ userPosition }}</p>
+                    <h2 class="user-name">{{ userProfile.nombreCompleto }}</h2>
+                    <p class="user-email">{{ userProfile.datosContacto.correo }}</p>
+                    <p class="user-position">{{ userProfile.cargo }}</p>
                 </div>
             </div>
         </div>
@@ -58,28 +58,36 @@
                 <div class="section-content">
                     <div class="info-grid">
                         <div class="info-card">
-                            <label>Nombre Completo</label>
-                            <p>{{ userName }}</p>
+                            <label>Nombres</label>
+                            <p>{{ userProfile.nombre.nombres }}</p>
+                        </div>
+                        <div class="info-card">
+                            <label>Apellido Paterno</label>
+                            <p>{{ userProfile.nombre.apellidoPaterno }}</p>
+                        </div>
+                        <div class="info-card">
+                            <label>Apellido Materno</label>
+                            <p>{{ userProfile.nombre.apellidoMaterno }}</p>
                         </div>
                         <div class="info-card">
                             <label>Correo Electrónico</label>
-                            <p>{{ userEmail }}</p>
+                            <p>{{ userProfile.datosContacto.correo }}</p>
                         </div>
-                        <div class="info-card">
+                        <!-- <div class="info-card">
                             <label>Cargo</label>
-                            <p>{{ userPosition }}</p>
+                            <p>{{ userProfile.cargo }}</p>
                         </div>
                         <div class="info-card">
                             <label>Departamento</label>
                             <p>Desarrollo de Proyectos</p>
-                        </div>
+                        </div> -->
                         <div class="info-card">
                             <label>Teléfono</label>
-                            <p>+34 912 34 56 78</p>
+                            <p>{{ userProfile.telefono }}</p>
                         </div>
                         <div class="info-card">
                             <label>Ubicación</label>
-                            <p>Madrid, España</p>
+                            <p>{{ userProfile.ubicacion }}</p>
                         </div>
                     </div>
                 </div>
