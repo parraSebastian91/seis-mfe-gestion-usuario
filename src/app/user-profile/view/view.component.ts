@@ -37,8 +37,8 @@ export class ViewComponent implements OnInit {
     avatar: {
       name: 'Avatar Name',
       urls: {
-        sm: 'https://images.unsplash.com/photo-1557683316-973673baf926?w=1200',
-        md: 'https://images.unsplash.com/photo-1557683316-973673baf926?w=1200',
+        sm: 'https://i.pravatar.cc/50?img=3',
+        md: 'https://i.pravatar.cc/50?img=3',
         lg: 'https://images.unsplash.com/photo-1557683316-973673baf926?w=1200'
       }
     },

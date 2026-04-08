@@ -1,159 +1,112 @@
-<div class="user-profile-container">
-    <!-- Header -->
-    <header class="profile-header">
-        <div class="header-inner">
-            <h1>Perfil de Usuario</h1>
-            <div class="logout">
-                <button class="logout-btn" [matMenuTriggerFor]="menu" title="Cerrar sesión">
-                    <svg class="logout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                        <polyline points="16 17 21 12 16 7"></polyline>
-                        <line x1="21" y1="12" x2="9" y2="12"></line>
-                    </svg>
-                </button>
-                <mat-menu #menu="matMenu" xPosition="before" yPosition="above">
-                    <button mat-menu-item (click)="goTo('contenedor/pages/edit-profile')">
-                        <mat-icon>account_circle</mat-icon>
-                        <span>Editar Perfil</span>
-                    </button>
-                    <mat-divider></mat-divider>
-                    <button mat-menu-item (click)="logout()">
-                        <mat-icon>logout</mat-icon>
-                        <span>Cerrar sesión</span>
-                    </button>
-                </mat-menu>
-            </div>
-        </div>
-    </header>
-
-    <!-- Banner con imagen de fondo y datos del usuario -->
-    <div class="contenido">
-        <div class="profile-banner">
-            <div class="banner-background">
-                <!-- Imagen de fondo del banner -->
-                <img src="https://images.unsplash.com/photo-1557683316-973673baf926?w=1200" alt="Banner"
-                    class="banner-image">
-            </div>
-
-            <!-- Información del usuario -->
-            <div class="user-info">
-                <div class="profile-picture">
-                    <img src="https://i.pravatar.cc/150?img=12" alt="Foto de perfil" class="avatar">
-                </div>
-                <div class="user-details">
-                    <h2 class="user-name">{{ userProfile.nombreCompleto }}</h2>
-                    <p class="user-email">{{ userProfile.datosContacto.correo }}</p>
-                    <p class="user-position">{{ userProfile.cargo }}</p>
-                </div>
-            </div>
+<div class="profile-container">
+    <mat-card class="profile-header-card">
+        <div class="banner-wrapper">
+            <img [src]="userProfile.avatar.urls.lg" [alt]="userProfile.avatar.name" class="banner-img">
+            <div class="banner-overlay"></div>
+            <button mat-mini-fab color="basic" class="edit-banner-btn">
+                <mat-icon>photo_camera</mat-icon>
+            </button>
         </div>
 
-        <!-- Contenido principal -->
-        <div class="content-wrapper">
-            <!-- Sección de información personal -->
-            <section class="profile-section">
-                <div class="section-header">
-                    <h3>Información Personal</h3>
-                </div>
-                <div class="section-content">
-                    <div class="info-grid">
-                        <div class="info-card">
-                            <label>Nombres</label>
-                            <p>{{ userProfile.nombre.nombres }}</p>
-                        </div>
-                        <div class="info-card">
-                            <label>Apellido Paterno</label>
-                            <p>{{ userProfile.nombre.apellidoPaterno }}</p>
-                        </div>
-                        <div class="info-card">
-                            <label>Apellido Materno</label>
-                            <p>{{ userProfile.nombre.apellidoMaterno }}</p>
-                        </div>
-                        <div class="info-card">
-                            <label>Correo Electrónico</label>
-                            <p>{{ userProfile.datosContacto.correo }}</p>
-                        </div>
-                        <!-- <div class="info-card">
-                            <label>Cargo</label>
-                            <p>{{ userProfile.cargo }}</p>
-                        </div>
-                        <div class="info-card">
-                            <label>Departamento</label>
-                            <p>Desarrollo de Proyectos</p>
-                        </div> -->
-                        <div class="info-card">
-                            <label>Teléfono</label>
-                            <p>{{ userProfile.telefono }}</p>
-                        </div>
-                        <div class="info-card">
-                            <label>Ubicación</label>
-                            <p>{{ userProfile.ubicacion }}</p>
-                        </div>
+        <mat-card-content class="profile-main-content">
+            <div class="identity-section">
+                <div class="avatar-container">
+                    <img [src]="userProfile.avatar.urls.md" [alt]="userProfile.avatar.name" class="profile-avatar">
+                    <div class="status-badge online"></div>
+                    <div class="add-avatar-badge">
+                        <button mat-mini-fab color="basic" aria-label="cambiar foto de perfil" class="avatar-edit-btn">
+                            <mat-icon>add</mat-icon>
+                        </button>
                     </div>
                 </div>
-            </section>
 
-            <!-- Sección de estadísticas -->
-            <section class="profile-section">
-                <div class="section-header">
-                    <h3>Estadísticas</h3>
-                </div>
-                <div class="section-content">
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-number">24</div>
-                            <div class="stat-label">Proyectos</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number">156</div>
-                            <div class="stat-label">Horas Trabajadas</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number">92%</div>
-                            <div class="stat-label">Tareas Completadas</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number">18</div>
-                            <div class="stat-label">Equipo</div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+                <div class="user-info">
+                    <h1 class="mat-headline-4 no-margin">{{ userProfile.nombreCompleto }}</h1>
 
-            <!-- Sección de habilidades -->
-            <section class="profile-section">
-                <div class="section-header">
-                    <h3>Habilidades</h3>
+                    <mat-chip-set class="company-chip-set">
+                        <mat-chip class="company-chip">
+                            <div class="chip-content">
+                                <div class="icon">
+                                    <mat-icon>account_circle</mat-icon>
+                                </div>
+                                <div class="info">
+                                    {{ userProfile.username }}
+                                </div>
+                            </div>
+                        </mat-chip>
+                    </mat-chip-set>
                 </div>
-                <div class="section-content">
-                    <div class="skills-list">
-                        <div class="skill-item">
-                            <span class="skill-name">Angular</span>
-                            <div class="skill-bar">
-                                <div class="skill-progress" style="width: 90%"></div>
-                            </div>
-                        </div>
-                        <div class="skill-item">
-                            <span class="skill-name">TypeScript</span>
-                            <div class="skill-bar">
-                                <div class="skill-progress" style="width: 85%"></div>
-                            </div>
-                        </div>
-                        <div class="skill-item">
-                            <span class="skill-name">SCSS/CSS</span>
-                            <div class="skill-bar">
-                                <div class="skill-progress" style="width: 88%"></div>
-                            </div>
-                        </div>
-                        <div class="skill-item">
-                            <span class="skill-name">Gestión de Proyectos</span>
-                            <div class="skill-bar">
-                                <div class="skill-progress" style="width: 80%"></div>
-                            </div>
-                        </div>
+
+                <div class="profile-actions">
+                    <button mat-flat-button color="primary" class="action-btn">
+                        <mat-icon>person_add</mat-icon>
+                        Conectar
+                    </button>
+                    <button mat-stroked-button class="action-btn">
+                        <mat-icon>chat_bubble_outline</mat-icon>
+                        Mensaje
+                    </button>
+                </div>
+            </div>
+        </mat-card-content>
+    </mat-card>
+
+    <div class="profile-grid">
+        <div class="info-column">
+            <mat-card class="section-card">
+                <mat-card-header class="info-gral">
+                    <mat-card-title>Informacion General</mat-card-title>
+                    <button mat-mini-fab color="basic" class="edit-gral-info-btn">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                </mat-card-header>
+                <mat-card-content>
+                    <mat-list>
+                        <mat-list-item>
+                            <mat-icon matListItemIcon>email</mat-icon>
+                            <div matListItemTitle>Email</div>
+                            <div matListItemLine>{{ userProfile.datosContacto.correo }}</div>
+                        </mat-list-item>
+                        <mat-divider></mat-divider>
+                        <mat-list-item>
+                            <mat-icon matListItemIcon>place</mat-icon>
+                            <div matListItemTitle>Ubicación</div>
+                            <div matListItemLine>{{ userProfile.ubicacion }}</div>
+                        </mat-list-item>
+                        <mat-divider></mat-divider>
+                        <mat-list-item>
+                            <mat-icon matListItemIcon>call</mat-icon>
+                            <div matListItemTitle>Telefono</div>
+                            <div matListItemLine>{{ userProfile.telefono }}</div>
+                        </mat-list-item>
+                    </mat-list>
+                </mat-card-content>
+            </mat-card>
+
+            <mat-card class="section-card">
+                <mat-card-header>
+                    <mat-card-title>Redes Sociales</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                    <mat-chip-set class="social-chip-set">
+                        <mat-chip *ngFor="let red of userProfile.rrss" class="social-chip" [attr.aria-label]="red.tipo">
+                            {{ red.tipo }}
+                        </mat-chip>
+                    </mat-chip-set>
+                </mat-card-content>
+            </mat-card>
+        </div>
+
+        <div class="feed-column">
+            <mat-card class="section-card">
+                <mat-card-content>
+                    <h2 class="mat-headline-6 section-title">Actividad Social-Financiera</h2>
+                    <div class="empty-state">
+                        <mat-icon>history_edu</mat-icon>
+                        <p>No hay publicaciones recientes en el ecosistema.</p>
                     </div>
-                </div>
-            </section>
+                </mat-card-content>
+            </mat-card>
         </div>
     </div>
 </div>
