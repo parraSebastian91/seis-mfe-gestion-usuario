@@ -3,7 +3,11 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ObjectUploadService, UserProfile, UserProfileService } from 'shared-utils';
 
-
+const PATH_TYPES = {
+  USER_AVATAR: 'user-avatar',
+  USER_BANNER: 'user-banner',
+  DOCUMENT: 'documents',
+};
 
 @Component({
   selector: 'app-view',
@@ -143,17 +147,19 @@ export class ViewComponent implements OnInit {
 
     this.previewBanner(file);
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('typeUpload', 'banner');
-
     try {
-      const updatedProfile = await this.objectUploadService.uploadObject(formData, this.apiBase, 'banner');
-      if (updatedProfile?.avatar?.urls?.lg) {
-        this.userProfile.avatar.urls.lg = updatedProfile.avatar.urls.lg;
+      const presignedUrl = await this.objectUploadService.getPresignedPutUrl(this.apiBase, PATH_TYPES.USER_BANNER, file.name, file.type);
+      if (presignedUrl?.url) {
+        console.log(file);
+        await this.objectUploadService.uploadToPresignedUrl(presignedUrl.url, file).then(() => {
+          // this.userProfile.avatar.urls.sm = presignedUrl.url.split('?')[0];
+          // this.userProfile.avatar.urls.md = presignedUrl.url.split('?')[0];
+        }).catch((err) => {
+          console.error('Error al subir la imagen al presigned URL:', err);
+        });
       }
     } catch (err) {
-      console.error('Error al cargar banner:', err);
+      console.error('Error al cargar avatar:', err);
     } finally {
       input.value = '';
     }
@@ -181,12 +187,8 @@ export class ViewComponent implements OnInit {
 
     this.previewAvatar(file);
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('typeUpload', 'avatar');
-
     try {
-      const presignedUrl = await this.objectUploadService.getPresignedUrl(this.apiBase, 'avatar');
+      const presignedUrl = await this.objectUploadService.getPresignedPutUrl(this.apiBase, PATH_TYPES.USER_AVATAR, file.name, file.type);
       if (presignedUrl?.url) {
         console.log(file);
         await this.objectUploadService.uploadToPresignedUrl(presignedUrl.url, file).then(() => {
