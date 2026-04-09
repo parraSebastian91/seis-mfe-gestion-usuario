@@ -3,9 +3,11 @@
         <div class="banner-wrapper">
             <img [src]="userProfile.avatar.urls.lg" [alt]="userProfile.avatar.name" class="banner-img">
             <div class="banner-overlay"></div>
-            <button mat-mini-fab color="basic" class="edit-banner-btn">
+            <button mat-mini-fab color="basic" class="edit-banner-btn" (click)="openAvatarFilePicker(bannerFileInput)">
                 <mat-icon>photo_camera</mat-icon>
             </button>
+            <input #bannerFileInput type="file" accept="image/*" class="hidden-file-input"
+                (change)="onBannerFileSelected($event)" />
         </div>
 
         <mat-card-content class="profile-main-content">
@@ -14,10 +16,13 @@
                     <img [src]="userProfile.avatar.urls.md" [alt]="userProfile.avatar.name" class="profile-avatar">
                     <div class="status-badge online"></div>
                     <div class="add-avatar-badge">
-                        <button mat-mini-fab color="basic" aria-label="cambiar foto de perfil" class="avatar-edit-btn">
+                        <button type="button" mat-mini-fab color="basic" aria-label="cambiar foto de perfil"
+                            class="avatar-edit-btn" (click)="openAvatarFilePicker(avatarFileInput)">
                             <mat-icon>add</mat-icon>
                         </button>
                     </div>
+                    <input #avatarFileInput type="file" accept="image/*" class="hidden-file-input"
+                        (change)="onAvatarFileSelected($event)" />
                 </div>
 
                 <div class="user-info">
@@ -51,12 +56,12 @@
         </mat-card-content>
     </mat-card>
 
-    <div class="profile-grid">
+    <div class="profile-grid" *ngIf="!showEditGeneralInfoForm">
         <div class="info-column">
             <mat-card class="section-card">
                 <mat-card-header class="info-gral">
-                    <mat-card-title>Informacion General</mat-card-title>
-                    <button mat-mini-fab color="basic" class="edit-gral-info-btn">
+                    <mat-card-title>Información General</mat-card-title>
+                    <button mat-mini-fab color="basic" class="edit-gral-info-btn" (click)="openEditGeneralInfo()">
                         <mat-icon>edit</mat-icon>
                     </button>
                 </mat-card-header>
@@ -109,4 +114,57 @@
             </mat-card>
         </div>
     </div>
+
+    <mat-card class="section-card edit-gral-information" *ngIf="showEditGeneralInfoForm">
+        <mat-card-header style="margin-bottom: 1.5em;">
+            <mat-card-title>Editar Información del Usuario</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            <form class="edit-form" [formGroup]="editGeneralInfoForm" (ngSubmit)="saveGeneralInformation()">
+                <div class="form-grid">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Nombres</mat-label>
+                        <input matInput class="input-form" formControlName="nombres" />
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Apellido Paterno</mat-label>
+                        <input matInput class="input-form" formControlName="apellidoPaterno" />
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Apellido Materno</mat-label>
+                        <input matInput class="input-form" formControlName="apellidoMaterno" />
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Cargo</mat-label>
+                        <input matInput class="input-form" formControlName="cargo" />
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Correo</mat-label>
+                        <input matInput type="email" class="input-form" formControlName="correo" />
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Telefono</mat-label>
+                        <input matInput class="input-form" formControlName="telefono" />
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="full-width-field">
+                        <mat-label>Ubicacion</mat-label>
+                        <input matInput class="input-form" formControlName="ubicacion" />
+                    </mat-form-field>
+                </div>
+
+                <div class="form-actions">
+                    <button mat-stroked-button type="button" (click)="cancelEditGeneralInfo()">Cancelar</button>
+                    <button mat-flat-button color="primary" type="submit"
+                        [disabled]="editGeneralInfoForm.invalid">Guardar Cambios</button>
+                </div>
+            </form>
+        </mat-card-content>
+    </mat-card>
+
 </div>

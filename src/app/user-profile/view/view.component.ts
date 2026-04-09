@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { UserProfile, UserProfileService } from 'shared-utils';
+import { ObjectUploadService, UserProfile, UserProfileService } from 'shared-utils';
 
 
 
@@ -11,6 +12,12 @@ import { UserProfile, UserProfileService } from 'shared-utils';
   styleUrl: './view.component.scss'
 })
 export class ViewComponent implements OnInit {
+
+  private readonly maxAvatarSizeBytes = 5 * 1024 * 1024;
+  private readonly apiBase = 'http://localhost:8000';
+
+  showEditGeneralInfoForm: boolean = false;
+  editGeneralInfoForm!: FormGroup;
 
   userProfile: UserProfile = {
     username: 'username',
@@ -49,8 +56,20 @@ export class ViewComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private userProfileService: UserProfileService
-  ) { }
+    private fb: FormBuilder,
+    private userProfileService: UserProfileService,
+    private objectUploadService: ObjectUploadService
+  ) {
+    this.editGeneralInfoForm = this.fb.group({
+      nombres: ['', Validators.required],
+      apellidoPaterno: ['', Validators.required],
+      apellidoMaterno: [''],
+      cargo: ['', Validators.required],
+      correo: ['', [Validators.required, Validators.email]],
+      telefono: ['', Validators.required],
+      ubicacion: ['', Validators.required],
+    });
+  }
 
   logout() {
     // Aquí puedes agregar la lógica para cerrar sesión, como limpiar tokens, redirigir, etc.
@@ -63,9 +82,169 @@ export class ViewComponent implements OnInit {
     this.router.navigate([edit]);
   }
 
+  openEditGeneralInfo() {
+    this.syncFormWithProfile();
+    this.showEditGeneralInfoForm = true;
+  }
+
+  cancelEditGeneralInfo() {
+    this.showEditGeneralInfoForm = false;
+    this.syncFormWithProfile();
+  }
+
+  saveGeneralInformation() {
+    if (this.editGeneralInfoForm.invalid) {
+      this.editGeneralInfoForm.markAllAsTouched();
+      return;
+    }
+
+    const formValue = this.editGeneralInfoForm.value;
+
+    this.userProfile.nombre.nombres = formValue.nombres;
+    this.userProfile.nombre.apellidoPaterno = formValue.apellidoPaterno;
+    this.userProfile.nombre.apellidoMaterno = formValue.apellidoMaterno;
+    this.userProfile.cargo = formValue.cargo;
+    this.userProfile.datosContacto.correo = formValue.correo;
+    this.userProfile.telefono = formValue.telefono;
+    this.userProfile.ubicacion = formValue.ubicacion;
+
+    this.userProfile.nombreCompleto = [
+      formValue.nombres,
+      formValue.apellidoPaterno,
+      formValue.apellidoMaterno,
+    ].filter(Boolean).join(' ');
+
+    this.showEditGeneralInfoForm = false;
+  }
+
+  openAvatarFilePicker(fileInput: HTMLInputElement) {
+    fileInput.click();
+  }
+
+  async onBannerFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      console.error('El archivo seleccionado no es una imagen.');
+      input.value = '';
+      return;
+    }
+
+    if (file.size > this.maxAvatarSizeBytes) {
+      console.error('La imagen supera el tamaño máximo de 5MB.');
+      input.value = '';
+      return;
+    }
+
+    this.previewBanner(file);
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('typeUpload', 'banner');
+
+    try {
+      const updatedProfile = await this.objectUploadService.uploadObject(formData, this.apiBase, 'banner');
+      if (updatedProfile?.avatar?.urls?.lg) {
+        this.userProfile.avatar.urls.lg = updatedProfile.avatar.urls.lg;
+      }
+    } catch (err) {
+      console.error('Error al cargar banner:', err);
+    } finally {
+      input.value = '';
+    }
+  }
+
+  async onAvatarFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      console.error('El archivo seleccionado no es una imagen.');
+      input.value = '';
+      return;
+    }
+
+    if (file.size > this.maxAvatarSizeBytes) {
+      console.error('La imagen supera el tamaño máximo de 5MB.');
+      input.value = '';
+      return;
+    }
+
+    this.previewAvatar(file);
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('typeUpload', 'avatar');
+
+    try {
+      const presignedUrl = await this.objectUploadService.getPresignedUrl(this.apiBase, 'avatar');
+      if (presignedUrl?.url) {
+        console.log(file);
+        await this.objectUploadService.uploadToPresignedUrl(presignedUrl.url, file).then(() => {
+          // this.userProfile.avatar.urls.sm = presignedUrl.url.split('?')[0];
+          // this.userProfile.avatar.urls.md = presignedUrl.url.split('?')[0];
+        }).catch((err) => {
+          console.error('Error al subir la imagen al presigned URL:', err);
+        });
+      }
+    } catch (err) {
+      console.error('Error al cargar avatar:', err);
+    } finally {
+      input.value = '';
+    }
+  }
+
+  private previewAvatar(file: File) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const imageDataUrl = typeof reader.result === 'string' ? reader.result : '';
+      if (!imageDataUrl) {
+        return;
+      }
+
+      this.userProfile.avatar.urls.sm = imageDataUrl;
+      this.userProfile.avatar.urls.md = imageDataUrl;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  private previewBanner(file: File) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const imageDataUrl = typeof reader.result === 'string' ? reader.result : '';
+      if (!imageDataUrl) {
+        return;
+      }
+
+      this.userProfile.avatar.urls.lg = imageDataUrl;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  private syncFormWithProfile() {
+    this.editGeneralInfoForm.patchValue({
+      nombres: this.userProfile.nombre.nombres,
+      apellidoPaterno: this.userProfile.nombre.apellidoPaterno,
+      apellidoMaterno: this.userProfile.nombre.apellidoMaterno,
+      cargo: this.userProfile.cargo,
+      correo: this.userProfile.datosContacto.correo,
+      telefono: this.userProfile.telefono,
+      ubicacion: this.userProfile.ubicacion,
+    });
+  }
+
   ngOnInit(): void {
     console.log('Obteniendo perfil del usuario...');
-    this.userProfileService.getUserProfile('http://localhost:8000', 'correo')
+    this.userProfileService.getUserProfile(this.apiBase, 'correo')
       .then((profile: UserProfile) => {
 
         console.log('Perfil del usuario:', profile);
@@ -78,15 +257,18 @@ export class ViewComponent implements OnInit {
         this.userProfile.cargo = profile.cargo;
         this.userProfile.telefono = profile.telefono;
         this.userProfile.ubicacion = profile.ubicacion;
+        this.syncFormWithProfile();
 
         // Aquí puedes asignar los datos del perfil a las variables para mostrarlos en la vista
       }).catch((err: any) => {
         console.error('Error al obtener el perfil del usuario:', err);
       });
+
+    this.syncFormWithProfile();
   }
 
   loadUserProfile() {
-    this.userProfileService.getUserProfile('http://localhost:8000', 'correo').then((profile: any) => {
+    this.userProfileService.getUserProfile(this.apiBase, 'correo').then((profile: any) => {
       console.log('Perfil del usuario:', profile);
       // Aquí puedes asignar los datos del perfil a las variables para mostrarlos en la vista
     }).catch((err: any) => {

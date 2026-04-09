@@ -126,6 +126,10 @@
     }
 }
 
+.hidden-file-input {
+    display: none;
+}
+
 .user-info {
     display: flex;
     flex-direction: column;
@@ -246,6 +250,40 @@
     color: #6f86a6;
 }
 
+.edit-gral-information {
+    margin-top: 24px;
+}
+
+.edit-form {
+    display: grid;
+    gap: 16px;
+}
+
+.form-grid {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+}
+
+.form-grid mat-form-field {
+    width: 100%;
+}
+
+.full-width-field {
+    grid-column: 1 / -1;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.input-form {
+    margin-left: 1em;
+}
+
 @media (max-width: 767px) {
     .profile-container {
         padding: 14px;
@@ -265,5 +303,18 @@
 
     .action-btn {
         flex: 1 1 140px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        justify-content: stretch;
+        flex-direction: column;
+    }
+
+    .form-actions button {
+        width: 100%;
     }
 }
