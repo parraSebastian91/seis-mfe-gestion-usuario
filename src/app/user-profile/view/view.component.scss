@@ -28,18 +28,31 @@
     height: 210px;
     position: relative;
     background: #dbe8ff;
+    overflow: hidden;
 }
 
 .banner-img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+.banner-img-main {
+    opacity: 0;
+    transition: opacity 300ms ease;
+}
+
+.banner-img-main.is-loaded {
+    opacity: 1;
 }
 
 .banner-overlay {
     position: absolute;
     inset: 0;
     background: linear-gradient(to bottom, rgba(4, 20, 46, 0.08), rgba(4, 20, 46, 0.45));
+    z-index: 2;
 }
 
 .edit-banner-btn {
@@ -74,15 +87,53 @@
 
 .avatar-container {
     position: relative;
+    width: 124px;
+    height: 124px;
 }
 
 .profile-avatar {
+    position: absolute;
+    inset: 0;
     width: 124px;
     height: 124px;
     border-radius: 50%;
     border: 5px solid #fff;
     box-shadow: 0 10px 20px rgba(14, 35, 67, 0.18);
     background: white;
+}
+
+.profile-avatar-main {
+    opacity: 0;
+    transition: opacity 300ms ease;
+}
+
+.profile-avatar-main.is-loaded {
+    opacity: 1;
+}
+
+.image-obfuscation {
+    position: absolute;
+    inset: 0;
+    opacity: 1;
+    transition: opacity 300ms ease;
+    pointer-events: none;
+}
+
+.image-obfuscation.is-hidden {
+    opacity: 0;
+}
+
+.banner-obfuscation {
+    background: rgba(255, 255, 255, 0.22);
+    backdrop-filter: blur(10px);
+    z-index: 1;
+}
+
+.avatar-obfuscation {
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.28);
+    backdrop-filter: blur(8px);
+    z-index: 1;
 }
 
 .status-badge {
@@ -93,6 +144,7 @@
     height: 16px;
     border-radius: 50%;
     border: 2px solid #fff;
+    z-index: 2;
 }
 
 
@@ -105,6 +157,7 @@
     position: absolute;
     bottom: 6px;
     left: 6px;
+    z-index: 2;
 }
 
 .avatar-edit-btn {
