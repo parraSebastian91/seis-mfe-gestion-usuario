@@ -1,8 +1,9 @@
 <div class="profile-container">
     <mat-card class="profile-header-card">
         <div class="banner-wrapper image-shell">
-            <img [src]="defaultBannerImage" [alt]="userProfile.avatar.name" class="banner-img banner-img-placeholder">
-            <img [src]="bannerImageSrc" [alt]="userProfile.avatar.name" class="banner-img banner-img-main"
+            <img [src]="defaultBannerImage" alt="banner-img" class="banner-img banner-img-placeholder"
+                [class.is-hidden]="bannerLoaded">
+            <img [src]="bannerImageSrc" alt="banner-img" class="banner-img banner-img-main"
                 [class.is-loaded]="bannerLoaded" (load)="onBannerImageLoad()" (error)="onBannerImageError()">
             <div class="image-obfuscation banner-obfuscation" [class.is-hidden]="bannerLoaded"></div>
             <div class="banner-overlay"></div>
@@ -16,9 +17,9 @@
         <mat-card-content class="profile-main-content">
             <div class="identity-section">
                 <div class="avatar-container">
-                    <img [src]="defaultAvatarImage" [alt]="userProfile.avatar.name"
-                        class="profile-avatar profile-avatar-placeholder">
-                    <img [src]="avatarImageSrc" [alt]="userProfile.avatar.name"
+                    <img [src]="defaultAvatarImage" alt="avatar-img"
+                        class="profile-avatar profile-avatar-placeholder" [class.is-hidden]="avatarLoaded">
+                    <img [src]="avatarImageSrc" alt="avatar-img"
                         class="profile-avatar profile-avatar-main" [class.is-loaded]="avatarLoaded"
                         (load)="onAvatarImageLoad()" (error)="onAvatarImageError()">
                     <div class="image-obfuscation avatar-obfuscation" [class.is-hidden]="avatarLoaded"></div>
@@ -168,7 +169,7 @@
 
                 <div class="form-actions">
                     <button mat-stroked-button type="button" (click)="cancelEditGeneralInfo()">Cancelar</button>
-                    <button mat-flat-button color="primary" type="submit"
+                    <button mat-flat-button color="primary" type="submit" 
                         [disabled]="editGeneralInfoForm.invalid">Guardar Cambios</button>
                 </div>
             </form>

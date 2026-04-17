@@ -39,13 +39,25 @@
     object-fit: cover;
 }
 
+.banner-img-placeholder {
+    opacity: 1;
+    transition: opacity 220ms ease;
+}
+
+.banner-img-placeholder.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
 .banner-img-main {
     opacity: 0;
     transition: opacity 300ms ease;
+    z-index: 1;
 }
 
 .banner-img-main.is-loaded {
-    opacity: 1;
+    opacity: 1 !important;
 }
 
 .banner-overlay {
@@ -102,13 +114,26 @@
     background: white;
 }
 
+.profile-avatar-placeholder {
+    opacity: 1;
+    transition: opacity 220ms ease;
+}
+
+.profile-avatar-placeholder.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
 .profile-avatar-main {
     opacity: 0;
     transition: opacity 300ms ease;
+    z-index: 2;
+    background: #fff;
 }
 
 .profile-avatar-main.is-loaded {
-    opacity: 1;
+    opacity: 1 !important;
 }
 
 .image-obfuscation {
@@ -121,6 +146,9 @@
 
 .image-obfuscation.is-hidden {
     opacity: 0;
+    visibility: hidden;
+    backdrop-filter: none;
+    pointer-events: none;
 }
 
 .banner-obfuscation {
@@ -138,8 +166,8 @@
 
 .status-badge {
     position: absolute;
-    bottom: 10px;
-    right: 8px;
+    bottom: 4px;
+    right: 0px;
     width: 16px;
     height: 16px;
     border-radius: 50%;
@@ -155,8 +183,8 @@
 
 .add-avatar-badge {
     position: absolute;
-    bottom: 6px;
-    left: 6px;
+    bottom: 0px;
+    left: 10px;
     z-index: 2;
 }
 
@@ -170,6 +198,7 @@
     backdrop-filter: blur(4px);
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18) !important;
     border-radius: 50%;
+
     .mat-icon {
         font-size: 16px;
         width: 16px;
@@ -272,7 +301,8 @@
 .company-chip {
     background-color: var(--corp-color-light) !important;
     color: var(--corp-color) !important;
-    .chip-content{
+
+    .chip-content {
         display: flex;
         flex-direction: row;
         align-items: center;

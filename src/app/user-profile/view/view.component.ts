@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ObjectUploadService, UserProfile, UserProfileService } from 'shared-utils';
+import { ObjectUploadService, UserProfile, UserProfileService, UserImageProfile, UserStateService } from 'shared-utils';
 
 const PATH_TYPES = {
   USER_AVATAR: 'user-avatar',
@@ -56,12 +56,16 @@ export class ViewComponent implements OnInit {
       { tipo: 'LinkedIn', enlace: 'https://www.linkedin.com/in/usuario' },
       { tipo: 'Twitter', enlace: 'https://twitter.com/usuario' }
     ],
-    avatar: {
-      name: 'Avatar Name',
-      urls: {
-        sm: 'https://i.pravatar.cc/50?img=3',
-        md: 'https://i.pravatar.cc/50?img=3',
-        lg: 'https://images.unsplash.com/photo-1557683316-973673baf926?w=1200'
+    assets: {
+      avatar: {
+        sm: { format: 'png', headers: '', height: 50, width: 50, path: DEFAULT_AVATAR_IMAGE },
+        md: { format: 'png', headers: '', height: 100, width: 100, path: DEFAULT_AVATAR_IMAGE },
+        lg: { format: 'png', headers: '', height: 200, width: 200, path: DEFAULT_AVATAR_IMAGE }
+      },
+      banner: {
+        sm: { format: 'png', headers: '', height: 100, width: 300, path: DEFAULT_BANNER_IMAGE },
+        md: { format: 'png', headers: '', height: 200, width: 600, path: DEFAULT_BANNER_IMAGE },
+        lg: { format: 'png', headers: '', height: 400, width: 1200, path: DEFAULT_BANNER_IMAGE }
       }
     },
     cargo: 'Cargo en la Empresa',
@@ -73,7 +77,8 @@ export class ViewComponent implements OnInit {
     private router: Router,
     private fb: FormBuilder,
     private userProfileService: UserProfileService,
-    private objectUploadService: ObjectUploadService
+    private objectUploadService: ObjectUploadService,
+    private userStateService: UserStateService
   ) {
     this.editGeneralInfoForm = this.fb.group({
       nombres: ['', Validators.required],
@@ -84,6 +89,65 @@ export class ViewComponent implements OnInit {
       telefono: ['', Validators.required],
       ubicacion: ['', Validators.required],
     });
+  }
+
+  ngOnInit(): void {
+    this.setAvatarImage(this.userProfile.assets.avatar.md.path);
+    this.setBannerImage(this.userProfile.assets.banner.lg.path);
+
+    this.userStateService.patch({ status: 'LOADING' });
+
+    console.log('Obteniendo perfil del usuario...');
+    this.userProfileService.getUserProfile()
+      .then((profile: UserProfile) => {
+
+        console.log('Perfil del usuario:', profile);
+        this.userProfile.username = profile.username;
+        this.userProfile.nombreCompleto = profile.nombreCompleto;
+        this.userProfile.nombre = profile.nombre;
+        this.userProfile.datosContacto = profile.datosContacto;
+        this.userProfile.rrss = profile.rrss;
+        this.userProfile.cargo = profile.cargo;
+        this.userProfile.telefono = profile.telefono;
+        this.userProfile.ubicacion = profile.ubicacion;
+
+        this.userStateService.patch({
+          username: profile.username,
+          NombreCompleto: profile.nombreCompleto,
+          email: profile.datosContacto?.correo || ''
+        });
+
+        this.syncFormWithProfile();
+      }).catch((err: any) => {
+        console.error('Error al obtener el perfil del usuario:', err);
+        this.userStateService.setStatus('ERROR');
+      });
+
+    this.userProfileService.getUserImage(this.apiBase)
+      .then((imageUrl: UserImageProfile) => {
+        this.userProfile.assets.avatar = imageUrl.avatar;
+        this.userProfile.assets.banner = imageUrl.banner;
+        this.setAvatarImage(imageUrl.avatar.md.path || imageUrl.avatar.sm.path);
+        this.setBannerImage(imageUrl.banner.lg.path || imageUrl.banner.md.path || imageUrl.banner.sm.path);
+
+        this.userStateService.setAvatar({
+          small: imageUrl.avatar.sm.path,
+          medium: imageUrl.avatar.md.path,
+          large: imageUrl.avatar.lg.path
+        });
+
+        this.userStateService.setBanner({
+          small: imageUrl.banner.sm.path,
+          medium: imageUrl.banner.md.path,
+          large: imageUrl.banner.lg.path
+        });
+
+        this.userStateService.setStatus('READY');
+      }).catch((err: any) => {
+        console.warn('Usuario sin imagen', err);
+        this.userStateService.setStatus('READY');
+      });
+    this.syncFormWithProfile();
   }
 
   logout() {
@@ -128,6 +192,21 @@ export class ViewComponent implements OnInit {
       formValue.apellidoPaterno,
       formValue.apellidoMaterno,
     ].filter(Boolean).join(' ');
+
+    this.userProfileService.updateUserProfile(this.apiBase, this.userProfile)
+      .then(() => {
+        console.log('Perfil actualizado exitosamente');
+
+        this.userStateService.patch({
+          username: this.userProfile.username,
+          NombreCompleto: this.userProfile.nombreCompleto,
+          email: this.userProfile.datosContacto?.correo || ''
+        });
+      })
+      .catch((err: any) => {
+        console.error('Error updating user profile:', err);
+      });
+
 
     this.showEditGeneralInfoForm = false;
   }
@@ -224,9 +303,10 @@ export class ViewComponent implements OnInit {
         return;
       }
 
-      this.userProfile.avatar.urls.sm = imageDataUrl;
-      this.userProfile.avatar.urls.md = imageDataUrl;
+      this.userProfile.assets.avatar.sm.path = imageDataUrl;
+      this.userProfile.assets.avatar.md.path = imageDataUrl;
       this.setAvatarImage(imageDataUrl);
+      this.userStateService.setAvatar(imageDataUrl);
     };
     reader.readAsDataURL(file);
   }
@@ -239,8 +319,9 @@ export class ViewComponent implements OnInit {
         return;
       }
 
-      this.userProfile.avatar.urls.lg = imageDataUrl;
+      this.userProfile.assets.banner.lg.path = imageDataUrl;
       this.setBannerImage(imageDataUrl);
+      this.userStateService.setBanner(imageDataUrl);
     };
     reader.readAsDataURL(file);
   }
@@ -293,51 +374,4 @@ export class ViewComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
-    this.setAvatarImage(this.userProfile.avatar.urls.md);
-    this.setBannerImage(this.userProfile.avatar.urls.lg);
-
-    console.log('Obteniendo perfil del usuario...');
-    this.userProfileService.getUserProfile(this.apiBase, 'correo')
-      .then((profile: UserProfile) => {
-
-        console.log('Perfil del usuario:', profile);
-        this.userProfile.username = profile.username;
-        this.userProfile.nombreCompleto = profile.nombreCompleto;
-        this.userProfile.nombre = profile.nombre;
-        this.userProfile.datosContacto = profile.datosContacto;
-        this.userProfile.rrss = profile.rrss;
-        if (profile.avatar?.urls) {
-          this.userProfile.avatar = profile.avatar;
-          this.setAvatarImage(profile.avatar.urls.md || profile.avatar.urls.sm);
-          this.setBannerImage(profile.avatar.urls.lg);
-        }
-        this.userProfile.cargo = profile.cargo;
-        this.userProfile.telefono = profile.telefono;
-        this.userProfile.ubicacion = profile.ubicacion;
-        this.syncFormWithProfile();
-
-        // Aquí puedes asignar los datos del perfil a las variables para mostrarlos en la vista
-      }).catch((err: any) => {
-        console.error('Error al obtener el perfil del usuario:', err);
-      });
-
-    this.userProfileService.getUserImage(this.apiBase).then((imageUrl: string) => {
-      console.log('URL de la imagen del usuario:', imageUrl);
-      this.setAvatarImage(imageUrl);
-    }).catch((err: any) => {
-      console.error('Error al obtener la imagen del usuario:', err);
-    });
-
-    this.syncFormWithProfile();
-  }
-
-  loadUserProfile() {
-    this.userProfileService.getUserProfile(this.apiBase, 'correo').then((profile: any) => {
-      console.log('Perfil del usuario:', profile);
-      // Aquí puedes asignar los datos del perfil a las variables para mostrarlos en la vista
-    }).catch((err: any) => {
-      console.error('Error al obtener el perfil del usuario:', err);
-    });
-  }
 }
