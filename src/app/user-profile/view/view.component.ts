@@ -306,7 +306,7 @@ export class ViewComponent implements OnInit {
       this.userProfile.assets.avatar.sm.path = imageDataUrl;
       this.userProfile.assets.avatar.md.path = imageDataUrl;
       this.setAvatarImage(imageDataUrl);
-      this.userStateService.setAvatar(imageDataUrl);
+      this.userStateService.setAvatar({ small: imageDataUrl, medium: imageDataUrl, large: imageDataUrl });
     };
     reader.readAsDataURL(file);
   }
@@ -321,7 +321,7 @@ export class ViewComponent implements OnInit {
 
       this.userProfile.assets.banner.lg.path = imageDataUrl;
       this.setBannerImage(imageDataUrl);
-      this.userStateService.setBanner(imageDataUrl);
+      this.userStateService.setBanner({ small: imageDataUrl, medium: imageDataUrl, large: imageDataUrl });
     };
     reader.readAsDataURL(file);
   }
