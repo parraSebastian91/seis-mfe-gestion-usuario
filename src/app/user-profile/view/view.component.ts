@@ -34,6 +34,12 @@ export class ViewComponent implements OnInit {
   showEditGeneralInfoForm: boolean = false;
   editGeneralInfoForm!: FormGroup;
 
+  defaultAsset = {
+    sm: { format: 'png', headers: '', height: 50, width: 50, path: DEFAULT_AVATAR_IMAGE },
+    md: { format: 'png', headers: '', height: 100, width: 100, path: DEFAULT_AVATAR_IMAGE },
+    lg: { format: 'png', headers: '', height: 200, width: 200, path: DEFAULT_AVATAR_IMAGE }
+  }
+
   userProfile: UserProfile = {
     username: 'username',
     nombreCompleto: 'Nombre Completo',
@@ -127,20 +133,24 @@ export class ViewComponent implements OnInit {
       .then((imageUrl: UserImageProfile) => {
         this.userProfile.assets.avatar = imageUrl.avatar;
         this.userProfile.assets.banner = imageUrl.banner;
-        this.setAvatarImage(imageUrl.avatar.md.path || imageUrl.avatar.sm.path);
-        this.setBannerImage(imageUrl.banner.lg.path || imageUrl.banner.md.path || imageUrl.banner.sm.path);
 
-        this.userStateService.setAvatar({
-          small: imageUrl.avatar.sm.path,
-          medium: imageUrl.avatar.md.path,
-          large: imageUrl.avatar.lg.path
-        });
+        if (imageUrl.avatar.sm) {
+          this.setAvatarImage(imageUrl.avatar.md.path || imageUrl.avatar.sm.path);
+          this.userStateService.setAvatar({
+            small: imageUrl.avatar.sm.path,
+            medium: imageUrl.avatar.md.path,
+            large: imageUrl.avatar.lg.path
+          });
+        }
 
-        this.userStateService.setBanner({
-          small: imageUrl.banner.sm.path,
-          medium: imageUrl.banner.md.path,
-          large: imageUrl.banner.lg.path
-        });
+        if (imageUrl.banner.sm) {
+          this.setBannerImage(imageUrl.banner.lg.path || imageUrl.banner.md.path || imageUrl.banner.sm.path);
+          this.userStateService.setBanner({
+            small: imageUrl.banner.sm.path,
+            medium: imageUrl.banner.md.path,
+            large: imageUrl.banner.lg.path
+          });
+        }
 
         this.userStateService.setStatus('READY');
       }).catch((err: any) => {
@@ -302,7 +312,9 @@ export class ViewComponent implements OnInit {
       if (!imageDataUrl) {
         return;
       }
-
+      if (!this.userProfile.assets.avatar.sm) {
+        this.userProfile.assets.avatar = this.defaultAsset;
+      }
       this.userProfile.assets.avatar.sm.path = imageDataUrl;
       this.userProfile.assets.avatar.md.path = imageDataUrl;
       this.setAvatarImage(imageDataUrl);

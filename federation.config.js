@@ -8,8 +8,8 @@ module.exports = withNativeFederation({
   exposes: {
     './UserProfileRoutingModule': 'projects/seis-mfe-gestion-usuario/src/app/user-profile/user-profile-routing.module.ts',
   },
-  
-    shared: sharedConfig,
+
+  shared: sharedConfig,
 
   // shared: {
   //   ...shareAll({ singleton: true, strictVersion: true, requiredVersion: 'auto' }),
@@ -26,5 +26,5 @@ module.exports = withNativeFederation({
 
   // Please read our FAQ about sharing libs:
   // https://shorturl.at/jmzH0
-  
+
 });
