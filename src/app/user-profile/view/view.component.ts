@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ObjectUploadService, UserProfile, UserProfileService, UserImageProfile, UserStateService } from 'shared-utils';
+import { SesionService } from '../../../../../seis-portal/src/app/service/sesion.service';
+import { environment } from '../../../../../seis-portal/src/environments/environment.development';
 
 const PATH_TYPES = {
   USER_AVATAR: 'user-avatar',
@@ -84,7 +86,8 @@ export class ViewComponent implements OnInit {
     private fb: FormBuilder,
     private userProfileService: UserProfileService,
     private objectUploadService: ObjectUploadService,
-    private userStateService: UserStateService
+    private userStateService: UserStateService,
+    private _sesionService: SesionService
   ) {
     this.editGeneralInfoForm = this.fb.group({
       nombres: ['', Validators.required],
@@ -160,9 +163,13 @@ export class ViewComponent implements OnInit {
     this.syncFormWithProfile();
   }
 
-  logout() {
-    // Aquí puedes agregar la lógica para cerrar sesión, como limpiar tokens, redirigir, etc.
-    console.log('Cerrar sesión');
+  async logout(): Promise<void> {
+    try {
+      await this._sesionService.logout();
+      window.location.href = environment.appLogin;
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
   }
 
   goTo(edit: string) {
@@ -248,18 +255,11 @@ export class ViewComponent implements OnInit {
     this.previewBanner(file);
 
     try {
-      const presignedUrl = await this.objectUploadService.getPresignedPutUrl(this.apiBase, PATH_TYPES.USER_BANNER, file.name, file.type);
-      if (presignedUrl?.url) {
-        console.log(file);
-        await this.objectUploadService.uploadToPresignedUrl(presignedUrl.url, file).then(() => {
-          // this.userProfile.avatar.urls.sm = presignedUrl.url.split('?')[0];
-          // this.userProfile.avatar.urls.md = presignedUrl.url.split('?')[0];
-        }).catch((err) => {
-          console.error('Error al subir la imagen al presigned URL:', err);
-        });
-      }
+      await this.objectUploadService.uploadFileUsingPresignedUrl(this.apiBase, PATH_TYPES.USER_BANNER, file, this.userProfile.username);
+
+
     } catch (err) {
-      console.error('Error al cargar avatar:', err);
+      console.error('Error al cargar banner:', err);
     } finally {
       input.value = '';
     }
@@ -288,16 +288,7 @@ export class ViewComponent implements OnInit {
     this.previewAvatar(file);
 
     try {
-      const presignedUrl = await this.objectUploadService.getPresignedPutUrl(this.apiBase, PATH_TYPES.USER_AVATAR, file.name, file.type);
-      if (presignedUrl?.url) {
-        console.log(file);
-        await this.objectUploadService.uploadToPresignedUrl(presignedUrl.url, file).then(() => {
-          // this.userProfile.avatar.urls.sm = presignedUrl.url.split('?')[0];
-          // this.userProfile.avatar.urls.md = presignedUrl.url.split('?')[0];
-        }).catch((err) => {
-          console.error('Error al subir la imagen al presigned URL:', err);
-        });
-      }
+      await this.objectUploadService.uploadFileUsingPresignedUrl(this.apiBase, PATH_TYPES.USER_AVATAR, file, this.userProfile.username);
     } catch (err) {
       console.error('Error al cargar avatar:', err);
     } finally {

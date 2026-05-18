@@ -10,6 +10,9 @@
             <button mat-mini-fab color="basic" class="edit-banner-btn" (click)="openAvatarFilePicker(bannerFileInput)">
                 <mat-icon>photo_camera</mat-icon>
             </button>
+            <button mat-mini-fab color="basic" class="logout-btn" (click)="logout()">
+                <mat-icon>logout</mat-icon>
+            </button>
             <input #bannerFileInput type="file" accept="image/*" class="hidden-file-input"
                 (change)="onBannerFileSelected($event)" />
         </div>

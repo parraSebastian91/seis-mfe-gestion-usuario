@@ -17,6 +17,17 @@ module.exports = withNativeFederation({
   // },
 
   skip: [
+    '@angular/material',
+    '@angular/material-moment-adapter',
+    '@angular/material/core',
+    '@angular/material/datepicker',
+    '@angular/material/form-field',
+    '@angular/material/input',
+    '@angular/material/icon',
+    '@angular/cdk',
+    '@angular/cdk/overlay',
+    '@angular/cdk/portal',
+    '@angular/cdk/a11y',
     'rxjs/ajax',
     'rxjs/fetch',
     'rxjs/testing',
