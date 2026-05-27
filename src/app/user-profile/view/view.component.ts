@@ -44,6 +44,7 @@ export class ViewComponent implements OnInit {
 
   userProfile: UserProfile = {
     username: 'username',
+    usuarioUUID: 'usuarioUUID',
     nombreCompleto: 'Nombre Completo',
     nombre: {
       nombres: 'Nombres',
