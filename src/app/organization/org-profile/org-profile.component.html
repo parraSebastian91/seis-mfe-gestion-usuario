@@ -1,0 +1,362 @@
+<!-- ── Loading / Error global ──────────────────────────────────────────────── -->
+<div *ngIf="loading" class="page-state" aria-busy="true" aria-live="polite">
+  <mat-spinner diameter="56"></mat-spinner>
+  <p>Cargando perfil…</p>
+</div>
+
+<div *ngIf="!loading && error" class="page-state page-state--error" role="alert">
+  <mat-icon color="warn">error_outline</mat-icon>
+  <p>{{ error }}</p>
+  <button mat-stroked-button (click)="loadOrg()">Reintentar</button>
+</div>
+
+<!-- ══ Perfil ═══════════════════════════════════════════════════════════════ -->
+<ng-container *ngIf="!loading && !error && org">
+
+  <!-- ── Banner ──────────────────────────────────────────────────────────── -->
+  <div
+    class="banner-wrap"
+    [class.banner-wrap--uploading]="uploadingBanner"
+    [style.backgroundImage]="org.bannerUrl ? 'url(' + org.bannerUrl + ')' : null">
+
+    <!-- Upload overlay -->
+    <div *ngIf="uploadingBanner" class="upload-overlay" aria-live="polite">
+      <mat-spinner diameter="40" color="accent"></mat-spinner>
+      <span>Subiendo banner…</span>
+    </div>
+
+    <!-- Admin: camera button -->
+    <label *ngIf="isAdmin" class="banner-camera-btn" matTooltip="Cambiar banner"
+           role="button" tabindex="0" aria-label="Cambiar banner de la organización">
+      <mat-icon>photo_camera</mat-icon>
+      <input type="file" accept="image/jpeg,image/png,image/webp" hidden
+             (change)="onBannerSelected($event)">
+    </label>
+
+    <!-- Admin: Gestionar org button -->
+    <button *ngIf="isAdmin" mat-flat-button color="primary"
+            class="gestionar-btn" (click)="goToGestor()">
+      <mat-icon>settings</mat-icon>
+      Gestionar organización
+    </button>
+  </div>
+
+  <!-- ── Identity row ────────────────────────────────────────────────────── -->
+  <div class="identity-row">
+
+    <!-- Logo -->
+    <div class="logo-wrap" [class.logo-wrap--uploading]="uploadingLogo">
+      <img *ngIf="org.logoUrl && !uploadingLogo"
+           [src]="org.logoUrl" [alt]="org.razonSocial + ' logo'" class="org-logo">
+      <div *ngIf="!org.logoUrl && !uploadingLogo" class="logo-placeholder" aria-hidden="true">
+        {{ getInitials(org.razonSocial) }}
+      </div>
+      <mat-spinner *ngIf="uploadingLogo" diameter="32"></mat-spinner>
+      <label *ngIf="isAdmin" class="logo-camera-btn" matTooltip="Cambiar logo"
+             role="button" tabindex="0" aria-label="Cambiar logo de la organización">
+        <mat-icon>photo_camera</mat-icon>
+        <input type="file" accept="image/jpeg,image/png,image/webp" hidden
+               (change)="onLogoSelected($event)">
+      </label>
+    </div>
+
+    <div class="identity-text">
+      <h1 class="org-name">{{ org.razonSocial }}</h1>
+      <span class="tipo-badge" [class]="'tipo-badge--' + org.tipo.toLowerCase()">
+        {{ org.tipo }}
+      </span>
+    </div>
+  </div>
+
+  <!-- ── Descripción institucional ───────────────────────────────────────── -->
+  <section class="description-section" aria-label="Descripción institucional">
+
+    <!-- Admin editing state -->
+    <div *ngIf="editingDescription" class="description-edit">
+      <textarea
+        class="description-textarea"
+        [(ngModel)]="descriptionDraft"
+        rows="5"
+        placeholder="Describe tu organización…"
+        aria-label="Descripción de la organización">
+      </textarea>
+      <p *ngIf="descriptionError" class="inline-error" role="alert">{{ descriptionError }}</p>
+      <div class="description-actions">
+        <button mat-button (click)="cancelDescription()">Cancelar</button>
+        <button mat-flat-button color="primary" [disabled]="savingDescription" (click)="saveDescription()">
+          <mat-spinner *ngIf="savingDescription" diameter="16" class="btn-spinner"></mat-spinner>
+          <span *ngIf="!savingDescription">Guardar</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Read state with text -->
+    <div *ngIf="!editingDescription && org.descripcion" class="description-read"
+         [class.description-read--admin]="isAdmin">
+      <p>{{ org.descripcion }}</p>
+      <button *ngIf="isAdmin" mat-icon-button class="edit-btn" matTooltip="Editar descripción"
+              aria-label="Editar descripción" (click)="openEditDescription()">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </div>
+
+    <!-- Empty state for admins -->
+    <div *ngIf="!editingDescription && !org.descripcion && isAdmin" class="description-empty">
+      <p>Agrega una descripción para presentar tu organización.</p>
+      <button mat-stroked-button (click)="openEditDescription()">
+        <mat-icon>add</mat-icon>
+        Agregar descripción
+      </button>
+    </div>
+    <!-- No-admin empty state: renderiza nada -->
+  </section>
+
+  <!-- ── Body grid ───────────────────────────────────────────────────────── -->
+  <div class="body-grid">
+
+    <!-- ── Columna izquierda ─────────────────────────────────────────────── -->
+    <aside class="left-col">
+
+      <!-- Datos de la empresa -->
+      <mat-card class="data-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>business</mat-icon>
+            Datos de la empresa
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <ul class="data-list" aria-label="Datos de la empresa">
+            <li>
+              <mat-icon aria-hidden="true">badge</mat-icon>
+              <span>{{ org.rut }}</span>
+            </li>
+            <li>
+              <mat-icon aria-hidden="true">work</mat-icon>
+              <span>{{ org.razonSocial }}</span>
+            </li>
+            <li>
+              <mat-icon aria-hidden="true">location_on</mat-icon>
+              <span>{{ formatAddress(org.direccionTributaria) }}</span>
+            </li>
+          </ul>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Ecosistema Digital -->
+      <mat-card class="data-card ecosystem-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>public</mat-icon>
+            Ecosistema Digital
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+
+          <!-- Links list -->
+          <div class="links-list" *ngIf="(org.ecosistemaDigital?.length ?? 0) > 0; else noLinks">
+            <div
+              *ngFor="let link of org.ecosistemaDigital; let i = index"
+              class="link-chip"
+              [class.link-chip--admin]="isAdmin">
+              <a [href]="link.url" target="_blank" rel="noopener noreferrer" class="link-anchor"
+                 [attr.aria-label]="LINK_TIPO_LABELS[link.tipo] + ': ' + link.url">
+                <mat-icon>{{ LINK_TIPO_ICONS[link.tipo] }}</mat-icon>
+                <span>{{ LINK_TIPO_LABELS[link.tipo] }}</span>
+              </a>
+              <div *ngIf="isAdmin" class="link-actions">
+                <button mat-icon-button aria-label="Editar enlace" (click)="openEditLink(i)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button aria-label="Eliminar enlace" (click)="removeLink(i)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <ng-template #noLinks>
+            <p class="empty-text" *ngIf="!showAddLinkForm">Sin enlaces registrados.</p>
+          </ng-template>
+
+          <!-- Add/edit link form -->
+          <div *ngIf="showAddLinkForm" class="link-form" [formGroup]="linkForm">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Tipo de enlace</mat-label>
+              <mat-select formControlName="tipo">
+                <mat-option *ngFor="let t of LINK_TIPO_OPTS" [value]="t">{{ LINK_TIPO_LABELS[t] }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>URL</mat-label>
+              <input matInput formControlName="url" placeholder="https://">
+              <mat-error *ngIf="linkForm.get('url')?.errors?.['required']">Requerido.</mat-error>
+              <mat-error *ngIf="linkForm.get('url')?.errors?.['pattern']">Debe comenzar con https://</mat-error>
+            </mat-form-field>
+            <p *ngIf="linkError" class="inline-error" role="alert">{{ linkError }}</p>
+            <div class="link-form-actions">
+              <button mat-button (click)="cancelLink()">Cancelar</button>
+              <button mat-flat-button color="primary"
+                      [disabled]="linkForm.invalid || savingLink" (click)="saveLink()">
+                <mat-spinner *ngIf="savingLink" diameter="16" class="btn-spinner"></mat-spinner>
+                <span *ngIf="!savingLink">Guardar</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Admin add button -->
+          <button *ngIf="isAdmin && !showAddLinkForm" mat-stroked-button class="add-link-btn"
+                  (click)="openAddLink()">
+            <mat-icon>add</mat-icon>
+            Agregar link
+          </button>
+        </mat-card-content>
+      </mat-card>
+
+    </aside>
+
+    <!-- ── Columna derecha ───────────────────────────────────────────────── -->
+    <section class="right-col" aria-label="Grupos de trabajo y colaboradores">
+
+      <div class="panel-header">
+        <h2 class="panel-title">
+          <mat-icon>groups</mat-icon>
+          Grupos de trabajo y colaboradores
+        </h2>
+        <button *ngIf="isAdmin" mat-stroked-button (click)="goToGestor()">
+          <mat-icon>settings</mat-icon>
+          Gestionar grupos
+        </button>
+      </div>
+
+      <!-- Loading groups -->
+      <div *ngIf="loadingGroups" class="groups-loading" aria-busy="true">
+        <mat-spinner diameter="32"></mat-spinner>
+      </div>
+
+      <!-- Empty state -->
+      <div *ngIf="!loadingGroups && groups.length === 0" class="groups-empty">
+        <mat-icon>group_off</mat-icon>
+        <p>Esta organización aún no tiene grupos de trabajo.</p>
+        <button *ngIf="isAdmin" mat-stroked-button (click)="goToGestor()">
+          <mat-icon>add</mat-icon>
+          Crear primer grupo
+        </button>
+      </div>
+
+      <!-- Groups accordion -->
+      <mat-accordion *ngIf="!loadingGroups && groups.length > 0" class="groups-accordion">
+        <mat-expansion-panel
+          *ngFor="let group of groups; trackBy: trackById"
+          [expanded]="group.expanded"
+          (opened)="group.expanded = true"
+          (closed)="group.expanded = false"
+          class="group-panel">
+
+          <mat-expansion-panel-header>
+            <mat-panel-title class="group-panel-title">
+              {{ group.nombre }}
+            </mat-panel-title>
+            <mat-panel-description class="group-panel-desc">
+              {{ group.miembros.length + 1 }} miembro{{ group.miembros.length + 1 !== 1 ? 's' : '' }}
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <!-- Leader card -->
+          <div class="leader-card">
+            <div class="leader-info">
+              <div class="member-avatar leader-avatar"
+                   (click)="goToMemberProfile(group.lider.username)"
+                   role="link" tabindex="0"
+                   (keydown.enter)="goToMemberProfile(group.lider.username)"
+                   [attr.aria-label]="'Ver perfil de ' + group.lider.nombre">
+                <img *ngIf="group.lider.avatarUrl" [src]="group.lider.avatarUrl"
+                     [alt]="group.lider.nombre + ' ' + group.lider.apellido" class="avatar-img">
+                <span *ngIf="!group.lider.avatarUrl" class="avatar-initials">
+                  {{ getInitials(group.lider.nombre + ' ' + group.lider.apellido) }}
+                </span>
+              </div>
+              <div class="leader-text">
+                <span class="member-name"
+                      (click)="goToMemberProfile(group.lider.username)"
+                      role="link" tabindex="0"
+                      (keydown.enter)="goToMemberProfile(group.lider.username)">
+                  {{ group.lider.nombre }} {{ group.lider.apellido }}
+                </span>
+                <span class="member-cargo">{{ group.lider.cargo ?? 'Líder de Grupo' }}</span>
+              </div>
+              <span class="crown-badge" aria-label="Líder de grupo">👑</span>
+            </div>
+
+            <!-- Admin: change leader -->
+            <ng-container *ngIf="isAdmin">
+              <button *ngIf="!group.changingLeader" mat-button color="primary"
+                      class="change-leader-btn" (click)="openChangeLeader(group)">
+                <mat-icon>swap_horiz</mat-icon>
+                Cambiar líder
+              </button>
+
+              <div *ngIf="group.changingLeader" class="change-leader-form">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Nuevo líder</mat-label>
+                  <mat-select [(ngModel)]="group.selectedNewLeader">
+                    <mat-option
+                      *ngFor="let m of group.leaderCandidates"
+                      [value]="m.id">
+                      {{ m.nombre }} {{ m.apellido }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <div class="change-leader-actions">
+                  <button mat-button (click)="cancelChangeLeader(group)">Cancelar</button>
+                  <button mat-flat-button color="primary"
+                          [disabled]="group.savingLeader" (click)="saveNewLeader(group)">
+                    <mat-spinner *ngIf="group.savingLeader" diameter="16" class="btn-spinner"></mat-spinner>
+                    <span *ngIf="!group.savingLeader">Confirmar</span>
+                  </button>
+                </div>
+              </div>
+            </ng-container>
+          </div>
+
+          <!-- Members grid -->
+          <div class="members-grid" *ngIf="group.miembros.length > 0">
+            <div
+              *ngFor="let m of group.miembros; trackBy: trackById"
+              class="member-chip"
+              (click)="goToMemberProfile(m.username)"
+              role="link" tabindex="0"
+              (keydown.enter)="goToMemberProfile(m.username)"
+              [attr.aria-label]="'Ver perfil de ' + m.nombre + ' ' + m.apellido">
+              <div class="member-avatar">
+                <img *ngIf="m.avatarUrl" [src]="m.avatarUrl"
+                     [alt]="m.nombre + ' ' + m.apellido" class="avatar-img">
+                <span *ngIf="!m.avatarUrl" class="avatar-initials">
+                  {{ getInitials(m.nombre + ' ' + m.apellido) }}
+                </span>
+              </div>
+              <span class="member-name">{{ m.nombre }} {{ m.apellido }}</span>
+              <span *ngIf="m.cargo" class="member-cargo">{{ m.cargo }}</span>
+            </div>
+          </div>
+
+        </mat-expansion-panel>
+      </mat-accordion>
+
+    </section>
+  </div>
+
+  <!-- ── Publicaciones (No MVP) ─────────────────────────────────────────── -->
+  <!-- TODO: MVP siguiente fase -->
+  <section class="publications-section" aria-label="Publicaciones de la organización">
+    <h2 class="panel-title">
+      <mat-icon>article</mat-icon>
+      Publicaciones
+    </h2>
+    <div class="publications-empty">
+      <mat-icon class="pub-icon">description</mat-icon>
+      <p>No hay publicaciones de esta organización.</p>
+    </div>
+  </section>
+
+</ng-container>
