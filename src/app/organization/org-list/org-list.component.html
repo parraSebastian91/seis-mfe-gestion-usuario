@@ -1,0 +1,99 @@
+<div class="org-list-container">
+
+  <!-- ── Header ───────────────────────────────────────────────── -->
+  <div class="org-list-header">
+    <div>
+      <h1 class="org-list-title">Mis Organizaciones</h1>
+      <p class="org-list-subtitle">Gestiona las organizaciones a las que perteneces.</p>
+    </div>
+    <button mat-flat-button color="primary" (click)="goToWizard()">
+      <mat-icon>add</mat-icon>
+      Nueva organización
+    </button>
+  </div>
+
+  <!-- ── Loading ──────────────────────────────────────────────── -->
+  <div *ngIf="loading" class="state-container" aria-live="polite" aria-busy="true">
+    <mat-spinner diameter="48"></mat-spinner>
+    <p>Cargando organizaciones…</p>
+  </div>
+
+  <!-- ── Error ────────────────────────────────────────────────── -->
+  <div *ngIf="!loading && error" class="state-container error-state" role="alert">
+    <mat-icon color="warn">error_outline</mat-icon>
+    <p>{{ error }}</p>
+    <button mat-stroked-button (click)="loadOrganizations()">Reintentar</button>
+  </div>
+
+  <!-- ── Empty state ──────────────────────────────────────────── -->
+  <div *ngIf="!loading && !error && organizations.length === 0" class="state-container empty-state">
+    <mat-icon class="empty-icon">business</mat-icon>
+    <h2>Aún no tienes organizaciones</h2>
+    <p>Crea tu primera organización para comenzar a operar en la plataforma.</p>
+    <button mat-flat-button color="primary" (click)="goToWizard()">
+      <mat-icon>add</mat-icon>
+      Crear organización
+    </button>
+  </div>
+
+  <!-- ── Org grid ─────────────────────────────────────────────── -->
+  <div *ngIf="!loading && !error && organizations.length > 0" class="orgs-grid">
+    <mat-card
+      *ngFor="let org of organizations"
+      class="org-card"
+      role="button"
+      tabindex="0"
+      (click)="goToOrg(org.id)"
+      (keydown.enter)="goToOrg(org.id)"
+      (keydown.space)="goToOrg(org.id)"
+      [attr.aria-label]="org.nombre">
+
+      <!-- Card header with logo -->
+      <mat-card-header>
+        <img
+          mat-card-avatar
+          [src]="org.logoUrl || 'assets/icons/org-placeholder.svg'"
+          [alt]="org.nombre + ' logo'"
+          class="org-avatar">
+        <mat-card-title>{{ org.nombre }}</mat-card-title>
+        <mat-card-subtitle>{{ org.rut }}</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="chip-row">
+          <span class="tipo-chip" [class]="'tipo-chip--' + org.tipo.toLowerCase()">
+            {{ org.tipo }}
+          </span>
+          <span
+            *ngIf="org.estado === 'ONBOARDING_INCOMPLETO'"
+            class="estado-chip estado-chip--incomplete">
+            <mat-icon>pending</mat-icon>
+            Registro incompleto
+          </span>
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions>
+        <button
+          mat-button
+          color="primary"
+          *ngIf="org.estado === 'ONBOARDING_INCOMPLETO'"
+          (click)="resumeWizard(); $event.stopPropagation()"
+          (keydown.enter)="$event.stopPropagation()"
+          (keydown.space)="$event.stopPropagation()">
+          <mat-icon>play_arrow</mat-icon>
+          Continuar registro
+        </button>
+        <button
+          mat-button
+          (click)="goToOrg(org.id); $event.stopPropagation()"
+          (keydown.enter)="$event.stopPropagation()"
+          (keydown.space)="$event.stopPropagation()">
+          <mat-icon>arrow_forward</mat-icon>
+          Ver perfil
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+</div>

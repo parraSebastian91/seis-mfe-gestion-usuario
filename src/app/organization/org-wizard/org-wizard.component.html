@@ -1,0 +1,387 @@
+<div class="wizard-container">
+
+  <!-- ── Header ──────────────────────────────────────────────────── -->
+  <div class="wizard-header">
+    <h1 class="wizard-title">Crear organización</h1>
+    <p class="wizard-subtitle">Completa los pasos para registrar tu organización en la plataforma.</p>
+  </div>
+
+  <!-- ── Stepper ─────────────────────────────────────────────────── -->
+  <mat-stepper
+    #stepper
+    linear
+    [orientation]="stepperOrientation"
+    class="org-stepper">
+
+    <!-- ════════════════════════════════════════════════════════════
+         Paso 1 — Identidad legal
+    ════════════════════════════════════════════════════════════════ -->
+    <mat-step [stepControl]="step1">
+      <ng-template matStepLabel>Identidad legal</ng-template>
+
+      <form [formGroup]="step1" class="step-form">
+        <h2 class="step-title">
+          <span class="step-num">1</span>
+          Identidad legal
+        </h2>
+
+        <!-- RUT empresa -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>RUT empresa</mat-label>
+          <input
+            matInput
+            formControlName="rut"
+            placeholder="12.345.678-9"
+            maxlength="12"
+            autocomplete="off">
+          <mat-spinner matSuffix *ngIf="siiStatus === 'loading'" diameter="20"></mat-spinner>
+          <mat-icon matSuffix *ngIf="siiStatus === 'success'" class="sii-icon sii-success">check_circle</mat-icon>
+          <mat-icon matSuffix *ngIf="siiStatus === 'warning'" class="sii-icon sii-warning">warning</mat-icon>
+          <mat-icon matSuffix *ngIf="siiStatus === 'error'"   class="sii-icon sii-error">cancel</mat-icon>
+          <mat-error *ngIf="step1.get('rut')?.errors?.['required']">El RUT es requerido.</mat-error>
+          <mat-error *ngIf="step1.get('rut')?.errors?.['invalidRut']">Dígito verificador inválido.</mat-error>
+        </mat-form-field>
+
+        <!-- SII result banner -->
+        <div
+          class="sii-result"
+          *ngIf="siiStatus !== 'idle' && siiStatus !== 'loading'"
+          [class.sii-result--success]="siiStatus === 'success'"
+          [class.sii-result--warning]="siiStatus === 'warning'"
+          [class.sii-result--error]="siiStatus === 'error'"
+          role="status"
+          aria-live="polite">
+          <mat-icon>{{ siiStatus === 'success' ? 'check_circle' : siiStatus === 'warning' ? 'warning' : 'cancel' }}</mat-icon>
+          <span>{{ siiMessage }}</span>
+        </div>
+
+        <!-- Razón social -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Razón social</mat-label>
+          <input matInput formControlName="razonSocial" placeholder="Empresa S.A.">
+          <mat-hint>Pre-rellenada desde el SII si el RUT es válido. Puedes editarla.</mat-hint>
+          <mat-error *ngIf="step1.get('razonSocial')?.errors?.['required']">La razón social es requerida.</mat-error>
+        </mat-form-field>
+
+        <p class="save-error" *ngIf="saveError" role="alert">{{ saveError }}</p>
+
+        <div class="step-actions">
+          <button
+            mat-flat-button
+            color="primary"
+            [disabled]="!canAdvanceStep1 || saving"
+            (click)="advanceStep(0)">
+            <mat-spinner *ngIf="saving" diameter="18" class="btn-spinner"></mat-spinner>
+            <span *ngIf="!saving">Siguiente →</span>
+          </button>
+        </div>
+      </form>
+    </mat-step>
+
+    <!-- ════════════════════════════════════════════════════════════
+         Paso 2 — Dirección tributaria
+    ════════════════════════════════════════════════════════════════ -->
+    <mat-step [stepControl]="step2">
+      <ng-template matStepLabel>Dirección tributaria</ng-template>
+
+      <form [formGroup]="step2" class="step-form">
+        <h2 class="step-title">
+          <span class="step-num">2</span>
+          Dirección tributaria
+        </h2>
+
+        <!-- Calle + Número -->
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="field-grow">
+            <mat-label>Calle</mat-label>
+            <input matInput formControlName="calle">
+            <mat-error>Requerido.</mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="field-num">
+            <mat-label>Número</mat-label>
+            <input matInput formControlName="numero">
+            <mat-error>Requerido.</mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Depto + Tipo de dirección -->
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="field-grow">
+            <mat-label>Depto / Oficina</mat-label>
+            <input matInput formControlName="depto" placeholder="Opcional">
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="field-grow">
+            <mat-label>Tipo de dirección</mat-label>
+            <mat-select formControlName="tipoDireccion">
+              <mat-option *ngFor="let t of TIPO_DIRECCION_OPTS" [value]="t">{{ t }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- País -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>País</mat-label>
+          <mat-select formControlName="pais">
+            <mat-option value="CL">Chile</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Región -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Región</mat-label>
+          <mat-select formControlName="region">
+            <mat-option *ngIf="loadingRegiones" disabled>Cargando…</mat-option>
+            <mat-option *ngFor="let r of regiones" [value]="r.id">{{ r.nombre }}</mat-option>
+          </mat-select>
+          <mat-spinner matSuffix *ngIf="loadingRegiones" diameter="18"></mat-spinner>
+          <mat-error>Requerido.</mat-error>
+        </mat-form-field>
+
+        <!-- Provincia -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Provincia</mat-label>
+          <mat-select formControlName="provincia" [disabled]="!step2.get('region')?.value">
+            <mat-option *ngIf="loadingProvincias" disabled>Cargando…</mat-option>
+            <mat-option *ngFor="let p of provincias" [value]="p.id">{{ p.nombre }}</mat-option>
+          </mat-select>
+          <mat-spinner matSuffix *ngIf="loadingProvincias" diameter="18"></mat-spinner>
+          <mat-error>Requerido.</mat-error>
+        </mat-form-field>
+
+        <!-- Ciudad + Comuna -->
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="field-grow">
+            <mat-label>Ciudad</mat-label>
+            <input matInput formControlName="ciudad">
+            <mat-error>Requerido.</mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="field-grow">
+            <mat-label>Comuna</mat-label>
+            <mat-select formControlName="comuna" [disabled]="!step2.get('provincia')?.value">
+              <mat-option *ngIf="loadingComunas" disabled>Cargando…</mat-option>
+              <mat-option *ngFor="let c of comunas" [value]="c.id">{{ c.nombre }}</mat-option>
+            </mat-select>
+            <mat-spinner matSuffix *ngIf="loadingComunas" diameter="18"></mat-spinner>
+            <mat-error>Requerido.</mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Código postal -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Código postal</mat-label>
+          <input matInput formControlName="codigoPostal" placeholder="Opcional">
+        </mat-form-field>
+
+        <!-- Referencia -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Referencia</mat-label>
+          <textarea matInput formControlName="referencia" rows="2" placeholder="Opcional"></textarea>
+        </mat-form-field>
+
+        <p class="info-hint">
+          <mat-icon>info_outline</mat-icon>
+          Podrás agregar más direcciones desde el perfil de tu organización.
+        </p>
+
+        <p class="save-error" *ngIf="saveError" role="alert">{{ saveError }}</p>
+
+        <div class="step-actions">
+          <button mat-button matStepperPrevious type="button">← Anterior</button>
+          <button
+            mat-flat-button
+            color="primary"
+            [disabled]="!canAdvanceStep2 || saving"
+            (click)="advanceStep(1)">
+            <mat-spinner *ngIf="saving" diameter="18" class="btn-spinner"></mat-spinner>
+            <span *ngIf="!saving">Siguiente →</span>
+          </button>
+        </div>
+      </form>
+    </mat-step>
+
+    <!-- ════════════════════════════════════════════════════════════
+         Paso 3 — Cuenta bancaria (CEDENTE) / Contacto operativo (FINANCIERA / BROKER)
+    ════════════════════════════════════════════════════════════════ -->
+    <mat-step [stepControl]="step3">
+      <ng-template matStepLabel>
+        {{ tipoParticipacion === 'CEDENTE' ? 'Cuenta bancaria' : 'Contacto operativo' }}
+      </ng-template>
+
+      <!-- ── 3a: CEDENTE ──────────────────────────────────────── -->
+      <form [formGroup]="step3Cedente" class="step-form" *ngIf="tipoParticipacion === 'CEDENTE'">
+        <h2 class="step-title">
+          <span class="step-num">3</span>
+          Cuenta bancaria
+        </h2>
+        <p class="step-subtitle">Para recibir los fondos al ceder tus facturas.</p>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Banco</mat-label>
+          <mat-select formControlName="banco">
+            <mat-option *ngIf="bancos.length === 0" disabled>Cargando bancos…</mat-option>
+            <mat-option *ngFor="let b of bancos" [value]="b.id">{{ b.nombre }}</mat-option>
+          </mat-select>
+          <mat-error>Requerido.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Tipo de cuenta</mat-label>
+          <mat-select formControlName="tipoCuenta">
+            <mat-option *ngFor="let t of TIPO_CUENTA_OPTS" [value]="t.value">{{ t.label }}</mat-option>
+          </mat-select>
+          <mat-error>Requerido.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Número de cuenta</mat-label>
+          <input matInput formControlName="numeroCuenta" inputmode="numeric" autocomplete="off">
+          <mat-error *ngIf="step3Cedente.get('numeroCuenta')?.errors?.['required']">Requerido.</mat-error>
+          <mat-error *ngIf="step3Cedente.get('numeroCuenta')?.errors?.['pattern']">Solo se permiten dígitos.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nombre del titular</mat-label>
+          <input matInput formControlName="nombreTitular">
+          <mat-hint>La cuenta no necesita estar a nombre de la empresa.</mat-hint>
+          <mat-error>Requerido.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>RUT del titular</mat-label>
+          <input matInput formControlName="rutTitular" placeholder="12.345.678-9" maxlength="12" autocomplete="off">
+          <mat-error *ngIf="step3Cedente.get('rutTitular')?.errors?.['required']">Requerido.</mat-error>
+          <mat-error *ngIf="step3Cedente.get('rutTitular')?.errors?.['invalidRut']">Dígito verificador inválido.</mat-error>
+        </mat-form-field>
+
+        <p class="save-error" *ngIf="saveError" role="alert">{{ saveError }}</p>
+
+        <div class="step-actions">
+          <button mat-button matStepperPrevious type="button">← Anterior</button>
+          <button
+            mat-flat-button
+            color="primary"
+            [disabled]="!canAdvanceStep3 || saving"
+            (click)="advanceStep(2)">
+            <mat-spinner *ngIf="saving" diameter="18" class="btn-spinner"></mat-spinner>
+            <span *ngIf="!saving">Siguiente →</span>
+          </button>
+        </div>
+      </form>
+
+      <!-- ── 3b: FINANCIERA / BROKER ──────────────────────────── -->
+      <form [formGroup]="step3Financiera" class="step-form" *ngIf="tipoParticipacion !== 'CEDENTE'">
+        <h2 class="step-title">
+          <span class="step-num">3</span>
+          Contacto operativo
+        </h2>
+        <p class="step-subtitle" *ngIf="tipoParticipacion === 'BROKER'" class="warning-text">
+          <mat-icon>warning</mat-icon>
+          El flujo para BROKER está en definición. Completa los datos de contacto por ahora.
+        </p>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Teléfono de operaciones</mat-label>
+          <input matInput formControlName="telefonoOperaciones" placeholder="+56 9 XXXX XXXX">
+          <mat-error>Requerido.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email de operaciones</mat-label>
+          <input matInput formControlName="emailOperaciones" type="email">
+          <mat-error *ngIf="step3Financiera.get('emailOperaciones')?.errors?.['required']">Requerido.</mat-error>
+          <mat-error *ngIf="step3Financiera.get('emailOperaciones')?.errors?.['email']">Email inválido.</mat-error>
+        </mat-form-field>
+
+        <p class="save-error" *ngIf="saveError" role="alert">{{ saveError }}</p>
+
+        <div class="step-actions">
+          <button mat-button matStepperPrevious type="button">← Anterior</button>
+          <button
+            mat-flat-button
+            color="primary"
+            [disabled]="!canAdvanceStep3 || saving"
+            (click)="advanceStep(2)">
+            <mat-spinner *ngIf="saving" diameter="18" class="btn-spinner"></mat-spinner>
+            <span *ngIf="!saving">Siguiente →</span>
+          </button>
+        </div>
+      </form>
+    </mat-step>
+
+    <!-- ════════════════════════════════════════════════════════════
+         Paso 4 — Presentación (opcional)
+    ════════════════════════════════════════════════════════════════ -->
+    <mat-step>
+      <ng-template matStepLabel>Presentación</ng-template>
+
+      <form [formGroup]="step4" class="step-form">
+        <h2 class="step-title">
+          <span class="step-num">4</span>
+          Presentación
+          <span class="optional-tag">opcional</span>
+        </h2>
+        <p class="step-subtitle">Puedes completar esto ahora o hacerlo desde el perfil de tu organización.</p>
+
+        <!-- Logo upload -->
+        <p class="upload-label">Logo de la organización</p>
+        <div class="upload-zone" (click)="logoInput.click()" role="button" tabindex="0"
+             (keydown.enter)="logoInput.click()" (keydown.space)="logoInput.click()"
+             aria-label="Seleccionar logo de la organización">
+          <img *ngIf="logoPreview" [src]="logoPreview" alt="Vista previa del logo" class="upload-preview logo-preview">
+          <div *ngIf="!logoPreview" class="upload-placeholder">
+            <mat-icon>add_photo_alternate</mat-icon>
+            <span>Seleccionar logo</span>
+            <small>JPG, PNG o WebP · máx. 5 MB</small>
+          </div>
+        </div>
+        <input #logoInput type="file" accept="image/jpeg,image/png,image/webp" hidden
+               (change)="onLogoSelected($event)">
+
+        <!-- Banner upload -->
+        <p class="upload-label">Banner de la organización</p>
+        <div class="upload-zone banner-zone" (click)="bannerInput.click()" role="button" tabindex="0"
+             (keydown.enter)="bannerInput.click()" (keydown.space)="bannerInput.click()"
+             aria-label="Seleccionar banner de la organización">
+          <img *ngIf="bannerPreview" [src]="bannerPreview" alt="Vista previa del banner" class="upload-preview banner-preview">
+          <div *ngIf="!bannerPreview" class="upload-placeholder">
+            <mat-icon>panorama</mat-icon>
+            <span>Seleccionar banner</span>
+            <small>JPG, PNG o WebP · máx. 5 MB</small>
+          </div>
+        </div>
+        <input #bannerInput type="file" accept="image/jpeg,image/png,image/webp" hidden
+               (change)="onBannerSelected($event)">
+
+        <!-- Descripción -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Descripción</mat-label>
+          <textarea matInput formControlName="descripcion" rows="4"
+                    placeholder="Cuéntanos brevemente sobre tu organización…"></textarea>
+        </mat-form-field>
+
+        <p class="save-error" *ngIf="saveError" role="alert">{{ saveError }}</p>
+
+        <div class="step-actions">
+          <button mat-button matStepperPrevious type="button">← Anterior</button>
+          <button
+            mat-stroked-button
+            type="button"
+            [disabled]="saving"
+            (click)="finalize(true)">
+            Completar después
+          </button>
+          <button
+            mat-flat-button
+            color="primary"
+            type="button"
+            [disabled]="saving"
+            (click)="finalize(false)">
+            <mat-spinner *ngIf="saving" diameter="18" class="btn-spinner"></mat-spinner>
+            <span *ngIf="!saving">Finalizar</span>
+          </button>
+        </div>
+      </form>
+    </mat-step>
+
+  </mat-stepper>
+</div>

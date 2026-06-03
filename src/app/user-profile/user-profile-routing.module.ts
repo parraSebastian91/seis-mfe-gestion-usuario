@@ -17,6 +17,11 @@ const routes: Routes = [
     component: EditComponent
   },
   {
+    path: 'organizaciones',
+    loadChildren: () =>
+      import('../organization/organization.module').then(m => m.OrganizationModule),
+  },
+  {
     path: '',
     redirectTo: 'perfil',
     pathMatch: 'full'

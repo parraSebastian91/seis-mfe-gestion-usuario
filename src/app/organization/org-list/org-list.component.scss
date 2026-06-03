@@ -1,0 +1,138 @@
+.org-list-container {
+  max-width: 900px;
+  margin: 32px auto;
+  padding: 0 16px 48px;
+}
+
+// ── Header ────────────────────────────────────────────────────────────────────
+
+.org-list-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+
+  .org-list-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin: 0 0 6px;
+    color: var(--mat-sys-on-surface, #1a1a1a);
+  }
+
+  .org-list-subtitle {
+    margin: 0;
+    color: var(--mat-sys-on-surface-variant, #555);
+    font-size: 0.95rem;
+  }
+}
+
+// ── State containers ──────────────────────────────────────────────────────────
+
+.state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 64px 16px;
+  text-align: center;
+  color: var(--mat-sys-on-surface-variant, #555);
+
+  p { margin: 0; font-size: 0.95rem; }
+}
+
+.error-state {
+  mat-icon { font-size: 48px; width: 48px; height: 48px; }
+}
+
+.empty-state {
+  .empty-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    opacity: 0.25;
+    color: var(--mat-sys-on-surface, #1a1a1a);
+  }
+
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--mat-sys-on-surface, #1a1a1a);
+  }
+}
+
+// ── Grid ──────────────────────────────────────────────────────────────────────
+
+.orgs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+// ── Org card ──────────────────────────────────────────────────────────────────
+
+.org-card {
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.1s;
+
+  &:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+  }
+
+  &:focus {
+    outline: 2px solid var(--mat-sys-primary, #1565c0);
+    outline-offset: 2px;
+  }
+
+  .org-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--mat-sys-surface-variant, #e8eaf6);
+  }
+}
+
+// ── Chips ─────────────────────────────────────────────────────────────────────
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.tipo-chip {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+
+  &--cedente  { background: #e3f2fd; color: #1565c0; }
+  &--financiera { background: #e8f5e9; color: #2e7d32; }
+  &--broker   { background: #fff8e1; color: #e65100; }
+}
+
+.estado-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+
+  mat-icon { font-size: 14px; width: 14px; height: 14px; }
+
+  &--incomplete {
+    background: #fff3e0;
+    color: #e65100;
+  }
+}
