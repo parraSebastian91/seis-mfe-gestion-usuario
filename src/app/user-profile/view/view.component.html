@@ -1,182 +1,329 @@
 <div class="profile-container">
-    <mat-card class="profile-header-card">
-        <div class="banner-wrapper image-shell">
-            <img [src]="defaultBannerImage" alt="banner-img" class="banner-img banner-img-placeholder"
-                [class.is-hidden]="bannerLoaded">
-            <img [src]="bannerImageSrc" alt="banner-img" class="banner-img banner-img-main"
-                [class.is-loaded]="bannerLoaded" (load)="onBannerImageLoad()" (error)="onBannerImageError()">
-            <div class="image-obfuscation banner-obfuscation" [class.is-hidden]="bannerLoaded"></div>
-            <div class="banner-overlay"></div>
-            <button mat-mini-fab color="basic" class="edit-banner-btn" (click)="openAvatarFilePicker(bannerFileInput)">
-                <mat-icon>photo_camera</mat-icon>
-            </button>
-            <button mat-mini-fab color="basic" class="logout-btn" (click)="logout()">
-                <mat-icon>logout</mat-icon>
-            </button>
-            <input #bannerFileInput type="file" accept="image/*" class="hidden-file-input"
-                (change)="onBannerFileSelected($event)" />
-        </div>
+  <!-- ── Banner + Avatar + Identidad ───────────────────────────────────── -->
+  <mat-card class="profile-header-card">
+    <div class="banner-wrapper image-shell">
+      <img [src]="defaultBannerImage" alt="banner" class="banner-img banner-img-placeholder" [class.is-hidden]="bannerLoaded">
+      <img [src]="bannerImageSrc" alt="banner" class="banner-img banner-img-main" [class.is-loaded]="bannerLoaded"
+        (load)="onBannerImageLoad()" (error)="onBannerImageError()">
+      <div class="image-obfuscation banner-obfuscation" [class.is-hidden]="bannerLoaded"></div>
+      <div class="banner-overlay"></div>
 
-        <mat-card-content class="profile-main-content">
-            <div class="identity-section">
-                <div class="avatar-container">
-                    <img [src]="defaultAvatarImage" alt="avatar-img"
-                        class="profile-avatar profile-avatar-placeholder" [class.is-hidden]="avatarLoaded">
-                    <img [src]="avatarImageSrc" alt="avatar-img"
-                        class="profile-avatar profile-avatar-main" [class.is-loaded]="avatarLoaded"
-                        (load)="onAvatarImageLoad()" (error)="onAvatarImageError()">
-                    <div class="image-obfuscation avatar-obfuscation" [class.is-hidden]="avatarLoaded"></div>
-                    <div class="status-badge online"></div>
-                    <div class="add-avatar-badge">
-                        <button type="button" mat-mini-fab color="basic" aria-label="cambiar foto de perfil"
-                            class="avatar-edit-btn" (click)="openAvatarFilePicker(avatarFileInput)">
-                            <mat-icon>add</mat-icon>
-                        </button>
-                    </div>
-                    <input #avatarFileInput type="file" accept="image/*" class="hidden-file-input"
-                        (change)="onAvatarFileSelected($event)" />
-                </div>
-
-                <div class="user-info">
-                    <h1 class="mat-headline-4 no-margin">{{ userProfile.nombreCompleto }}</h1>
-
-                    <mat-chip-set class="company-chip-set">
-                        <mat-chip class="company-chip">
-                            <div class="chip-content">
-                                <div class="icon">
-                                    <mat-icon>account_circle</mat-icon>
-                                </div>
-                                <div class="info">
-                                    {{ userProfile.username }}
-                                </div>
-                            </div>
-                        </mat-chip>
-                    </mat-chip-set>
-                </div>
-
-                <div class="profile-actions">
-                    <button mat-flat-button color="primary" class="action-btn">
-                        <mat-icon>person_add</mat-icon>
-                        Conectar
-                    </button>
-                    <button mat-stroked-button class="action-btn">
-                        <mat-icon>chat_bubble_outline</mat-icon>
-                        Mensaje
-                    </button>
-                </div>
-            </div>
-        </mat-card-content>
-    </mat-card>
-
-    <div class="profile-grid" *ngIf="!showEditGeneralInfoForm">
-        <div class="info-column">
-            <mat-card class="section-card">
-                <mat-card-header class="info-gral">
-                    <mat-card-title>Información General</mat-card-title>
-                    <button mat-mini-fab color="basic" class="edit-gral-info-btn" (click)="openEditGeneralInfo()">
-                        <mat-icon>edit</mat-icon>
-                    </button>
-                </mat-card-header>
-                <mat-card-content>
-                    <mat-list>
-                        <mat-list-item>
-                            <mat-icon matListItemIcon>email</mat-icon>
-                            <div matListItemTitle>Email</div>
-                            <div matListItemLine>{{ userProfile.datosContacto.correo }}</div>
-                        </mat-list-item>
-                        <mat-divider></mat-divider>
-                        <mat-list-item>
-                            <mat-icon matListItemIcon>place</mat-icon>
-                            <div matListItemTitle>Ubicación</div>
-                            <div matListItemLine>{{ userProfile.ubicacion }}</div>
-                        </mat-list-item>
-                        <mat-divider></mat-divider>
-                        <mat-list-item>
-                            <mat-icon matListItemIcon>call</mat-icon>
-                            <div matListItemTitle>Telefono</div>
-                            <div matListItemLine>{{ userProfile.telefono }}</div>
-                        </mat-list-item>
-                    </mat-list>
-                </mat-card-content>
-            </mat-card>
-
-            <mat-card class="section-card">
-                <mat-card-header>
-                    <mat-card-title>Redes Sociales</mat-card-title>
-                </mat-card-header>
-                <mat-card-content>
-                    <mat-chip-set class="social-chip-set">
-                        <mat-chip *ngFor="let red of userProfile.rrss" class="social-chip" [attr.aria-label]="red.tipo">
-                            {{ red.tipo }}
-                        </mat-chip>
-                    </mat-chip-set>
-                </mat-card-content>
-            </mat-card>
-        </div>
-
-        <div class="feed-column">
-            <mat-card class="section-card">
-                <mat-card-content>
-                    <h2 class="mat-headline-6 section-title">Actividad Social-Financiera</h2>
-                    <div class="empty-state">
-                        <mat-icon>history_edu</mat-icon>
-                        <p>No hay publicaciones recientes en el ecosistema.</p>
-                    </div>
-                </mat-card-content>
-            </mat-card>
-        </div>
+      <button *ngIf="isOwnProfile" mat-mini-fab color="basic" class="edit-banner-btn"
+        (click)="openAvatarFilePicker(bannerFileInput)" aria-label="Cambiar banner">
+        <mat-icon>photo_camera</mat-icon>
+      </button>
+      <!-- CA-02: logout solo mobile -->
+      <button mat-mini-fab color="basic" class="logout-btn" (click)="logout()" aria-label="Cerrar sesión">
+        <mat-icon>logout</mat-icon>
+      </button>
+      <input #bannerFileInput type="file" accept="image/jpeg,image/png,image/webp"
+        class="hidden-file-input" (change)="onBannerFileSelected($event)" />
     </div>
 
-    <mat-card class="section-card edit-gral-information" *ngIf="showEditGeneralInfoForm">
-        <mat-card-header style="margin-bottom: 1.5em;">
-            <mat-card-title>Editar Información del Usuario</mat-card-title>
+    <mat-card-content class="profile-main-content">
+      <div class="identity-section">
+        <div class="avatar-container">
+          <img [src]="defaultAvatarImage" alt="avatar"
+            class="profile-avatar profile-avatar-placeholder" [class.is-hidden]="avatarLoaded">
+          <img [src]="avatarImageSrc" alt="avatar"
+            class="profile-avatar profile-avatar-main" [class.is-loaded]="avatarLoaded"
+            (load)="onAvatarImageLoad()" (error)="onAvatarImageError()">
+          <div class="image-obfuscation avatar-obfuscation" [class.is-hidden]="avatarLoaded"></div>
+          <div class="status-badge online"></div>
+          <div class="add-avatar-badge" *ngIf="isOwnProfile">
+            <button type="button" mat-mini-fab color="basic" aria-label="Cambiar foto de perfil"
+              class="avatar-edit-btn" (click)="openAvatarFilePicker(avatarFileInput)">
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
+          <input #avatarFileInput type="file" accept="image/jpeg,image/png,image/webp"
+            class="hidden-file-input" (change)="onAvatarFileSelected($event)" />
+        </div>
+
+        <div class="user-info">
+          <h1 class="mat-headline-4 no-margin">{{ userProfile.nombreCompleto }}</h1>
+          <mat-chip-set class="company-chip-set">
+            <mat-chip class="company-chip">
+              <div class="chip-content">
+                <mat-icon>account_circle</mat-icon>
+                <span>{{ userProfile.username }}</span>
+              </div>
+            </mat-chip>
+          </mat-chip-set>
+        </div>
+
+        <!-- CA-03: acciones según perfil propio vs ajeno -->
+        <div class="profile-actions">
+          <ng-container *ngIf="isOwnProfile; else publicActions">
+            <button mat-flat-button color="primary" class="action-btn" (click)="openEditGeneralInfo()">
+              <mat-icon>edit</mat-icon> Editar perfil
+            </button>
+            <button mat-stroked-button class="action-btn" (click)="openPasswordForm()">
+              <mat-icon>lock</mat-icon> Cambiar contraseña
+            </button>
+          </ng-container>
+          <ng-template #publicActions>
+            <button mat-flat-button color="primary" class="action-btn" disabled
+              matTooltip="Próximamente">
+              <mat-icon>person_add</mat-icon> Conectar
+            </button>
+            <button mat-stroked-button class="action-btn" disabled matTooltip="Próximamente">
+              <mat-icon>chat_bubble_outline</mat-icon> Mensaje
+            </button>
+          </ng-template>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- ── Grid principal ─────────────────────────────────────────────────── -->
+  <div class="profile-grid" *ngIf="!showEditGeneralInfoForm && !showPasswordForm">
+    <div class="info-column">
+
+      <!-- Información General -->
+      <mat-card class="section-card">
+        <mat-card-header class="info-gral">
+          <mat-card-title>Información General</mat-card-title>
+          <button *ngIf="isOwnProfile" mat-mini-fab color="basic" class="edit-gral-info-btn"
+            (click)="openEditGeneralInfo()" aria-label="Editar información general">
+            <mat-icon>edit</mat-icon>
+          </button>
         </mat-card-header>
         <mat-card-content>
-            <form class="edit-form" [formGroup]="editGeneralInfoForm" (ngSubmit)="saveGeneralInformation()">
-                <div class="form-grid">
-                    <mat-form-field appearance="outline">
-                        <mat-label>Nombres</mat-label>
-                        <input matInput class="input-form" formControlName="nombres" />
-                    </mat-form-field>
-
-                    <mat-form-field appearance="outline">
-                        <mat-label>Apellido Paterno</mat-label>
-                        <input matInput class="input-form" formControlName="apellidoPaterno" />
-                    </mat-form-field>
-
-                    <mat-form-field appearance="outline">
-                        <mat-label>Apellido Materno</mat-label>
-                        <input matInput class="input-form" formControlName="apellidoMaterno" />
-                    </mat-form-field>
-
-                    <mat-form-field appearance="outline">
-                        <mat-label>Cargo</mat-label>
-                        <input matInput class="input-form" formControlName="cargo" />
-                    </mat-form-field>
-
-                    <mat-form-field appearance="outline">
-                        <mat-label>Correo</mat-label>
-                        <input matInput type="email" class="input-form" formControlName="correo" />
-                    </mat-form-field>
-
-                    <mat-form-field appearance="outline">
-                        <mat-label>Telefono</mat-label>
-                        <input matInput class="input-form" formControlName="telefono" />
-                    </mat-form-field>
-
-                    <mat-form-field appearance="outline" class="full-width-field">
-                        <mat-label>Ubicacion</mat-label>
-                        <input matInput class="input-form" formControlName="ubicacion" />
-                    </mat-form-field>
-                </div>
-
-                <div class="form-actions">
-                    <button mat-stroked-button type="button" (click)="cancelEditGeneralInfo()">Cancelar</button>
-                    <button mat-flat-button color="primary" type="submit" 
-                        [disabled]="editGeneralInfoForm.invalid">Guardar Cambios</button>
-                </div>
-            </form>
+          <mat-list>
+            <mat-list-item *ngIf="isOwnProfile">
+              <mat-icon matListItemIcon>email</mat-icon>
+              <div matListItemTitle>Email</div>
+              <div matListItemLine>{{ userProfile.datosContacto.correo }}</div>
+            </mat-list-item>
+            <mat-divider *ngIf="isOwnProfile"></mat-divider>
+            <mat-list-item *ngIf="isOwnProfile">
+              <mat-icon matListItemIcon>place</mat-icon>
+              <div matListItemTitle>Ubicación</div>
+              <div matListItemLine>{{ userProfile.ubicacion }}</div>
+            </mat-list-item>
+            <mat-divider *ngIf="isOwnProfile"></mat-divider>
+            <mat-list-item *ngIf="isOwnProfile">
+              <mat-icon matListItemIcon>call</mat-icon>
+              <div matListItemTitle>Teléfono</div>
+              <div matListItemLine>{{ userProfile.telefono }}</div>
+            </mat-list-item>
+            <mat-divider></mat-divider>
+            <mat-list-item>
+              <mat-icon matListItemIcon>work</mat-icon>
+              <div matListItemTitle>Cargo</div>
+              <div matListItemLine>{{ userProfile.cargo }}</div>
+            </mat-list-item>
+          </mat-list>
         </mat-card-content>
-    </mat-card>
+      </mat-card>
 
+      <!-- CA-07 · Redes Sociales -->
+      <mat-card class="section-card">
+        <mat-card-header class="info-gral">
+          <mat-card-title>Redes Sociales</mat-card-title>
+          <button *ngIf="isOwnProfile && !showSocialForm" mat-mini-fab color="basic"
+            (click)="openAddSocial()" aria-label="Agregar red social">
+            <mat-icon>add</mat-icon>
+          </button>
+        </mat-card-header>
+        <mat-card-content>
+          <!-- Formulario inline -->
+          <form *ngIf="showSocialForm" [formGroup]="socialForm" (ngSubmit)="saveSocial()" class="social-form">
+            <mat-form-field appearance="outline">
+              <mat-label>Red social</mat-label>
+              <mat-select formControlName="tipo">
+                <mat-option *ngFor="let t of socialTypes" [value]="t">{{ t }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width-field">
+              <mat-label>URL</mat-label>
+              <input matInput formControlName="enlace" placeholder="https://..." autocomplete="off" />
+              <mat-error *ngIf="socialForm.get('enlace')?.hasError('required')">Campo requerido</mat-error>
+              <mat-error *ngIf="socialForm.get('enlace')?.hasError('pattern')">
+                URL inválida (debe iniciar con https://)
+              </mat-error>
+            </mat-form-field>
+            <div class="form-actions">
+              <button mat-stroked-button type="button" (click)="cancelSocial()">Cancelar</button>
+              <button mat-flat-button color="primary" type="submit">
+                {{ editingSocialIndex !== null ? 'Actualizar' : 'Agregar' }}
+              </button>
+            </div>
+          </form>
+
+          <!-- Chips de redes -->
+          <mat-chip-set *ngIf="userProfile.rrss?.length > 0" class="social-chip-set">
+            <mat-chip *ngFor="let red of userProfile.rrss; let i = index"
+              class="social-chip"
+              [class.editable]="isOwnProfile"
+              (click)="isOwnProfile ? editSocial(i) : null">
+              <mat-icon class="chip-icon">link</mat-icon>
+              <span class="chip-label">{{ red.tipo }}</span>
+              <button *ngIf="isOwnProfile" matChipRemove (click)="$event.stopPropagation(); removeSocial(i)"
+                aria-label="Eliminar {{ red.tipo }}">
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </mat-chip>
+          </mat-chip-set>
+          <p *ngIf="!userProfile.rrss?.length && !showSocialForm" class="text-muted">
+            Sin redes sociales registradas.
+          </p>
+        </mat-card-content>
+      </mat-card>
+
+    </div>
+
+    <!-- CA-08 · Actividad Social-Financiera -->
+    <div class="feed-column">
+      <mat-card class="section-card">
+        <mat-card-content>
+          <h2 class="mat-headline-6 section-title">Actividad Social-Financiera</h2>
+          <div class="empty-state">
+            <mat-icon>history_edu</mat-icon>
+            <p>No hay publicaciones recientes en el ecosistema.</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <!-- ── Editar Información General ─────────────────────────────────────── -->
+  <mat-card class="section-card edit-gral-information" *ngIf="showEditGeneralInfoForm">
+    <mat-card-header style="margin-bottom: 1.5em;">
+      <mat-card-title>Editar Información del Usuario</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form class="edit-form" [formGroup]="editGeneralInfoForm" (ngSubmit)="saveGeneralInformation()">
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Nombres</mat-label>
+            <input matInput formControlName="nombres" autocomplete="given-name" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Apellido Paterno</mat-label>
+            <input matInput formControlName="apellidoPaterno" autocomplete="family-name" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Apellido Materno</mat-label>
+            <input matInput formControlName="apellidoMaterno" autocomplete="additional-name" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Cargo</mat-label>
+            <input matInput formControlName="cargo" autocomplete="organization-title" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Correo</mat-label>
+            <input matInput type="email" formControlName="correo" autocomplete="email" />
+            <mat-error *ngIf="editGeneralInfoForm.get('correo')?.hasError('email')">
+              Formato de email inválido
+            </mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Teléfono</mat-label>
+            <input matInput formControlName="telefono" autocomplete="tel" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width-field">
+            <mat-label>Ubicación</mat-label>
+            <input matInput formControlName="ubicacion" autocomplete="street-address" />
+            <mat-error *ngIf="editGeneralInfoForm.get('ubicacion')?.hasError('maxlength')">
+              Máximo 200 caracteres
+            </mat-error>
+          </mat-form-field>
+        </div>
+        <div class="form-actions">
+          <button mat-stroked-button type="button" (click)="cancelEditGeneralInfo()">Cancelar</button>
+          <button mat-flat-button color="primary" type="submit"
+            [disabled]="editGeneralInfoForm.invalid">Guardar Cambios</button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- ── CA-09 · Cambio de contraseña ──────────────────────────────────── -->
+  <mat-card class="section-card edit-gral-information" *ngIf="showPasswordForm">
+    <mat-card-header style="margin-bottom: 1.5em;">
+      <mat-card-title>Cambiar Contraseña</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p *ngIf="passwordErrorMsg" class="error-msg" role="alert">{{ passwordErrorMsg }}</p>
+      <p *ngIf="passwordSuccessMsg" class="success-msg" role="status">{{ passwordSuccessMsg }}</p>
+
+      <form class="edit-form" [formGroup]="passwordForm" (ngSubmit)="savePasswordChange()">
+        <div class="form-grid">
+          <!-- Contraseña actual -->
+          <mat-form-field appearance="outline" class="full-width-field">
+            <mat-label>Contraseña actual</mat-label>
+            <input matInput [type]="showCurrentPw ? 'text' : 'password'"
+              formControlName="currentPassword" autocomplete="current-password" />
+            <button matSuffix mat-icon-button type="button" (click)="showCurrentPw = !showCurrentPw"
+              [attr.aria-label]="showCurrentPw ? 'Ocultar' : 'Mostrar'">
+              <mat-icon>{{ showCurrentPw ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            <mat-error *ngIf="passwordForm.get('currentPassword')?.hasError('required')">
+              Campo requerido
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Nueva contraseña -->
+          <mat-form-field appearance="outline" class="full-width-field">
+            <mat-label>Nueva contraseña</mat-label>
+            <input matInput [type]="showNewPw ? 'text' : 'password'"
+              formControlName="newPassword" autocomplete="new-password" />
+            <button matSuffix mat-icon-button type="button" (click)="showNewPw = !showNewPw"
+              [attr.aria-label]="showNewPw ? 'Ocultar' : 'Mostrar'">
+              <mat-icon>{{ showNewPw ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            <mat-error *ngIf="passwordForm.get('newPassword')?.hasError('minlength')">
+              Mínimo 8 caracteres
+            </mat-error>
+            <mat-error *ngIf="passwordForm.get('newPassword')?.hasError('pattern')">
+              Debe incluir al menos una mayúscula y un número
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Medidor de fortaleza -->
+          <div class="strength-wrap full-width-field"
+            *ngIf="passwordForm.get('newPassword')?.value" aria-live="polite">
+            <div class="strength-bar">
+              <span class="bar-segment" [class.filled]="strengthLevel >= 1"
+                [ngClass]="strengthLevel >= 1 ? STRENGTH_CLASSES[strengthLevel] : ''"></span>
+              <span class="bar-segment" [class.filled]="strengthLevel >= 2"
+                [ngClass]="strengthLevel >= 2 ? STRENGTH_CLASSES[strengthLevel] : ''"></span>
+              <span class="bar-segment" [class.filled]="strengthLevel >= 3"
+                [ngClass]="strengthLevel >= 3 ? STRENGTH_CLASSES[strengthLevel] : ''"></span>
+              <span class="bar-segment" [class.filled]="strengthLevel >= 4"
+                [ngClass]="strengthLevel >= 4 ? STRENGTH_CLASSES[strengthLevel] : ''"></span>
+            </div>
+            <span class="strength-label" *ngIf="strengthLevel > 0">
+              {{ STRENGTH_LABELS[strengthLevel] }}
+            </span>
+          </div>
+
+          <!-- Confirmar contraseña -->
+          <mat-form-field appearance="outline" class="full-width-field">
+            <mat-label>Confirmar nueva contraseña</mat-label>
+            <input matInput [type]="showConfirmPw ? 'text' : 'password'"
+              formControlName="confirmPassword" autocomplete="new-password" />
+            <button matSuffix mat-icon-button type="button" (click)="showConfirmPw = !showConfirmPw"
+              [attr.aria-label]="showConfirmPw ? 'Ocultar' : 'Mostrar'">
+              <mat-icon>{{ showConfirmPw ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            <mat-error *ngIf="passwordForm.errors?.['mismatch'] && passwordForm.get('confirmPassword')?.dirty">
+              Las contraseñas no coinciden
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-actions">
+          <button mat-stroked-button type="button" (click)="cancelPasswordChange()">Cancelar</button>
+          <button mat-flat-button color="primary" type="submit"
+            [disabled]="passwordForm.invalid || passwordSaving">
+            <mat-spinner *ngIf="passwordSaving" diameter="18" class="btn-spinner"></mat-spinner>
+            {{ passwordSaving ? 'Guardando...' : 'Cambiar contraseña' }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
 </div>

@@ -417,3 +417,115 @@
         width: 100%;
     }
 }
+
+/* ── CA-02: logout solo mobile ───────────────────────────────────────────── */
+@media (max-width: 959px) {
+    .logout-btn {
+        display: flex !important;
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        z-index: 3;
+        background: rgba(255, 255, 255, 0.88) !important;
+        backdrop-filter: blur(4px);
+    }
+}
+
+/* ── Social form (CA-07) ─────────────────────────────────────────────────── */
+.social-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 0.5rem 0 0.25rem;
+
+    mat-form-field {
+        flex: 1 1 180px;
+    }
+}
+
+.social-chip.editable {
+    cursor: pointer;
+
+    &:hover {
+        background: var(--corp-color-light, #e8f0ff);
+    }
+}
+
+.chip-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
+    opacity: 0.7;
+}
+
+.text-muted {
+    color: var(--text-muted, #5f6b7a);
+    font-size: 0.85rem;
+    padding: 0.5rem 0;
+    margin: 0;
+}
+
+/* ── Strength meter (CA-09) ──────────────────────────────────────────────── */
+.strength-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 0 0.5rem;
+}
+
+.strength-bar {
+    display: flex;
+    gap: 4px;
+    flex: 1;
+}
+
+.bar-segment {
+    flex: 1;
+    height: 5px;
+    border-radius: 3px;
+    background: var(--border-soft, #d9e2ef);
+    transition: background 220ms ease;
+
+    &.filled.danger  { background: #d32f2f; }
+    &.filled.warning { background: #f57c00; }
+    &.filled.good    { background: #fbc02d; }
+    &.filled.strong  { background: #388e3c; }
+}
+
+.strength-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--text-muted, #5f6b7a);
+    min-width: 68px;
+    text-align: right;
+}
+
+/* ── Error / success messages ────────────────────────────────────────────── */
+.error-msg {
+    margin: 0 0 1rem;
+    padding: 0.6rem 0.75rem;
+    font-size: 0.82rem;
+    color: #c62828;
+    background: #ffebee;
+    border: 1px solid #ef9a9a;
+    border-radius: 6px;
+}
+
+.success-msg {
+    margin: 0 0 1rem;
+    padding: 0.6rem 0.75rem;
+    font-size: 0.82rem;
+    color: #2e7d32;
+    background: #e8f5e9;
+    border: 1px solid #a5d6a7;
+    border-radius: 6px;
+}
+
+/* ── Spinner dentro del botón ────────────────────────────────────────────── */
+.btn-spinner {
+    display: inline-block;
+    margin-right: 6px;
+    vertical-align: middle;
+}

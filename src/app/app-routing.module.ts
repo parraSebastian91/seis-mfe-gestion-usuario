@@ -7,7 +7,7 @@ const routes: Routes = [
     loadChildren: () => import('./user-profile/user-profile.module').then(m => m.UserProfileModule)
   },
   {
-    redirectTo: "view-profile",
+    redirectTo: "perfil",
     pathMatch: "full",
     path: "**"
   }
