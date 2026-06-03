@@ -14,14 +14,18 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
 
 import { OrganizationRoutingModule } from './organization-routing.module';
 import { OrgListComponent } from './org-list/org-list.component';
 import { OrgWizardComponent } from './org-wizard/org-wizard.component';
 import { OrgProfileComponent } from './org-profile/org-profile.component';
+import { OrgGestorComponent } from './org-gestor/org-gestor.component';
 
 @NgModule({
-  declarations: [OrgListComponent, OrgWizardComponent, OrgProfileComponent],
+  declarations: [OrgListComponent, OrgWizardComponent, OrgProfileComponent, OrgGestorComponent],
   imports: [
     CommonModule,
     OrganizationRoutingModule,
@@ -40,6 +44,9 @@ import { OrgProfileComponent } from './org-profile/org-profile.component';
     MatProgressSpinnerModule,
     MatExpansionModule,
     MatTooltipModule,
+    MatTabsModule,
+    MatMenuModule,
+    MatDividerModule,
   ],
 })
 export class OrganizationModule {}
