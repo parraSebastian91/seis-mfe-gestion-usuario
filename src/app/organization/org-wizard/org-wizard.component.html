@@ -33,11 +33,13 @@
             formControlName="rut"
             placeholder="12.345.678-9"
             maxlength="12"
-            autocomplete="off">
+            autocomplete="off"
+            (blur)="onRutBlur()">
           <mat-spinner matSuffix *ngIf="siiStatus === 'loading'" diameter="20"></mat-spinner>
           <mat-icon matSuffix *ngIf="siiStatus === 'success'" class="sii-icon sii-success">check_circle</mat-icon>
           <mat-icon matSuffix *ngIf="siiStatus === 'warning'" class="sii-icon sii-warning">warning</mat-icon>
-          <mat-icon matSuffix *ngIf="siiStatus === 'error'"   class="sii-icon sii-error">cancel</mat-icon>
+          <mat-icon matSuffix *ngIf="siiStatus === 'blocked'" class="sii-icon sii-error">cancel</mat-icon>
+          <mat-icon matSuffix *ngIf="siiStatus === 'info'"    class="sii-icon sii-info">info</mat-icon>
           <mat-error *ngIf="step1.get('rut')?.errors?.['required']">El RUT es requerido.</mat-error>
           <mat-error *ngIf="step1.get('rut')?.errors?.['invalidRut']">Dígito verificador inválido.</mat-error>
         </mat-form-field>
@@ -48,10 +50,11 @@
           *ngIf="siiStatus !== 'idle' && siiStatus !== 'loading'"
           [class.sii-result--success]="siiStatus === 'success'"
           [class.sii-result--warning]="siiStatus === 'warning'"
-          [class.sii-result--error]="siiStatus === 'error'"
+          [class.sii-result--error]="siiStatus === 'blocked'"
+          [class.sii-result--info]="siiStatus === 'info'"
           role="status"
           aria-live="polite">
-          <mat-icon>{{ siiStatus === 'success' ? 'check_circle' : siiStatus === 'warning' ? 'warning' : 'cancel' }}</mat-icon>
+          <mat-icon>{{ siiStatus === 'success' ? 'check_circle' : siiStatus === 'warning' ? 'warning' : siiStatus === 'info' ? 'info' : 'cancel' }}</mat-icon>
           <span>{{ siiMessage }}</span>
         </div>
 
@@ -62,6 +65,15 @@
           <mat-hint>Pre-rellenada desde el SII si el RUT es válido. Puedes editarla.</mat-hint>
           <mat-error *ngIf="step1.get('razonSocial')?.errors?.['required']">La razón social es requerida.</mat-error>
         </mat-form-field>
+
+        <!-- CA-05: hint si el SII devuelve un valor distinto al que ya escribió el usuario -->
+        <div class="sii-razon-social-hint" *ngIf="siiRazonSocialHint">
+          <mat-icon>lightbulb_outline</mat-icon>
+          <span>El SII registra: <strong>{{ siiRazonSocialHint }}</strong></span>
+          <button mat-button color="primary" type="button" (click)="acceptSiiRazonSocial()">
+            Aceptar
+          </button>
+        </div>
 
         <p class="save-error" *ngIf="saveError" role="alert">{{ saveError }}</p>
 

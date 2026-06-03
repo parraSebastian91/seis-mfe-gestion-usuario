@@ -135,12 +135,37 @@
     color: #c62828;
     mat-icon { color: #e53935; }
   }
+
+  &--info {
+    background: #e3f2fd;
+    color: #0d47a1;
+    mat-icon { color: #1565c0; }
+  }
 }
 
 .sii-icon {
   &.sii-success { color: #43a047; }
   &.sii-warning { color: #fb8c00; }
   &.sii-error   { color: #e53935; }
+  &.sii-info    { color: #1565c0; }
+}
+
+// CA-05: hint razón social sugerida por SII
+.sii-razon-social-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #e3f2fd;
+  border: 1px solid #90caf9;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.875rem;
+  color: #0d47a1;
+  margin-bottom: 12px;
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; flex-shrink: 0; color: #1565c0; }
+
+  span { flex: 1; }
 }
 
 // ── Hints / info ─────────────────────────────────────────────────────────────

@@ -10,7 +10,7 @@ import {
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom, Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, takeUntil, timeout } from 'rxjs/operators';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { MatStepper } from '@angular/material/stepper';
 import { ObjectUploadService, SessionService, UserRole } from 'shared-utils';
@@ -67,7 +67,26 @@ const MAX_ORG_FILE_SIZE = 5 * 1024 * 1024;
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
-type SiiStatus = 'idle' | 'loading' | 'success' | 'warning' | 'error';
+/** Estado visual del campo RUT durante y tras el lookup SII.
+ *  - idle      → sin resultado todavía
+ *  - loading   → petición en curso (bloquea avance)
+ *  - success   → VALIDO          → verde, no bloquea
+ *  - warning   → ADVERTENCIA     → amarillo, no bloquea
+ *  - blocked   → BLOQUEADO / NO_ENCONTRADO → rojo, bloquea avance
+ *  - info      → ERROR_RED       → azul, no bloquea
+ */
+type SiiStatus = 'idle' | 'loading' | 'success' | 'warning' | 'blocked' | 'info';
+
+/** DTO devuelto por el BFF — el frontend no interpreta la respuesta raw del SII */
+interface SiiLookupResult {
+  estado: 'VALIDO' | 'ADVERTENCIA' | 'BLOQUEADO' | 'NO_ENCONTRADO' | 'ERROR_RED';
+  mensaje: string;
+  razonSocial?: string;
+  girosNegocio?: string[];
+  fechaInicioActividades?: string;
+  tieneFacturaElectronica?: boolean;
+  tieneObservacionTributaria?: boolean;
+}
 interface GeoOption { id: string; nombre: string; }
 type StepperOrientation = 'horizontal' | 'vertical';
 
@@ -96,6 +115,10 @@ export class OrgWizardComponent implements OnInit, OnDestroy {
   // ── SII Lookup ───────────────────────────────────────────────────────────────
   siiStatus: SiiStatus = 'idle';
   siiMessage = '';
+  /** CA-05: razón social que el SII devolvió cuando el usuario ya había escrito una diferente */
+  siiRazonSocialHint: string | null = null;
+  /** CA-06: caché en memoria por RUT (sin puntos ni guión) */
+  private readonly siiCache = new Map<string, SiiLookupResult>();
 
   // ── Cascading geo ────────────────────────────────────────────────────────────
   regiones: GeoOption[] = [];
@@ -224,13 +247,11 @@ export class OrgWizardComponent implements OnInit, OnDestroy {
         if (formatted !== val) {
           this.step1.get('rut')!.setValue(formatted, { emitEvent: false });
         }
-        if (isRutDvValid(formatted)) {
-          if (this.siiStatus !== 'loading') {
-            this.lookupSii(formatted);
-          }
-        } else {
+        // Reset SII state when the RUT changes (DV invalid or blank)
+        if (!isRutDvValid(formatted)) {
           this.siiStatus = 'idle';
           this.siiMessage = '';
+          this.siiRazonSocialHint = null;
         }
       });
   }
@@ -278,40 +299,89 @@ export class OrgWizardComponent implements OnInit, OnDestroy {
 
   // ── SII Lookup ───────────────────────────────────────────────────────────────
 
+  /** CA-01: trigger en blur del campo RUT */
+  onRutBlur(): void {
+    const val = (this.step1.get('rut')!.value as string) ?? '';
+    if (!val || !isRutDvValid(val)) return;
+    if (this.siiStatus === 'loading') return;
+    this.lookupSii(val);
+  }
+
   async lookupSii(rut: string): Promise<void> {
+    // Extraer número y DV para enviar al BFF sin puntos ni guión
+    const clean = rut.replace(/[.\- ]/g, '');
+    const dv = clean.slice(-1).toUpperCase();
+    const rutNum = clean.slice(0, -1);
+
+    // CA-06: usar caché si existe un resultado previo exitoso
+    const cached = this.siiCache.get(rutNum);
+    if (cached) {
+      this.applySiiResult(cached);
+      return;
+    }
+
     this.siiStatus = 'loading';
     this.siiMessage = '';
+    this.siiRazonSocialHint = null;
+
     try {
+      // CA-02: timeout 10 segundos
       const res = await firstValueFrom(
-        this.http.get<{
-          status: 'active' | 'warning' | 'error';
-          razonSocial?: string;
-          message?: string;
-        }>('/api/organizations/sii-lookup', {
-          params: { rut },
-          withCredentials: true,
-        }),
+        this.http
+          .get<SiiLookupResult>('/api/core/organizacion/sii/lookup', {
+            params: { rut: rutNum, dv },
+            withCredentials: true,
+          })
+          .pipe(timeout(10_000)),
       );
-      if (res.status === 'active') {
-        this.siiStatus = 'success';
-        this.siiMessage = 'Contribuyente activo con Factura Electrónica.';
-        if (res.razonSocial && !this.step1.get('razonSocial')!.value) {
-          this.step1.get('razonSocial')!.setValue(res.razonSocial);
-        }
-      } else if (res.status === 'warning') {
-        this.siiStatus = 'warning';
-        this.siiMessage = res.message ?? 'Advertencia tributaria. Puede continuar con precaución.';
-        if (res.razonSocial && !this.step1.get('razonSocial')!.value) {
-          this.step1.get('razonSocial')!.setValue(res.razonSocial);
-        }
-      } else {
-        this.siiStatus = 'error';
-        this.siiMessage =
-          res.message ??
-          'RUT no habilitado para Factura Electrónica. No es posible continuar.';
+      // CA-06: solo cachear resultados no-error
+      if (res.estado !== 'ERROR_RED') {
+        this.siiCache.set(rutNum, res);
       }
+      this.applySiiResult(res);
     } catch {
-      this.siiStatus = 'idle';
+      // Timeout o error de red → CA-02: no bloquear avance
+      this.siiStatus = 'info';
+      this.siiMessage =
+        'No se pudo consultar el SII en este momento. Puedes continuar igualmente.';
+    }
+  }
+
+  private applySiiResult(res: SiiLookupResult): void {
+    const currentRazonSocial = (this.step1.get('razonSocial')!.value as string) ?? '';
+
+    // CA-04: mapear estado a SiiStatus visual
+    if (res.estado === 'VALIDO') {
+      this.siiStatus = 'success';
+    } else if (res.estado === 'ADVERTENCIA') {
+      this.siiStatus = 'warning';
+    } else if (res.estado === 'ERROR_RED') {
+      this.siiStatus = 'info';
+    } else {
+      this.siiStatus = 'blocked'; // BLOQUEADO | NO_ENCONTRADO
+    }
+    this.siiMessage = res.mensaje;
+
+    // CA-05: pre-rellenar o mostrar hint
+    if (res.razonSocial) {
+      if (!currentRazonSocial) {
+        this.step1.get('razonSocial')!.setValue(res.razonSocial);
+        this.siiRazonSocialHint = null;
+      } else if (currentRazonSocial === res.razonSocial) {
+        this.siiRazonSocialHint = null;
+      } else {
+        this.siiRazonSocialHint = res.razonSocial;
+      }
+    } else {
+      this.siiRazonSocialHint = null;
+    }
+  }
+
+  /** CA-05: el usuario acepta la razón social sugerida por el SII */
+  acceptSiiRazonSocial(): void {
+    if (this.siiRazonSocialHint) {
+      this.step1.get('razonSocial')!.setValue(this.siiRazonSocialHint);
+      this.siiRazonSocialHint = null;
     }
   }
 
@@ -424,7 +494,7 @@ export class OrgWizardComponent implements OnInit, OnDestroy {
   get canAdvanceStep1(): boolean {
     return (
       this.step1.valid &&
-      this.siiStatus !== 'error' &&
+      this.siiStatus !== 'blocked' &&
       this.siiStatus !== 'loading'
     );
   }
