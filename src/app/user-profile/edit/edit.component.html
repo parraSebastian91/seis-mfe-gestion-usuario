@@ -1,0 +1,75 @@
+<div class="edit-profile-container">
+    <header class="profile-header">
+        <div class="header-inner">
+            <h1>Editar Perfil de Usuario</h1>
+        </div>
+    </header>
+    <div class="contenido">
+        <!-- Banner con imagen y botones de edición -->
+        <div class="profile-banner">
+            <div class="banner-background">
+                <img src="https://images.unsplash.com/photo-1557683316-973673baf926?w=1200" alt="Banner"
+                    class="banner-image">
+                <button class="banner-edit-btn" type="button">Editar portada</button>
+            </div>
+            <div class="profile-picture">
+                <img src="https://i.pravatar.cc/150?img=12" alt="Foto de perfil" class="avatar">
+                <button class="avatar-edit-btn" type="button">Cambiar foto</button>
+            </div>
+        </div>
+
+        <!-- Contenido principal -->
+        <div class="content-wrapper">
+            <form class="edit-form">
+                <div class="form-section">
+                    <h3>Información personal</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="fullName">Nombre completo</label>
+                            <input id="fullName" type="text" placeholder="Nombre completo" value="María González Pérez">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Correo electrónico</label>
+                            <input id="email" type="email" placeholder="correo@empresa.com" value="maria.gonzalez@empresa.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="position">Cargo</label>
+                            <input id="position" type="text" placeholder="Cargo" value="Gerente de Proyectos">
+                        </div>
+                        <div class="form-group">
+                            <label for="department">Departamento</label>
+                            <input id="department" type="text" placeholder="Departamento" value="Desarrollo de Proyectos">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Teléfono</label>
+                            <input id="phone" type="tel" placeholder="+56 9 1234 5678" value="+34 912 34 56 78">
+                        </div>
+                        <div class="form-group">
+                            <label for="location">Ubicación</label>
+                            <input id="location" type="text" placeholder="Ciudad, País" value="Madrid, España">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Seguridad</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="password">Nueva contraseña</label>
+                            <input id="password" type="password" placeholder="********">
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirmar contraseña</label>
+                            <input id="confirmPassword" type="password" placeholder="********">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary">Cancelar</button>
+                    <button type="submit" class="btn-primary">Guardar cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

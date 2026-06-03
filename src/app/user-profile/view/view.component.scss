@@ -1,0 +1,419 @@
+/* Variables para inyectar colores corporativos */
+:host {
+    --corp-color: #1458b8;
+    --corp-color-light: #e8f0ff;
+    --text-main: #17212f;
+    --text-muted: #5f6b7a;
+    --border-soft: #d9e2ef;
+}
+
+.profile-container {
+    padding: 20px;
+    max-width: 1140px;
+    margin: 0 auto;
+    color: var(--text-main);
+}
+
+.logout-btn {
+    display: none;
+}
+
+/* Card de Cabecera Personalizada */
+.profile-header-card {
+    padding: 0 !important;
+    overflow: hidden;
+    border-radius: 16px !important;
+    margin-bottom: 24px;
+    border: 1px solid var(--border-soft);
+    box-shadow: 0 12px 28px rgba(20, 41, 74, 0.08);
+}
+
+.banner-wrapper {
+    height: 210px;
+    position: relative;
+    background: #dbe8ff;
+    overflow: hidden;
+}
+
+.banner-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.banner-img-placeholder {
+    opacity: 1;
+    transition: opacity 220ms ease;
+}
+
+.banner-img-placeholder.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.banner-img-main {
+    opacity: 0;
+    transition: opacity 300ms ease;
+    z-index: 1;
+}
+
+.banner-img-main.is-loaded {
+    opacity: 1 !important;
+}
+
+.banner-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(4, 20, 46, 0.08), rgba(4, 20, 46, 0.45));
+    z-index: 2;
+}
+
+.edit-banner-btn {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.92) !important;
+    backdrop-filter: blur(4px);
+    border-radius: 50%;
+}
+
+.info-gral {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Identidad y Avatar */
+.profile-main-content {
+    padding: 0 22px 24px !important;
+}
+
+.identity-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: -54px;
+    gap: 12px;
+    text-align: center;
+}
+
+.avatar-container {
+    position: relative;
+    width: 124px;
+    height: 124px;
+}
+
+.profile-avatar {
+    position: absolute;
+    inset: 0;
+    width: 124px;
+    height: 124px;
+    border-radius: 50%;
+    border: 5px solid #fff;
+    box-shadow: 0 10px 20px rgba(14, 35, 67, 0.18);
+    background: white;
+}
+
+.profile-avatar-placeholder {
+    opacity: 1;
+    transition: opacity 220ms ease;
+}
+
+.profile-avatar-placeholder.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.profile-avatar-main {
+    opacity: 0;
+    transition: opacity 300ms ease;
+    z-index: 2;
+    background: #fff;
+}
+
+.profile-avatar-main.is-loaded {
+    opacity: 1 !important;
+}
+
+.image-obfuscation {
+    position: absolute;
+    inset: 0;
+    opacity: 1;
+    transition: opacity 300ms ease;
+    pointer-events: none;
+}
+
+.image-obfuscation.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+    backdrop-filter: none;
+    pointer-events: none;
+}
+
+.banner-obfuscation {
+    background: rgba(255, 255, 255, 0.22);
+    backdrop-filter: blur(10px);
+    z-index: 1;
+}
+
+.avatar-obfuscation {
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.28);
+    backdrop-filter: blur(8px);
+    z-index: 1;
+}
+
+.status-badge {
+    position: absolute;
+    bottom: 4px;
+    right: 0px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    z-index: 2;
+}
+
+
+
+.status-badge.online {
+    background: #1fb36b;
+}
+
+.add-avatar-badge {
+    position: absolute;
+    bottom: 0px;
+    left: 10px;
+    z-index: 2;
+}
+
+.avatar-edit-btn {
+    width: 28px !important;
+    height: 28px !important;
+    min-width: 28px !important;
+    min-height: 28px !important;
+    line-height: 28px !important;
+    background: rgba(255, 255, 255, 0.92) !important;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18) !important;
+    border-radius: 50%;
+
+    .mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        line-height: 16px;
+        color: #3a4a5c;
+    }
+}
+
+.hidden-file-input {
+    display: none;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.company-chip-set {
+    margin-top: 2px;
+}
+
+.profile-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.action-btn {
+    min-width: 132px;
+}
+
+.profile-grid {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: 1fr;
+}
+
+.info-column {
+    display: grid;
+    gap: 20px;
+}
+
+.section-card {
+    border-radius: 14px !important;
+    border: 1px solid var(--border-soft);
+    box-shadow: 0 8px 22px rgba(20, 41, 74, 0.06);
+}
+
+.section-title {
+    margin: 0 0 6px;
+}
+
+.social-chip-set {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.social-chip {
+    border: 1px solid #c6d7f0;
+    background: #f3f8ff !important;
+    color: #1f467d !important;
+}
+
+/* Adaptación a Desktop */
+@media (min-width: 768px) {
+    .identity-section {
+        flex-direction: row;
+        align-items: flex-end;
+        text-align: left;
+        margin-top: -35px;
+        gap: 20px;
+    }
+
+    .user-info {
+        align-items: flex-start;
+    }
+
+    .profile-actions {
+        margin-left: auto;
+        justify-content: flex-end;
+    }
+
+    .profile-grid {
+        display: grid;
+        grid-template-columns: minmax(280px, 340px) 1fr;
+        gap: 24px;
+    }
+}
+
+/* Aplicación del Color Corporativo Dinámico */
+::ng-deep .mat-mdc-flat-button.mat-primary {
+    --mdc-flat-button-container-color: var(--corp-color) !important;
+}
+
+.company-chip {
+    background-color: var(--corp-color-light) !important;
+    color: var(--corp-color) !important;
+
+    .chip-content {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+}
+
+.no-margin {
+    margin: 0;
+}
+
+.text-secondary {
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.empty-state {
+    padding: 46px 24px;
+    text-align: center;
+    color: #7b8796;
+}
+
+.empty-state mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 12px;
+    color: #6f86a6;
+}
+
+.edit-gral-information {
+    margin-top: 24px;
+}
+
+.edit-form {
+    display: grid;
+    gap: 16px;
+}
+
+.form-grid {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+}
+
+.form-grid mat-form-field {
+    width: 100%;
+}
+
+.full-width-field {
+    grid-column: 1 / -1;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.input-form {
+    margin-left: 1em;
+}
+
+@media (max-width: 767px) {
+
+    .logout-btn {
+        display: inline-flex;
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        z-index: 2;
+        background: rgba(255, 255, 255, 0.92) !important;
+        backdrop-filter: blur(4px);
+        border-radius: 50%;
+    }
+
+    .profile-container {
+        padding: 14px;
+    }
+
+    .banner-wrapper {
+        height: 160px;
+    }
+
+    .profile-main-content {
+        padding: 0 14px 18px !important;
+    }
+
+    .profile-actions {
+        width: 100%;
+    }
+
+    .action-btn {
+        flex: 1 1 140px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        justify-content: stretch;
+        flex-direction: column;
+    }
+
+    .form-actions button {
+        width: 100%;
+    }
+}
