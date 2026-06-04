@@ -712,7 +712,7 @@ export class OrgGestorComponent implements OnInit {
         const activeOrg = this.session.activeOrg();
         const currentUser = this.session.user();
         if (activeOrg && currentUser) {
-          this.session.setSession(currentUser, { ...activeOrg, razonSocial });
+          this.session.setSession(currentUser, { ...activeOrg, nombre: razonSocial });
         }
       }
     } catch {
@@ -739,9 +739,11 @@ export class OrgGestorComponent implements OnInit {
         this.orgId,
       );
       await this.uploadService.uploadToPresignedUrl(url, file);
+      const currentOrg = this.org;
+      if (!currentOrg) return;
       const reader = new FileReader();
       reader.onload = e => {
-        this.org = { ...this.org, bannerUrl: e.target?.result as string };
+        this.org = { ...currentOrg, bannerUrl: e.target?.result as string };
       };
       reader.readAsDataURL(file);
     } catch {
@@ -769,9 +771,11 @@ export class OrgGestorComponent implements OnInit {
         this.orgId,
       );
       await this.uploadService.uploadToPresignedUrl(url, file);
+      const currentOrg = this.org;
+      if (!currentOrg) return;
       const reader = new FileReader();
       reader.onload = e => {
-        this.org = { ...this.org, logoUrl: e.target?.result as string };
+        this.org = { ...currentOrg, logoUrl: e.target?.result as string };
       };
       reader.readAsDataURL(file);
     } catch {

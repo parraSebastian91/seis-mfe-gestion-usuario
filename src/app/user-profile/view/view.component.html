@@ -153,7 +153,7 @@
           </form>
 
           <!-- Chips de redes -->
-          <mat-chip-set *ngIf="userProfile.rrss?.length > 0" class="social-chip-set">
+          <mat-chip-set *ngIf="(userProfile.rrss?.length ?? 0) > 0" class="social-chip-set">
             <mat-chip *ngFor="let red of userProfile.rrss; let i = index"
               class="social-chip"
               [class.editable]="isOwnProfile"
@@ -161,7 +161,7 @@
               <mat-icon class="chip-icon">link</mat-icon>
               <span class="chip-label">{{ red.tipo }}</span>
               <button *ngIf="isOwnProfile" matChipRemove (click)="$event.stopPropagation(); removeSocial(i)"
-                aria-label="Eliminar {{ red.tipo }}">
+                [attr.aria-label]="'Eliminar ' + red.tipo">
                 <mat-icon>cancel</mat-icon>
               </button>
             </mat-chip>

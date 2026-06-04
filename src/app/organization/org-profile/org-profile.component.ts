@@ -100,7 +100,7 @@ export class OrgProfileComponent implements OnInit, OnDestroy {
   // ── Admin gate ───────────────────────────────────────────────────────────────
   get isAdmin(): boolean {
     const rol = this.session.userRole();
-    return !!rol && ADMIN_ROLES.includes(rol);
+    return !!rol && ADMIN_ROLES.has(rol);
   }
 
   // ── Description edit ────────────────────────────────────────────────────────
@@ -377,9 +377,11 @@ export class OrgProfileComponent implements OnInit, OnDestroy {
         this.orgId,
       );
       await this.uploadService.uploadToPresignedUrl(url, file);
+      const currentOrg = this.org;
+      if (!currentOrg) return;
       const reader = new FileReader();
       reader.onload = e => {
-        this.org = { ...this.org, bannerUrl: e.target?.result as string };
+        this.org = { ...currentOrg, bannerUrl: e.target?.result as string };
       };
       reader.readAsDataURL(file);
     } catch {
@@ -407,9 +409,11 @@ export class OrgProfileComponent implements OnInit, OnDestroy {
         this.orgId,
       );
       await this.uploadService.uploadToPresignedUrl(url, file);
+      const currentOrg = this.org;
+      if (!currentOrg) return;
       const reader = new FileReader();
       reader.onload = e => {
-        this.org = { ...this.org, logoUrl: e.target?.result as string };
+        this.org = { ...currentOrg, logoUrl: e.target?.result as string };
       };
       reader.readAsDataURL(file);
     } catch {
