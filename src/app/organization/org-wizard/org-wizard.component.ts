@@ -328,7 +328,7 @@ export class OrgWizardComponent implements OnInit, OnDestroy {
       // CA-02: timeout 10 segundos
       const res = await firstValueFrom(
         this.http
-          .get<SiiLookupResult>('/api/core/organizacion/sii/lookup', {
+          .get<SiiLookupResult>('/api/bff/organizacion/sii/lookup', {
             params: { rut: rutNum, dv },
             withCredentials: true,
           })

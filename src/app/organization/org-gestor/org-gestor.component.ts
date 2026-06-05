@@ -223,7 +223,7 @@ export class OrgGestorComponent implements OnInit {
   private async verifyAdminAccess(): Promise<void> {
     try {
       const result = await firstValueFrom(
-        this.http.get<{ rol: string }>(`/api/core/organizacion/${this.orgId}/mi-rol`, {
+        this.http.get<{ rol: string }>(`/api/bff/organizacion/${this.orgId}/mi-rol`, {
           withCredentials: true,
         }),
       );
@@ -250,7 +250,7 @@ export class OrgGestorComponent implements OnInit {
 
   private async loadOrg(): Promise<void> {
     const org = await firstValueFrom(
-      this.http.get<OrgGestorData>(`/api/core/organizacion/${this.orgId}`, {
+      this.http.get<OrgGestorData>(`/api/bff/organizacion/${this.orgId}`, {
         withCredentials: true,
       }),
     );
@@ -266,18 +266,18 @@ export class OrgGestorComponent implements OnInit {
     try {
       const [members, requests, invitations] = await Promise.all([
         firstValueFrom(
-          this.http.get<OrgMember[]>(`/api/core/organizacion/${this.orgId}/miembros`, {
+          this.http.get<OrgMember[]>(`/api/bff/organizacion/${this.orgId}/miembros`, {
             withCredentials: true,
           }),
         ),
         firstValueFrom(
           this.http.get<PendingRequest[]>(
-            `/api/core/organizacion/${this.orgId}/miembro/solicitudes`,
+            `/api/bff/organizacion/${this.orgId}/miembro/solicitudes`,
             { withCredentials: true },
           ),
         ),
         firstValueFrom(
-          this.http.get<SentInvitation[]>(`/api/core/organizacion/${this.orgId}/invitaciones`, {
+          this.http.get<SentInvitation[]>(`/api/bff/organizacion/${this.orgId}/invitaciones`, {
             withCredentials: true,
           }),
         ),
@@ -294,7 +294,7 @@ export class OrgGestorComponent implements OnInit {
     this.loadingGroups = true;
     try {
       const res = await firstValueFrom(
-        this.http.get<GestorWorkGroup[]>(`/api/core/organizacion/${this.orgId}/grupos`, {
+        this.http.get<GestorWorkGroup[]>(`/api/bff/organizacion/${this.orgId}/grupos`, {
           withCredentials: true,
         }),
       );
@@ -378,7 +378,7 @@ export class OrgGestorComponent implements OnInit {
     try {
       await firstValueFrom(
         this.http.patch(
-          `/api/core/organizacion/${this.orgId}/miembro/${this.actionTarget.id}/rol`,
+          `/api/bff/organizacion/${this.orgId}/miembro/${this.actionTarget.id}/rol`,
           { rol: 'admin' },
           { withCredentials: true },
         ),
@@ -399,7 +399,7 @@ export class OrgGestorComponent implements OnInit {
     try {
       await firstValueFrom(
         this.http.patch(
-          `/api/core/organizacion/${this.orgId}/miembro/${this.actionTarget.id}/rol`,
+          `/api/bff/organizacion/${this.orgId}/miembro/${this.actionTarget.id}/rol`,
           { rol: 'miembro' },
           { withCredentials: true },
         ),
@@ -420,7 +420,7 @@ export class OrgGestorComponent implements OnInit {
     try {
       await firstValueFrom(
         this.http.delete(
-          `/api/core/organizacion/${this.orgId}/miembro/${this.actionTarget.id}`,
+          `/api/bff/organizacion/${this.orgId}/miembro/${this.actionTarget.id}`,
           {
             body: { motivo: this.removeReason },
             withCredentials: true,
@@ -443,7 +443,7 @@ export class OrgGestorComponent implements OnInit {
     try {
       await firstValueFrom(
         this.http.post(
-          `/api/core/organizacion/${this.orgId}/miembro/solicitud/${req.id}/aprobar`,
+          `/api/bff/organizacion/${this.orgId}/miembro/solicitud/${req.id}/aprobar`,
           {},
           { withCredentials: true },
         ),
@@ -470,7 +470,7 @@ export class OrgGestorComponent implements OnInit {
     try {
       await firstValueFrom(
         this.http.post(
-          `/api/core/organizacion/${this.orgId}/miembro/solicitud/${this.rejectingRequest.id}/rechazar`,
+          `/api/bff/organizacion/${this.orgId}/miembro/solicitud/${this.rejectingRequest.id}/rechazar`,
           { motivo: this.rejectReason },
           { withCredentials: true },
         ),
@@ -508,7 +508,7 @@ export class OrgGestorComponent implements OnInit {
     try {
       await firstValueFrom(
         this.http.post(
-          `/api/core/organizacion/${this.orgId}/invitacion`,
+          `/api/bff/organizacion/${this.orgId}/invitacion`,
           { email: this.inviteEmail },
           { withCredentials: true },
         ),
@@ -527,7 +527,7 @@ export class OrgGestorComponent implements OnInit {
     try {
       await firstValueFrom(
         this.http.post(
-          `/api/core/organizacion/${this.orgId}/invitacion/${inv.id}/reenviar`,
+          `/api/bff/organizacion/${this.orgId}/invitacion/${inv.id}/reenviar`,
           {},
           { withCredentials: true },
         ),
@@ -551,7 +551,7 @@ export class OrgGestorComponent implements OnInit {
     this.confirmingRevoke = true;
     try {
       await firstValueFrom(
-        this.http.delete(`/api/core/organizacion/${this.orgId}/invitacion/${this.revokingInvitationId}`, {
+        this.http.delete(`/api/bff/organizacion/${this.orgId}/invitacion/${this.revokingInvitationId}`, {
           withCredentials: true,
         }),
       );
@@ -642,7 +642,7 @@ export class OrgGestorComponent implements OnInit {
       if (this.editingGroup) {
         await firstValueFrom(
           this.http.patch(
-            `/api/core/organizacion/${this.orgId}/grupo/${this.editingGroup.id}`,
+            `/api/bff/organizacion/${this.orgId}/grupo/${this.editingGroup.id}`,
             payload,
             { withCredentials: true },
           ),
@@ -650,7 +650,7 @@ export class OrgGestorComponent implements OnInit {
       } else {
         await firstValueFrom(
           this.http.post(
-            `/api/core/organizacion/${this.orgId}/grupo`,
+            `/api/bff/organizacion/${this.orgId}/grupo`,
             payload,
             { withCredentials: true },
           ),
@@ -678,7 +678,7 @@ export class OrgGestorComponent implements OnInit {
     this.confirmingDeleteGroup = true;
     try {
       await firstValueFrom(
-        this.http.delete(`/api/core/organizacion/${this.orgId}/grupo/${this.deletingGroup.id}`, {
+        this.http.delete(`/api/bff/organizacion/${this.orgId}/grupo/${this.deletingGroup.id}`, {
           withCredentials: true,
         }),
       );
@@ -702,7 +702,7 @@ export class OrgGestorComponent implements OnInit {
       };
       await firstValueFrom(
         this.http.patch(
-          `/api/core/organizacion/${this.orgId}`,
+          `/api/bff/organizacion/${this.orgId}`,
           { razonSocial, descripcion },
           { withCredentials: true },
         ),
@@ -824,7 +824,7 @@ export class OrgGestorComponent implements OnInit {
     try {
       await firstValueFrom(
         this.http.patch(
-          `/api/core/organizacion/${this.orgId}`,
+          `/api/bff/organizacion/${this.orgId}`,
           { ecosistemaDigital: links },
           { withCredentials: true },
         ),
@@ -846,7 +846,7 @@ export class OrgGestorComponent implements OnInit {
     try {
       await firstValueFrom(
         this.http.patch(
-          `/api/core/organizacion/${this.orgId}`,
+          `/api/bff/organizacion/${this.orgId}`,
           { ecosistemaDigital: links },
           { withCredentials: true },
         ),
@@ -872,7 +872,7 @@ export class OrgGestorComponent implements OnInit {
     try {
       const result = await firstValueFrom(
         this.http.post<{ codigoAcceso: string }>(
-          `/api/core/organizacion/${this.orgId}/rotar-codigo`,
+          `/api/bff/organizacion/${this.orgId}/rotar-codigo`,
           {},
           { withCredentials: true },
         ),
@@ -906,7 +906,7 @@ export class OrgGestorComponent implements OnInit {
     try {
       await firstValueFrom(
         this.http.patch(
-          `/api/core/organizacion/${this.orgId}`,
+          `/api/bff/organizacion/${this.orgId}`,
           { estado: 'INACTIVA' },
           { withCredentials: true },
         ),

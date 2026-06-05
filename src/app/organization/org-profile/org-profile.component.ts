@@ -160,7 +160,7 @@ export class OrgProfileComponent implements OnInit, OnDestroy {
     this.error = null;
     try {
       this.org = await firstValueFrom(
-        this.http.get<OrgProfileData>(`/api/core/organizacion/${this.orgId}`, {
+        this.http.get<OrgProfileData>(`/api/bff/organizacion/${this.orgId}`, {
           withCredentials: true,
         }),
       );
@@ -175,7 +175,7 @@ export class OrgProfileComponent implements OnInit, OnDestroy {
     this.loadingGroups = true;
     try {
       const res = await firstValueFrom(
-        this.http.get<WorkGroup[]>(`/api/core/organizacion/${this.orgId}/grupos`, {
+        this.http.get<WorkGroup[]>(`/api/bff/organizacion/${this.orgId}/grupos`, {
           withCredentials: true,
         }),
       );
@@ -207,7 +207,7 @@ export class OrgProfileComponent implements OnInit, OnDestroy {
     try {
       await firstValueFrom(
         this.http.patch(
-          `/api/core/organizacion/${this.orgId}`,
+          `/api/bff/organizacion/${this.orgId}`,
           { descripcion: this.descriptionDraft },
           { withCredentials: true },
         ),
@@ -260,7 +260,7 @@ export class OrgProfileComponent implements OnInit, OnDestroy {
     try {
       await firstValueFrom(
         this.http.patch(
-          `/api/core/organizacion/${this.orgId}`,
+          `/api/bff/organizacion/${this.orgId}`,
           { ecosistemaDigital: links },
           { withCredentials: true },
         ),
@@ -282,7 +282,7 @@ export class OrgProfileComponent implements OnInit, OnDestroy {
     try {
       await firstValueFrom(
         this.http.patch(
-          `/api/core/organizacion/${this.orgId}`,
+          `/api/bff/organizacion/${this.orgId}`,
           { ecosistemaDigital: links },
           { withCredentials: true },
         ),
@@ -305,7 +305,7 @@ export class OrgProfileComponent implements OnInit, OnDestroy {
     if (!group.leaderCandidates) {
       try {
         const res = await firstValueFrom(
-          this.http.get<GroupMember[]>(`/api/core/organizacion/${this.orgId}/miembros`, {
+          this.http.get<GroupMember[]>(`/api/bff/organizacion/${this.orgId}/miembros`, {
             withCredentials: true,
           }),
         );
@@ -326,7 +326,7 @@ export class OrgProfileComponent implements OnInit, OnDestroy {
     try {
       await firstValueFrom(
         this.http.patch(
-          `/api/core/organizacion/${this.orgId}/grupo/${group.id}/lider`,
+          `/api/bff/organizacion/${this.orgId}/grupo/${group.id}/lider`,
           { liderId: group.selectedNewLeader },
           { withCredentials: true },
         ),
