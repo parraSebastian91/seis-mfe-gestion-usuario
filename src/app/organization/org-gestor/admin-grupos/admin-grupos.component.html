@@ -1,0 +1,139 @@
+<div class="admin-section">
+
+  <header class="section-header">
+    <h2 class="section-title">Grupos de trabajo</h2>
+    <span class="section-count">{{ grupos.length }}</span>
+    <div class="section-header-actions">
+      <button mat-flat-button color="primary" (click)="openCreate()">
+        <mat-icon>add</mat-icon> Nuevo grupo
+      </button>
+    </div>
+  </header>
+
+  <!-- Loading -->
+  <div class="section-loading" *ngIf="loading">
+    <mat-spinner diameter="36"></mat-spinner>
+  </div>
+
+  <!-- Error -->
+  <div class="section-error" *ngIf="!loading && error">
+    <mat-icon>error_outline</mat-icon>
+    <span>{{ error }}</span>
+    <button mat-button (click)="load()">Reintentar</button>
+  </div>
+
+  <!-- Empty -->
+  <div class="section-empty" *ngIf="!loading && !error && grupos.length === 0">
+    <mat-icon>workspaces_outline</mat-icon>
+    <p>No hay grupos de trabajo. Crea el primero.</p>
+  </div>
+
+  <!-- Grid -->
+  <div class="grupos-grid" *ngIf="!loading && !error && grupos.length > 0">
+    <div class="grupo-card" *ngFor="let g of grupos">
+      <div class="grupo-card__header">
+        <div class="grupo-icon">
+          <mat-icon>workspaces</mat-icon>
+        </div>
+        <div class="grupo-info">
+          <h3 class="grupo-name">{{ g.nombre }}</h3>
+          <p class="grupo-desc" *ngIf="g.descripcion">{{ g.descripcion }}</p>
+        </div>
+        <div class="grupo-menu">
+          <button mat-icon-button [matMenuTriggerFor]="menuGrupo" aria-label="Opciones del grupo">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #menuGrupo="matMenu">
+            <button mat-menu-item (click)="openEdit(g)">
+              <mat-icon>edit</mat-icon> Editar
+            </button>
+            <button mat-menu-item (click)="goToDetalle(g)">
+              <mat-icon>people</mat-icon> Ver miembros
+            </button>
+            <mat-divider></mat-divider>
+            <button mat-menu-item class="danger-item" (click)="openDelete(g)">
+              <mat-icon>delete_outline</mat-icon> Eliminar
+            </button>
+          </mat-menu>
+        </div>
+      </div>
+
+      <div class="grupo-card__footer">
+        <div class="grupo-lider">
+          <mat-icon class="lider-icon">star</mat-icon>
+          <span>{{ g.liderNombre }} {{ g.liderApellido }}</span>
+        </div>
+        <div class="grupo-miembros-summary">
+          <mat-icon>group</mat-icon>
+          <span>{{ g.miembros.length }} miembro{{ g.miembros.length !== 1 ? 's' : '' }}</span>
+        </div>
+      </div>
+
+      <button mat-button class="ver-detalle-btn" (click)="goToDetalle(g)">
+        Ver detalles <mat-icon>chevron_right</mat-icon>
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Create / Edit modal ───────────────────────────────────────────────── -->
+<div class="modal-backdrop" *ngIf="showModal" (click)="showModal = false">
+  <div class="modal-panel" (click)="$event.stopPropagation()">
+    <h3 class="modal-title">{{ editingGrupo ? 'Editar grupo' : 'Nuevo grupo' }}</h3>
+
+    <form [formGroup]="grupoForm">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Nombre del grupo</mat-label>
+        <input matInput formControlName="nombre" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Descripción (opcional)</mat-label>
+        <textarea matInput formControlName="descripcion" rows="2"></textarea>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width" *ngIf="!editingGrupo">
+        <mat-label>Líder del grupo</mat-label>
+        <mat-select formControlName="liderUuid">
+          <mat-option *ngFor="let m of miembrosOrg" [value]="m.usuarioUuid">
+            {{ m.nombre }} {{ m.apellido }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </form>
+
+    <p class="modal-error" *ngIf="formError">{{ formError }}</p>
+
+    <div class="modal-actions">
+      <button mat-button [disabled]="saving" (click)="showModal = false">Cancelar</button>
+      <button
+        mat-flat-button
+        color="primary"
+        [disabled]="saving || grupoForm.invalid"
+        (click)="saveGrupo()">
+        <mat-spinner *ngIf="saving" diameter="18"></mat-spinner>
+        <span *ngIf="!saving">{{ editingGrupo ? 'Guardar' : 'Crear' }}</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Delete confirm ────────────────────────────────────────────────────── -->
+<div class="modal-backdrop" *ngIf="deletingGrupo" (click)="deletingGrupo = null">
+  <div class="modal-panel" (click)="$event.stopPropagation()">
+    <h3 class="modal-title">¿Eliminar grupo?</h3>
+    <p class="modal-body">
+      Se eliminará el grupo <strong>{{ deletingGrupo.nombre }}</strong>
+      y sus {{ deletingGrupo.miembros.length }} miembros serán desasociados del grupo.
+    </p>
+    <p class="modal-error" *ngIf="deleteError">{{ deleteError }}</p>
+    <div class="modal-actions">
+      <button mat-button [disabled]="deleting" (click)="deletingGrupo = null">Cancelar</button>
+      <button mat-flat-button color="warn" [disabled]="deleting" (click)="confirmDelete()">
+        <mat-spinner *ngIf="deleting" diameter="18"></mat-spinner>
+        <span *ngIf="!deleting">Eliminar</span>
+      </button>
+    </div>
+  </div>
+</div>

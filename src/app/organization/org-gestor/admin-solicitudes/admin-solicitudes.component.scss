@@ -1,0 +1,103 @@
+@import '../admin-shared';
+
+.solicitudes-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.solicitud-card {
+  background: $bg-surface;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  padding: 16px;
+  box-shadow: $shadow-sm;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.solicitud-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.solicitud-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, $brand, $brand-dim);
+  color: $brand-on;
+  font-size: .85rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.solicitud-info {
+  flex: 1;
+  min-width: 0;
+  p { margin: 0 0 2px; }
+}
+
+.solicitud-name  { font-size: .9rem; font-weight: 600; color: $text; }
+.solicitud-email { font-size: .78rem; color: $text-muted; }
+
+.solicitud-meta {
+  font-size: .75rem;
+  color: $text-muted;
+  margin-top: 4px !important;
+}
+
+.solicitud-msg {
+  font-size: .8rem;
+  color: $text-muted;
+  font-style: italic;
+  margin-top: 6px !important;
+}
+
+.solicitud-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.token-btn {
+  font-size: .8rem;
+  mat-icon { font-size: 18px; margin-right: 4px; }
+}
+
+// ── Token display ─────────────────────────────────────────────────────────────
+.token-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: $bg-base;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  padding: 10px 14px;
+  margin: 12px 0 4px;
+}
+
+.token-code {
+  flex: 1;
+  font-family: var(--font-mono, 'Courier New', monospace);
+  font-size: .75rem;
+  word-break: break-all;
+  color: $brand;
+}
+
+.token-expira {
+  font-size: .78rem;
+  color: $text-muted;
+  margin: 0 0 8px;
+}
+
+.token-panel { max-width: 500px; }

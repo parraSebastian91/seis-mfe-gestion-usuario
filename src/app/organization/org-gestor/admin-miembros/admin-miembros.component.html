@@ -1,0 +1,104 @@
+<div class="admin-section">
+
+  <header class="section-header">
+    <h2 class="section-title">Miembros</h2>
+    <span class="section-count">{{ miembros.length }}</span>
+  </header>
+
+  <!-- Loading -->
+  <div class="section-loading" *ngIf="loading">
+    <mat-spinner diameter="36"></mat-spinner>
+  </div>
+
+  <!-- Error -->
+  <div class="section-error" *ngIf="!loading && error">
+    <mat-icon>error_outline</mat-icon>
+    <span>{{ error }}</span>
+    <button mat-button (click)="load()">Reintentar</button>
+  </div>
+
+  <!-- Empty -->
+  <div class="section-empty" *ngIf="!loading && !error && miembros.length === 0">
+    <mat-icon>group_off</mat-icon>
+    <p>Esta organización no tiene miembros aún.</p>
+  </div>
+
+  <!-- List -->
+  <ul class="miembros-list" *ngIf="!loading && !error && miembros.length > 0">
+    <li class="miembro-card" *ngFor="let m of miembros">
+      <div class="miembro-avatar">
+        <img *ngIf="m.avatarUrl" [src]="m.avatarUrl" [alt]="m.nombre" />
+        <span *ngIf="!m.avatarUrl" class="avatar-placeholder">
+          {{ m.nombre.charAt(0) }}{{ m.apellido.charAt(0) }}
+        </span>
+      </div>
+      <div class="miembro-info">
+        <p class="miembro-name">{{ m.nombre }} {{ m.apellido }}</p>
+        <p class="miembro-email">{{ m.email }}</p>
+      </div>
+      <span [class]="rolClass(m.rolCodigo)">{{ m.rolNombre }}</span>
+      <div class="miembro-actions">
+        <button mat-icon-button [matMenuTriggerFor]="menuMiembro" aria-label="Opciones">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #menuMiembro="matMenu">
+          <button mat-menu-item (click)="openChangeRol(m)">
+            <mat-icon>manage_accounts</mat-icon> Cambiar rol
+          </button>
+          <button mat-menu-item class="danger-item" (click)="openRemove(m)">
+            <mat-icon>person_remove</mat-icon> Remover
+          </button>
+        </mat-menu>
+      </div>
+    </li>
+  </ul>
+
+</div>
+
+<!-- ── Change rol modal ───────────────────────────────────────────────────── -->
+<div class="modal-backdrop" *ngIf="changingRol" (click)="changingRol = null">
+  <div class="modal-panel" (click)="$event.stopPropagation()">
+    <h3 class="modal-title">Cambiar rol</h3>
+    <p class="modal-subtitle">
+      {{ changingRol.nombre }} {{ changingRol.apellido }}
+    </p>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Nuevo rol</mat-label>
+      <mat-select [(ngModel)]="newRol">
+        <mat-option *ngFor="let r of ROL_OPTS" [value]="r.codigo">{{ r.label }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <p class="modal-error" *ngIf="rolError">{{ rolError }}</p>
+
+    <div class="modal-actions">
+      <button mat-button [disabled]="savingRol" (click)="changingRol = null">Cancelar</button>
+      <button mat-flat-button color="primary" [disabled]="savingRol" (click)="saveRol()">
+        <mat-spinner *ngIf="savingRol" diameter="18"></mat-spinner>
+        <span *ngIf="!savingRol">Guardar</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Remove confirm modal ──────────────────────────────────────────────── -->
+<div class="modal-backdrop" *ngIf="removingMiembro" (click)="removingMiembro = null">
+  <div class="modal-panel" (click)="$event.stopPropagation()">
+    <h3 class="modal-title">¿Remover miembro?</h3>
+    <p class="modal-body">
+      Se removerá a <strong>{{ removingMiembro.nombre }} {{ removingMiembro.apellido }}</strong>
+      de la organización. Esta acción se puede revertir en el futuro.
+    </p>
+
+    <p class="modal-error" *ngIf="removeError">{{ removeError }}</p>
+
+    <div class="modal-actions">
+      <button mat-button [disabled]="removing" (click)="removingMiembro = null">Cancelar</button>
+      <button mat-flat-button color="warn" [disabled]="removing" (click)="confirmRemove()">
+        <mat-spinner *ngIf="removing" diameter="18"></mat-spinner>
+        <span *ngIf="!removing">Remover</span>
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,144 @@
+<div class="admin-section">
+
+  <header class="section-header">
+    <h2 class="section-title">Solicitudes de acceso</h2>
+    <span class="section-count" *ngIf="pendingCount > 0">{{ pendingCount }} pendientes</span>
+    <div class="section-header-actions">
+      <button mat-flat-button color="primary" class="token-btn" (click)="openTokenPanel()">
+        <mat-icon>link</mat-icon>
+        Generar código de enrolamiento
+      </button>
+    </div>
+  </header>
+
+  <!-- Loading -->
+  <div class="section-loading" *ngIf="loading">
+    <mat-spinner diameter="36"></mat-spinner>
+  </div>
+
+  <!-- Error -->
+  <div class="section-error" *ngIf="!loading && error">
+    <mat-icon>error_outline</mat-icon>
+    <span>{{ error }}</span>
+    <button mat-button (click)="load()">Reintentar</button>
+  </div>
+
+  <!-- Empty -->
+  <div class="section-empty" *ngIf="!loading && !error && solicitudes.length === 0">
+    <mat-icon>inbox</mat-icon>
+    <p>No hay solicitudes de acceso pendientes.</p>
+  </div>
+
+  <!-- Solicitudes list -->
+  <ul class="solicitudes-list" *ngIf="!loading && !error && solicitudes.length > 0">
+    <li class="solicitud-card" *ngFor="let s of solicitudes">
+      <div class="solicitud-main">
+        <div class="solicitud-avatar">
+          {{ s.solicitanteNombre.charAt(0) }}{{ s.solicitanteApellido.charAt(0) }}
+        </div>
+        <div class="solicitud-info">
+          <p class="solicitud-name">{{ s.solicitanteNombre }} {{ s.solicitanteApellido }}</p>
+          <p class="solicitud-email">{{ s.solicitanteEmail }}</p>
+          <p class="solicitud-meta">
+            <span>Rol solicitado: <strong>{{ s.rolSolicitado }}</strong></span>
+            &bull;
+            <span>{{ formatDate(s.creadoEn) }}</span>
+          </p>
+          <p class="solicitud-msg" *ngIf="s.mensaje">"{{ s.mensaje }}"</p>
+        </div>
+        <span [class]="estadoClass(s)">
+          {{ s.estaExpirada ? 'Expirada' : s.estado }}
+        </span>
+      </div>
+      <div class="solicitud-actions" *ngIf="s.estado === 'PENDIENTE' && !s.estaExpirada">
+        <button mat-stroked-button color="warn" (click)="openResolve(s, 'RECHAZADA')">
+          <mat-icon>close</mat-icon> Rechazar
+        </button>
+        <button mat-flat-button color="primary" (click)="openResolve(s, 'APROBADA')">
+          <mat-icon>check</mat-icon> Aprobar
+        </button>
+      </div>
+    </li>
+  </ul>
+
+</div>
+
+<!-- ── Resolve modal ──────────────────────────────────────────────────────── -->
+<div class="modal-backdrop" *ngIf="resolviendo" (click)="resolviendo = null">
+  <div class="modal-panel" (click)="$event.stopPropagation()">
+    <h3 class="modal-title">
+      {{ decision === 'APROBADA' ? 'Aprobar solicitud' : 'Rechazar solicitud' }}
+    </h3>
+    <p class="modal-subtitle">
+      {{ resolviendo.solicitanteNombre }} {{ resolviendo.solicitanteApellido }}
+      — rol: <strong>{{ resolviendo.rolSolicitado }}</strong>
+    </p>
+
+    <mat-form-field
+      *ngIf="decision === 'RECHAZADA'"
+      appearance="outline"
+      class="full-width">
+      <mat-label>Motivo del rechazo</mat-label>
+      <textarea matInput [(ngModel)]="motivoRechazo" rows="3"></textarea>
+    </mat-form-field>
+
+    <p class="modal-error" *ngIf="saveError">{{ saveError }}</p>
+
+    <div class="modal-actions">
+      <button mat-button [disabled]="saving" (click)="resolviendo = null">Cancelar</button>
+      <button
+        mat-flat-button
+        [color]="decision === 'APROBADA' ? 'primary' : 'warn'"
+        [disabled]="saving"
+        (click)="confirmResolve()">
+        <mat-spinner *ngIf="saving" diameter="18"></mat-spinner>
+        <span *ngIf="!saving">{{ decision === 'APROBADA' ? 'Aprobar' : 'Rechazar' }}</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Token panel ────────────────────────────────────────────────────────── -->
+<div class="modal-backdrop" *ngIf="showTokenPanel" (click)="showTokenPanel = false">
+  <div class="modal-panel token-panel" (click)="$event.stopPropagation()">
+    <h3 class="modal-title">Código de enrolamiento</h3>
+    <p class="modal-body">
+      Genera un token que permite a un colaborador solicitar acceso directamente.
+      Comparte el token por email o mensajería segura.
+    </p>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Rol a asignar</mat-label>
+      <mat-select [(ngModel)]="rolDestino">
+        <mat-option *ngFor="let r of ROL_OPTS" [value]="r">{{ r }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- Generated token display -->
+    <div class="token-display" *ngIf="generatedToken">
+      <code class="token-code">{{ generatedToken }}</code>
+      <button mat-icon-button (click)="copyToken()" matTooltip="Copiar token">
+        <mat-icon>content_copy</mat-icon>
+      </button>
+    </div>
+    <p class="token-expira" *ngIf="tokenExpira">
+      Expira: {{ formatDate(tokenExpira) }}
+    </p>
+
+    <p class="modal-error" *ngIf="tokenError">{{ tokenError }}</p>
+
+    <div class="modal-actions">
+      <button mat-button (click)="showTokenPanel = false">Cerrar</button>
+      <button
+        mat-flat-button
+        color="primary"
+        [disabled]="generatingToken"
+        (click)="generateToken()">
+        <mat-spinner *ngIf="generatingToken" diameter="18"></mat-spinner>
+        <span *ngIf="!generatingToken">
+          {{ generatedToken ? 'Generar nuevo' : 'Generar token' }}
+        </span>
+      </button>
+    </div>
+  </div>
+</div>

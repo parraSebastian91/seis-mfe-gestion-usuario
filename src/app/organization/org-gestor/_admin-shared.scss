@@ -1,0 +1,214 @@
+// =============================================================================
+// Admin Panel — Shared tokens (Factor Design System)
+// Sigue el mismo patrón de org-wizard:
+//   SCSS var = CSS custom property con fallback
+// Nunca hardcodear colores — todos deben venir del design system.
+// =============================================================================
+
+// ── Semánticos (Capa 2 del design system) ─────────────────────────────────────
+$bg-base:    var(--color-bg-base,      #0D1655);
+$bg-surface: var(--color-bg-surface,  #1A237E);
+$bg-elevated:var(--color-bg-elevated, #1E2A8A);
+
+$text:       var(--color-text-primary,   #fff);
+$text-muted: var(--color-text-secondary, rgba(255,255,255,.55));
+$text-disabled: var(--color-text-disabled, rgba(255,255,255,.25));
+
+$border:     var(--color-border,       rgba(255,255,255,.08));
+
+$brand:      var(--color-brand-primary,     #00BFA5);
+$brand-dim:  var(--color-brand-primary-dim, #00897B);
+$brand-on:   var(--color-brand-on-primary,  #0A0D1A);
+
+// ── Estado (Capa CA-04) ───────────────────────────────────────────────────────
+$success: var(--color-success, #22C55E);
+$warning: var(--color-warning, #F59E0B);
+$danger:  var(--color-error,   #EF4444);
+$info:    var(--color-info,    #3B82F6);
+
+// ── Escala ────────────────────────────────────────────────────────────────────
+$radius-lg: 12px;
+$radius-md: 8px;
+$shadow-sm: 0 1px 4px rgba(0,0,0,.25);
+$shadow-md: 0 4px 20px rgba(0,0,0,.40);
+
+// =============================================================================
+// Layout helpers — admin section
+// =============================================================================
+.admin-section {
+  max-width: 860px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: $text;
+  margin: 0;
+}
+
+.section-count {
+  background: rgba(0, 191, 165, .15); // teal tint
+  color: $brand;
+  font-size: .72rem;
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: 20px;
+}
+
+.section-header-actions {
+  margin-left: auto;
+}
+
+.section-loading {
+  display: flex;
+  justify-content: center;
+  padding: 48px 0;
+}
+
+.section-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px;
+  background: rgba(239, 68, 68, .12);
+  border: 1px solid rgba(239, 68, 68, .25);
+  border-radius: $radius-md;
+  color: $danger;
+  font-size: .875rem;
+
+  mat-icon { font-size: 20px; width: 20px; height: 20px; }
+}
+
+.section-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 0;
+  color: $text-muted;
+  text-align: center;
+
+  mat-icon { font-size: 48px; width: 48px; height: 48px; opacity: .3; }
+  p { margin: 0; font-size: .9rem; }
+}
+
+.full-width { width: 100%; }
+
+// =============================================================================
+// Modal
+// =============================================================================
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .60);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+  backdrop-filter: blur(2px);
+}
+
+.modal-panel {
+  background: $bg-elevated;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  padding: 24px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: $shadow-md;
+  animation: modalIn .15s ease-out;
+}
+
+.modal-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: $text;
+  margin: 0 0 4px;
+}
+
+.modal-subtitle {
+  font-size: .85rem;
+  color: $text-muted;
+  margin: 0 0 16px;
+}
+
+.modal-body {
+  font-size: .875rem;
+  color: $text-muted;
+  margin: 0 0 16px;
+  line-height: 1.6;
+}
+
+.modal-error {
+  font-size: .8rem;
+  color: $danger;
+  margin: 8px 0 0;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(8px) scale(.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+// =============================================================================
+// Status / rol chips (dark-theme aware)
+// =============================================================================
+
+// Rol chips
+.rol-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: .72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  flex-shrink: 0;
+
+  &--admin        { background: rgba(245, 158, 11, .15); color: #F59E0B; }
+  &--operador     { background: rgba(59, 130, 246, .15); color: #60A5FA; }
+  &--colaborador  { background: rgba(0, 191, 165, .15);  color: #00BFA5; }
+  &--auditor      { background: rgba(167, 139, 250, .15);color: #A78BFA; }
+}
+
+// Solicitud badges
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: .7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  flex-shrink: 0;
+
+  &--pending  { background: rgba(245, 158, 11, .15);  color: #F59E0B; }
+  &--approved { background: rgba(34, 197, 94, .15);   color: #22C55E; }
+  &--rejected { background: rgba(239, 68, 68, .15);   color: #EF4444; }
+  &--expired  { background: rgba(255,255,255, .06);    color: $text-muted; }
+  &--default  { background: rgba(255,255,255, .06);    color: $text-muted; }
+}
+
+// ── Danger menu item ──────────────────────────────────────────────────────────
+::ng-deep .danger-item {
+  color: $danger !important;
+  mat-icon { color: $danger !important; }
+}

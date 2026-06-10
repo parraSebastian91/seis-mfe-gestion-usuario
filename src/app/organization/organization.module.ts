@@ -8,7 +8,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-// Tabs / Menus used by org-gestor and org-profile (pending migration)
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
@@ -25,9 +24,22 @@ import { OrgListComponent } from './org-list/org-list.component';
 import { OrgWizardComponent } from './org-wizard/org-wizard.component';
 import { OrgProfileComponent } from './org-profile/org-profile.component';
 import { OrgGestorComponent } from './org-gestor/org-gestor.component';
+import { AdminMiembrosComponent } from './org-gestor/admin-miembros/admin-miembros.component';
+import { AdminSolicitudesComponent } from './org-gestor/admin-solicitudes/admin-solicitudes.component';
+import { AdminGruposComponent } from './org-gestor/admin-grupos/admin-grupos.component';
+import { AdminGrupoDetalleComponent } from './org-gestor/admin-grupos/admin-grupo-detalle.component';
 
 @NgModule({
-  declarations: [OrgListComponent, OrgWizardComponent, OrgProfileComponent, OrgGestorComponent],
+  declarations: [
+    OrgListComponent,
+    OrgWizardComponent,
+    OrgProfileComponent,
+    OrgGestorComponent,
+    AdminMiembrosComponent,
+    AdminSolicitudesComponent,
+    AdminGruposComponent,
+    AdminGrupoDetalleComponent,
+  ],
   imports: [
     CommonModule,
     OrganizationRoutingModule,

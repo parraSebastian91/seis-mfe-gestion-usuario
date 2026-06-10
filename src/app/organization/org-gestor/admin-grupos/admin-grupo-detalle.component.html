@@ -1,0 +1,128 @@
+<div class="admin-section">
+
+  <!-- Loading -->
+  <div class="section-loading" *ngIf="loading">
+    <mat-spinner diameter="36"></mat-spinner>
+  </div>
+
+  <!-- Error -->
+  <div class="section-error" *ngIf="!loading && error">
+    <mat-icon>error_outline</mat-icon>
+    <span>{{ error }}</span>
+    <button mat-button (click)="goBack()">Volver</button>
+  </div>
+
+  <ng-container *ngIf="!loading && !error && grupo">
+
+    <header class="section-header">
+      <button mat-icon-button (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h2 class="section-title">{{ grupo.nombre }}</h2>
+      <span class="section-count">{{ grupo.miembros.length }} miembros</span>
+      <div class="section-header-actions">
+        <button mat-flat-button color="primary" (click)="showAddPanel = true">
+          <mat-icon>person_add</mat-icon> Agregar
+        </button>
+      </div>
+    </header>
+
+    <p class="grupo-desc" *ngIf="grupo.descripcion">{{ grupo.descripcion }}</p>
+    <p class="grupo-lider-label">
+      <mat-icon>star</mat-icon>
+      Líder: <strong>{{ grupo.liderNombre }} {{ grupo.liderApellido }}</strong>
+    </p>
+
+    <!-- Empty group -->
+    <div class="section-empty" *ngIf="grupo.miembros.length === 0">
+      <mat-icon>group_off</mat-icon>
+      <p>Este grupo no tiene miembros. Agrega el primero.</p>
+    </div>
+
+    <!-- Members list -->
+    <ul class="miembros-list" *ngIf="grupo.miembros.length > 0">
+      <li class="miembro-card" *ngFor="let m of grupo.miembros">
+        <div class="miembro-avatar">
+          <img *ngIf="m.avatarUrl" [src]="m.avatarUrl" [alt]="m.nombre" />
+          <span *ngIf="!m.avatarUrl" class="avatar-placeholder">
+            {{ m.nombre.charAt(0) }}{{ m.apellido.charAt(0) }}
+          </span>
+        </div>
+        <div class="miembro-info">
+          <p class="miembro-name">
+            {{ m.nombre }} {{ m.apellido }}
+            <span class="lider-badge" *ngIf="isLider(m)">Líder</span>
+          </p>
+          <p class="miembro-cargo" *ngIf="m.cargoEnGrupo">{{ m.cargoEnGrupo }}</p>
+        </div>
+        <button
+          mat-icon-button
+          *ngIf="!isLider(m)"
+          (click)="openRemove(m)"
+          aria-label="Remover del grupo"
+          class="remove-btn">
+          <mat-icon>person_remove</mat-icon>
+        </button>
+      </li>
+    </ul>
+
+  </ng-container>
+</div>
+
+<!-- ── Add member panel ──────────────────────────────────────────────────── -->
+<div class="modal-backdrop" *ngIf="showAddPanel" (click)="showAddPanel = false">
+  <div class="modal-panel" (click)="$event.stopPropagation()">
+    <h3 class="modal-title">Agregar miembro al grupo</h3>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Miembro</mat-label>
+      <mat-select [(ngModel)]="selectedUuid">
+        <mat-option *ngFor="let m of availableMiembros" [value]="m.usuarioUuid">
+          {{ m.nombre }} {{ m.apellido }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Cargo en el grupo (opcional)</mat-label>
+      <input matInput [(ngModel)]="cargo" />
+    </mat-form-field>
+
+    <p class="modal-error" *ngIf="addError">{{ addError }}</p>
+    <p class="no-members-msg" *ngIf="availableMiembros.length === 0">
+      Todos los miembros de la organización ya están en este grupo.
+    </p>
+
+    <div class="modal-actions">
+      <button mat-button [disabled]="adding" (click)="showAddPanel = false">Cancelar</button>
+      <button
+        mat-flat-button
+        color="primary"
+        [disabled]="adding || !selectedUuid || availableMiembros.length === 0"
+        (click)="addMiembro()">
+        <mat-spinner *ngIf="adding" diameter="18"></mat-spinner>
+        <span *ngIf="!adding">Agregar</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Remove confirm ────────────────────────────────────────────────────── -->
+<div class="modal-backdrop" *ngIf="removingMiembro" (click)="removingMiembro = null">
+  <div class="modal-panel" (click)="$event.stopPropagation()">
+    <h3 class="modal-title">¿Remover del grupo?</h3>
+    <p class="modal-body">
+      Se removerá a
+      <strong>{{ removingMiembro.nombre }} {{ removingMiembro.apellido }}</strong>
+      del grupo. El miembro seguirá en la organización.
+    </p>
+    <p class="modal-error" *ngIf="removeError">{{ removeError }}</p>
+    <div class="modal-actions">
+      <button mat-button [disabled]="removing" (click)="removingMiembro = null">Cancelar</button>
+      <button mat-flat-button color="warn" [disabled]="removing" (click)="confirmRemove()">
+        <mat-spinner *ngIf="removing" diameter="18"></mat-spinner>
+        <span *ngIf="!removing">Remover</span>
+      </button>
+    </div>
+  </div>
+</div>
