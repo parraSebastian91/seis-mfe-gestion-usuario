@@ -1,37 +1,122 @@
+﻿// ============================================================
+// ORG WIZARD — custom design system (sin Angular Material)
+// ============================================================
+
+// Tokens de referencia locales
+$surface:       var(--color-bg-surface,  #1A237E);
+$elevated:      var(--color-bg-elevated, #1E2A8A);
+$text:          var(--color-text-primary, #fff);
+$text-muted:    var(--color-text-secondary, rgba(255,255,255,.55));
+$border:        var(--color-border, rgba(255,255,255,.08));
+$brand:         var(--color-brand-primary, #00BFA5);
+$brand-dim:     var(--color-brand-primary-dim, #00897B);
+$brand-on:      var(--color-brand-on-primary, #0A0D1A);
+$radius-sm:     6px;
+$radius-md:     10px;
+$radius-lg:     14px;
+$input-h:       44px;
+
+// ── Container ─────────────────────────────────────────────────
 .wizard-container {
   max-width: 720px;
   margin: 32px auto;
-  padding: 0 16px 48px;
+  padding: 0 16px 64px;
 }
 
+// ── Header ────────────────────────────────────────────────────
 .wizard-header {
   margin-bottom: 32px;
-
   .wizard-title {
     font-size: 1.75rem;
     font-weight: 600;
     margin: 0 0 8px;
-    color: var(--mat-sys-on-surface, #1a1a1a);
+    color: $text;
   }
-
   .wizard-subtitle {
     margin: 0;
-    color: var(--mat-sys-on-surface-variant, #555);
+    color: $text-muted;
     font-size: 0.95rem;
   }
 }
 
-// ── Stepper customisation ─────────────────────────────────────────────────────
-
-.org-stepper {
-  background: transparent;
+// ── Custom Stepper nav ────────────────────────────────────────
+.wiz-steps {
+  display: flex;
+  align-items: center;
+  margin-bottom: 36px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+  &::-webkit-scrollbar { display: none; }
 }
 
-// ── Step form ─────────────────────────────────────────────────────────────────
+.wiz-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  opacity: 0.45;
+  transition: opacity 0.2s;
 
-.step-form {
-  padding: 24px 0 8px;
+  &.is-active { opacity: 1; }
+  &.is-done   { opacity: 0.8; }
 }
+
+.wiz-step__bubble {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid $border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: $text-muted;
+  background: $surface;
+  transition: all 0.2s;
+
+  .wiz-step.is-active & {
+    border-color: $brand;
+    background: $brand;
+    color: $brand-on;
+  }
+
+  .wiz-step.is-done & {
+    border-color: $brand;
+    background: transparent;
+    color: $brand;
+  }
+}
+
+.wiz-step__check {
+  font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.wiz-step__label {
+  font-size: 0.7rem;
+  white-space: nowrap;
+  color: $text-muted;
+  .wiz-step.is-active & { color: $text; font-weight: 600; }
+  .wiz-step.is-done &   { color: $brand; }
+}
+
+.wiz-connector {
+  flex: 1;
+  height: 2px;
+  background: $border;
+  margin: 0 4px;
+  min-width: 16px;
+  transition: background 0.2s;
+  margin-bottom: 22px; // align with bubble vertical center
+  &.is-done { background: $brand; }
+}
+
+// ── Step form ─────────────────────────────────────────────────
+.step-form { padding: 8px 0; }
 
 .step-title {
   display: flex;
@@ -40,7 +125,7 @@
   font-size: 1.2rem;
   font-weight: 600;
   margin: 0 0 20px;
-  color: var(--mat-sys-on-surface, #1a1a1a);
+  color: $text;
 
   .step-num {
     display: inline-flex;
@@ -49,8 +134,8 @@
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    background: var(--mat-sys-primary, #1565c0);
-    color: #fff;
+    background: $brand;
+    color: $brand-on;
     font-size: 0.85rem;
     font-weight: 700;
     flex-shrink: 0;
@@ -59,8 +144,8 @@
   .optional-tag {
     font-size: 0.75rem;
     font-weight: 500;
-    background: var(--mat-sys-surface-variant, #e8eaf6);
-    color: var(--mat-sys-on-surface-variant, #555);
+    background: rgba(255,255,255,0.08);
+    color: $text-muted;
     padding: 2px 8px;
     border-radius: 12px;
     text-transform: lowercase;
@@ -69,163 +154,559 @@
 
 .step-subtitle {
   margin: -12px 0 20px;
-  color: var(--mat-sys-on-surface-variant, #555);
+  color: $text-muted;
   font-size: 0.9rem;
 }
 
-// ── Form layout ───────────────────────────────────────────────────────────────
+// ── Field group ───────────────────────────────────────────────
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 16px;
 
-.full-width {
-  width: 100%;
-  margin-bottom: 8px;
+  &.full-width { width: 100%; }
+  &.field-grow { flex: 1 1 0; min-width: 0; }
+  &.field-num  { flex: 0 0 120px; }
 }
 
+.field-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: $text-muted;
+  margin: 0;
+}
+
+.field-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.field-input {
+  width: 100%;
+  height: $input-h;
+  padding: 0 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid $border;
+  border-radius: $radius-md;
+  color: $text;
+  font-size: 0.9rem;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s, background 0.15s;
+  appearance: none;
+
+  &::placeholder { color: $text-muted; }
+
+  &:focus {
+    border-color: $brand;
+    background: rgba(0,191,165,0.06);
+  }
+
+  &.has-error {
+    border-color: #e53935;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.field-textarea {
+  height: auto;
+  padding: 10px 12px;
+  resize: vertical;
+}
+
+.field-select {
+  @extend .field-input;
+  padding-right: 36px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='rgba(255,255,255,0.5)' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  cursor: pointer;
+
+  option {
+    background: #1A237E;
+    color: #fff;
+  }
+}
+
+.field-suffix {
+  position: absolute;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.field-spinner {
+  position: absolute;
+  right: 10px;
+}
+
+.field-hint {
+  font-size: 0.75rem;
+  color: $text-muted;
+  margin: 0;
+}
+
+.field-error {
+  font-size: 0.75rem;
+  color: #ef5350;
+  margin: 0;
+}
+
+// ── Form row ──────────────────────────────────────────────────
 .form-row {
   display: flex;
   gap: 16px;
   align-items: flex-start;
-  margin-bottom: 0;
-
-  .field-grow {
-    flex: 1 1 0;
-    min-width: 0;
-  }
-
-  .field-num {
-    flex: 0 0 120px;
-  }
 
   @media (max-width: 599px) {
     flex-direction: column;
+    .field-num { flex: 1 1 auto; width: 100%; }
+  }
+}
 
-    .field-num {
-      flex: 1 1 auto;
-      width: 100%;
+// ── Radio pills ───────────────────────────────────────────────
+.radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.radio-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: 1.5px solid $border;
+  border-radius: 24px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: $text-muted;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  user-select: none;
+
+  input[type="radio"] { display: none; }
+
+  &:has(input:checked) {
+    border-color: $brand;
+    background: rgba(0,191,165,0.12);
+    color: $text;
+    font-weight: 600;
+  }
+
+  &:hover { border-color: rgba(0,191,165,0.5); }
+
+  &.is-disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+// ── Checkbox ──────────────────────────────────────────────────
+.checkbox-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  margin-bottom: 16px;
+  user-select: none;
+}
+
+.checkbox-input { display: none; }
+
+.checkbox-box {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1.5px solid $border;
+  background: rgba(255,255,255,0.05);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s, background 0.15s;
+
+  .checkbox-input:checked + & {
+    background: $brand;
+    border-color: $brand;
+
+    &::after {
+      content: '';
+      display: block;
+      width: 5px;
+      height: 9px;
+      border: 2px solid $brand-on;
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg) translate(-1px,-1px);
     }
   }
 }
 
-// ── SII result ────────────────────────────────────────────────────────────────
+.checkbox-label {
+  font-size: 0.875rem;
+  color: $text;
+}
 
+// ── Toggle switch ─────────────────────────────────────────────
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.toggle-label { font-size: 0.875rem; color: $text; }
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.toggle-input { display: none; }
+
+.toggle-track {
+  display: block;
+  width: 40px;
+  height: 22px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 11px;
+  position: relative;
+  transition: background 0.2s;
+
+  .toggle-input:checked ~ & { background: $brand; }
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+
+  .toggle-input:checked ~ .toggle-track & { transform: translateX(18px); }
+}
+
+// ── Buttons ───────────────────────────────────────────────────
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 20px;
+  height: 40px;
+  border-radius: $radius-md;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  transition: background 0.15s, opacity 0.15s, border-color 0.15s;
+  text-decoration: none;
+
+  &:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  // Primary
+  &--primary {
+    background: $brand;
+    color: $brand-on;
+    &:not(:disabled):hover { background: $brand-dim; }
+  }
+
+  // Ghost (texto)
+  &--ghost {
+    background: transparent;
+    color: $text-muted;
+    &:not(:disabled):hover { color: $text; background: rgba(255,255,255,0.06); }
+  }
+
+  // Outlined
+  &--outlined {
+    background: transparent;
+    border: 1.5px solid $border;
+    color: $text;
+    &:not(:disabled):hover { border-color: $brand; color: $brand; }
+  }
+
+  // Icon only
+  &--icon {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: $radius-sm;
+    background: transparent;
+    border: 1.5px solid transparent;
+    color: $text-muted;
+    &:not(:disabled):hover { background: rgba(255,255,255,0.06); }
+  }
+
+  &--danger {
+    color: #ef5350;
+    &:not(:disabled):hover { background: rgba(239,83,80,0.1); }
+  }
+
+  &--sm { height: 32px; padding: 0 14px; font-size: 0.8rem; }
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+}
+
+// ── Spinner ───────────────────────────────────────────────────
+.spinner {
+  display: inline-block;
+  border-radius: 50%;
+  border-style: solid;
+  border-color: rgba(255,255,255,0.25);
+  border-top-color: $brand;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+
+  &.sm { width: 16px; height: 16px; border-width: 2px; }
+  &.md { width: 28px; height: 28px; border-width: 3px; }
+}
+
+// ── Giros / Actividades económicas ───────────────────────────────────
+.giros-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.giros-origen-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: $text-muted;
+  padding: 4px 10px;
+  border-radius: $radius-sm;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid $border;
+  margin-bottom: 8px;
+  width: fit-content;
+
+  mat-icon { font-size: 14px; height: 14px; width: 14px; }
+}
+
+.giro-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  transition: border-color 0.15s;
+
+  &:hover { border-color: rgba(255,255,255,0.16); }
+}
+
+.giro-card__body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.giro-card__codigo {
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-family: monospace;
+  letter-spacing: 0.04em;
+  color: $brand;
+  background: rgba(0,191,165,0.1);
+  padding: 2px 6px;
+  border-radius: $radius-sm;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.giro-card__desc {
+  font-size: 0.85rem;
+  color: $text;
+  flex: 1 1 200px;
+  min-width: 0;
+  line-height: 1.4;
+}
+
+.giro-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.giro-card__fecha {
+  font-size: 0.72rem;
+  color: $text-muted;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+
+  mat-icon {
+    font-size: 13px !important;
+    width: 13px !important;
+    height: 13px !important;
+  }
+}
+
+.giro-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 10px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  background: rgba(0,191,165,0.15);
+  color: $brand;
+  border: 1px solid rgba(0,191,165,0.3);
+
+  &.giro-badge--exento {
+    background: rgba(255,255,255,0.06);
+    color: $text-muted;
+    border-color: $border;
+  }
+
+  &.giro-badge--cat {
+    background: rgba(255,255,255,0.06);
+    color: $text-muted;
+    border-color: $border;
+  }
+}
+
+.giro-add-trigger {
+  margin-top: 4px;
+}
+
+.giro-add-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px dashed $border;
+  border-radius: $radius-md;
+  margin-top: 4px;
+}
+
+.giro-add-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// ── SII result banner ─────────────────────────────────────────
 .sii-result {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 10px 14px;
-  border-radius: 8px;
+  border-radius: $radius-md;
   font-size: 0.875rem;
   margin-bottom: 16px;
 
   mat-icon { font-size: 18px; width: 18px; height: 18px; flex-shrink: 0; }
 
-  &--success {
-    background: #e8f5e9;
-    color: #2e7d32;
-    mat-icon { color: #43a047; }
-  }
-
-  &--warning {
-    background: #fff8e1;
-    color: #e65100;
-    mat-icon { color: #fb8c00; }
-  }
-
-  &--error {
-    background: #ffebee;
-    color: #c62828;
-    mat-icon { color: #e53935; }
-  }
-
-  &--info {
-    background: #e3f2fd;
-    color: #0d47a1;
-    mat-icon { color: #1565c0; }
-  }
+  &--success { background: rgba(46,125,50,0.18);  color: #a5d6a7; mat-icon { color: #66bb6a; } }
+  &--warning { background: rgba(230,81,0,0.18);   color: #ffcc80; mat-icon { color: #ffa726; } }
+  &--error   { background: rgba(198,40,40,0.18);  color: #ef9a9a; mat-icon { color: #ef5350; } }
+  &--info    { background: rgba(13,71,161,0.25);  color: #90caf9; mat-icon { color: #42a5f5; } }
 }
 
 .sii-icon {
-  &.sii-success { color: #43a047; }
-  &.sii-warning { color: #fb8c00; }
-  &.sii-error   { color: #e53935; }
-  &.sii-info    { color: #1565c0; }
+  &.sii-success { color: #66bb6a; }
+  &.sii-warning { color: #ffa726; }
+  &.sii-error   { color: #ef5350; }
+  &.sii-info    { color: #42a5f5; }
 }
 
-// CA-05: hint razón social sugerida por SII
+// CA-05 hint razon social SII
 .sii-razon-social-hint {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #e3f2fd;
-  border: 1px solid #90caf9;
-  border-radius: 8px;
+  background: rgba(13,71,161,0.2);
+  border: 1px solid rgba(66,165,245,0.3);
+  border-radius: $radius-md;
   padding: 8px 12px;
   font-size: 0.875rem;
-  color: #0d47a1;
+  color: #90caf9;
   margin-bottom: 12px;
 
-  mat-icon { font-size: 18px; width: 18px; height: 18px; flex-shrink: 0; color: #1565c0; }
-
+  mat-icon { font-size: 18px; width: 18px; height: 18px; flex-shrink: 0; }
   span { flex: 1; }
 }
 
-// ── Hints / info ─────────────────────────────────────────────────────────────
-
+// ── Info / hint ───────────────────────────────────────────────
 .info-hint {
   display: flex;
   align-items: center;
   gap: 6px;
-  color: var(--mat-sys-on-surface-variant, #555);
+  color: $text-muted;
   font-size: 0.85rem;
   margin: 4px 0 16px;
-
-  mat-icon { font-size: 16px; width: 16px; height: 16px; opacity: 0.7; }
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
 }
-
-.warning-text {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: #fff8e1;
-  color: #e65100;
-  border-radius: 8px;
-  padding: 10px 14px;
-  font-size: 0.875rem;
-  margin-bottom: 16px;
-
-  mat-icon { font-size: 18px; width: 18px; height: 18px; }
-}
-
-// ── Save error ────────────────────────────────────────────────────────────────
 
 .save-error {
-  color: #c62828;
+  color: #ef9a9a;
   font-size: 0.875rem;
   margin: 4px 0 12px;
   padding: 8px 12px;
-  background: #ffebee;
-  border-radius: 6px;
+  background: rgba(198,40,40,0.15);
+  border-radius: $radius-sm;
 }
 
-// ── Step actions ──────────────────────────────────────────────────────────────
+// ── Section label ─────────────────────────────────────────────
+.section-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: $text-muted;
+  margin: 16px 0 10px;
+}
 
+// ── Step actions ──────────────────────────────────────────────
 .step-actions {
   display: flex;
   gap: 12px;
   align-items: center;
   justify-content: flex-end;
-  padding-top: 8px;
-
-  button {
-    min-width: 120px;
-  }
+  padding-top: 16px;
+  flex-wrap: wrap;
 }
 
-// ── Upload zones ──────────────────────────────────────────────────────────────
-
+// ── Upload zones ──────────────────────────────────────────────
 .upload-label {
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--mat-sys-on-surface-variant, #555);
+  color: $text-muted;
   margin: 0 0 6px;
 }
 
@@ -233,8 +714,8 @@
   position: relative;
   width: 140px;
   height: 140px;
-  border: 2px dashed var(--mat-sys-outline, #bdbdbd);
-  border-radius: 12px;
+  border: 2px dashed $border;
+  border-radius: $radius-lg;
   overflow: hidden;
   cursor: pointer;
   display: flex;
@@ -243,17 +724,13 @@
   margin-bottom: 16px;
   transition: border-color 0.2s, background 0.2s;
 
-  &:hover,
-  &:focus {
-    border-color: var(--mat-sys-primary, #1565c0);
-    background: rgba(21, 101, 192, 0.04);
+  &:hover, &:focus {
+    border-color: $brand;
+    background: rgba(0,191,165,0.06);
     outline: none;
   }
 
-  &.banner-zone {
-    width: 100%;
-    height: 120px;
-  }
+  &.banner-zone { width: 100%; height: 120px; }
 }
 
 .upload-placeholder {
@@ -261,7 +738,7 @@
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  color: var(--mat-sys-on-surface-variant, #888);
+  color: $text-muted;
   text-align: center;
   padding: 12px;
 
@@ -270,15 +747,170 @@
   small { font-size: 0.7rem; opacity: 0.8; }
 }
 
-.upload-preview {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.upload-preview { width: 100%; height: 100%; object-fit: cover; }
+
+// ── Cobertura geografica ──────────────────────────────────────
+.zonas-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 8px;
 }
 
-// ── Spinner in button ─────────────────────────────────────────────────────────
+.zona-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
 
-.btn-spinner {
-  display: inline-block;
-  vertical-align: middle;
+  .field-group { margin-bottom: 0; }
+  .zona-check  { margin-bottom: 0; align-self: center; }
+  button       { align-self: center; margin-bottom: 0; }
+}
+
+// ── Productos grid ────────────────────────────────────────────
+.productos-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin-bottom: 16px;
+  .checkbox-row { margin-bottom: 8px; }
+}
+
+// ── Notificaciones ────────────────────────────────────────────
+.notif-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 16px;
+}
+
+.notif-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 4px;
+  border-bottom: 1px solid $border;
+  font-size: 0.9rem;
+  color: $text;
+
+  &:last-child { border-bottom: none; }
+}
+
+// ── EB-01: RUT ya registrado banner ──────────────────────────
+.rut-registrado-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: $radius-md;
+  background: rgba(230, 81, 0, 0.14);
+  border: 1px solid rgba(255, 167, 38, 0.35);
+  margin-bottom: 16px;
+
+  > mat-icon {
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+    color: #ffa726;
+    flex-shrink: 0;
+  }
+
+  &__text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 0.875rem;
+
+    strong {
+      color: #ffcc80;
+      font-weight: 600;
+    }
+
+    span {
+      color: rgba(255, 255, 255, 0.65);
+      font-size: 0.8rem;
+
+      em { font-style: normal; color: rgba(255, 255, 255, 0.85); }
+    }
+  }
+}
+
+// ── Modal overlay / card ──────────────────────────────────────
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+  backdrop-filter: blur(2px);
+}
+
+.modal-card {
+  background: #1E2A8A;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: $radius-lg;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.modal-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: $text;
+}
+
+.modal-body {
+  padding: 20px 20px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  &--success {
+    align-items: center;
+    text-align: center;
+    padding-top: 28px;
+    padding-bottom: 20px;
+  }
+}
+
+.modal-success-icon {
+  font-size: 48px !important;
+  width: 48px !important;
+  height: 48px !important;
+  color: #66bb6a;
+}
+
+.modal-desc {
+  margin: 0;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.55;
+
+  strong { color: $text; font-weight: 600; }
+
+  &--muted { color: rgba(255, 255, 255, 0.45); font-size: 0.8rem; }
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 20px 18px;
 }

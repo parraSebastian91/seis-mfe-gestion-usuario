@@ -2,21 +2,23 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { LayoutModule } from '@angular/cdk/layout';
-import { MatStepperModule } from '@angular/material/stepper';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { MatTooltipModule } from '@angular/material/tooltip';
+// Tabs / Menus used by org-gestor and org-profile (pending migration)
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatCardModule } from '@angular/material/card';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 import { OrganizationRoutingModule } from './organization-routing.module';
 import { OrgListComponent } from './org-list/org-list.component';
@@ -32,21 +34,23 @@ import { OrgGestorComponent } from './org-gestor/org-gestor.component';
     ReactiveFormsModule,
     FormsModule,
     RouterModule,
-    LayoutModule,
-    MatStepperModule,
+    MatIconModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+    MatSelectModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatIconModule,
-    MatCardModule,
-    MatChipsModule,
-    MatProgressSpinnerModule,
-    MatExpansionModule,
-    MatTooltipModule,
     MatTabsModule,
     MatMenuModule,
     MatDividerModule,
+    MatTooltipModule,
+    MatCheckboxModule,
+    MatRadioModule,
+    MatChipsModule,
+    MatExpansionModule,
+    MatCardModule,
+    MatSlideToggleModule,
   ],
 })
 export class OrganizationModule {}
+

@@ -1,6 +1,7 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import {
   AbstractControl,
+  FormArray,
   FormBuilder,
   FormGroup,
   ValidationErrors,
@@ -11,8 +12,6 @@ import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil, timeout } from 'rxjs/operators';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { MatStepper } from '@angular/material/stepper';
 import { ObjectUploadService, SessionService, UserRole } from 'shared-utils';
 
 // ── Utilities ──────────────────────────────────────────────────────────────────
@@ -78,17 +77,28 @@ const MAX_ORG_FILE_SIZE = 5 * 1024 * 1024;
 type SiiStatus = 'idle' | 'loading' | 'success' | 'warning' | 'blocked' | 'info';
 
 /** DTO devuelto por el BFF — el frontend no interpreta la respuesta raw del SII */
+interface GiroComercial {
+  codigo: string;
+  categoriaTributaria?: string;
+  fechaInicio?: string;
+  descripcion: string;
+  indicadorAfectoIva?: string;
+}
+
 interface SiiLookupResult {
   estado: 'VALIDO' | 'ADVERTENCIA' | 'BLOQUEADO' | 'NO_ENCONTRADO' | 'ERROR_RED';
   mensaje: string;
   razonSocial?: string;
-  girosNegocio?: string[];
+  girosNegocio?: GiroComercial[];
   fechaInicioActividades?: string;
   tieneFacturaElectronica?: boolean;
   tieneObservacionTributaria?: boolean;
 }
+interface ApiResp<T> { data: T; }
 interface GeoOption { id: string; nombre: string; }
-type StepperOrientation = 'horizontal' | 'vertical';
+interface ProductoFinanciero { id: string; nombre: string; }
+type TipoPersona = 'JURIDICA' | 'PERSONA_NATURAL';
+type TipoParticipante = 'CEDENTE' | 'FINANCIERA' | 'BROKER';
 
 // ── Component ──────────────────────────────────────────────────────────────────
 
@@ -99,18 +109,41 @@ type StepperOrientation = 'horizontal' | 'vertical';
   standalone: false,
 })
 export class OrgWizardComponent implements OnInit, OnDestroy {
-  @ViewChild('stepper') stepper!: MatStepper;
-
   private readonly destroy$ = new Subject<void>();
 
-  // ── Responsive ──────────────────────────────────────────────────────────────
-  stepperOrientation: StepperOrientation = 'horizontal';
+  // ── Custom stepper ───────────────────────────────────────────────────────────
+  currentStep = 0;
+
+  get stepLabels(): string[] {
+    const base = ['Identidad legal', 'Direcci\u00f3n', this.esCedente ? 'Cuenta bancaria' : 'Cobertura'];
+    if (this.esFinancieraBroker) base.push('Perfil operativo');
+    base.push('Presentaci\u00f3n', 'Notificaciones');
+    return base;
+  }
+
+  get presentacionStep(): number {
+    return this.esFinancieraBroker ? 4 : 3;
+  }
+
+  get notifStep(): number {
+    return this.esFinancieraBroker ? 5 : 4;
+  }
+
+  goBack(): void {
+    if (this.currentStep > 0) this.currentStep--;
+  }
+
+  goNext(): void {
+    this.currentStep++;
+  }
 
   // ── Org draft ───────────────────────────────────────────────────────────────
-  tipoParticipacion: 'CEDENTE' | 'FINANCIERA' | 'BROKER' = 'CEDENTE';
+  tipoParticipacion: TipoParticipante = 'CEDENTE';
   orgId: string | null = null;
   saving = false;
   saveError: string | null = null;
+  /** true cuando tipoPersona/tipoParticipante fueron bloqueados por el perfil de org existente */
+  perfilOrgLocked = false;
 
   // ── SII Lookup ───────────────────────────────────────────────────────────────
   siiStatus: SiiStatus = 'idle';
@@ -120,7 +153,23 @@ export class OrgWizardComponent implements OnInit, OnDestroy {
   /** CA-06: caché en memoria por RUT (sin puntos ni guión) */
   private readonly siiCache = new Map<string, SiiLookupResult>();
 
-  // ── Cascading geo ────────────────────────────────────────────────────────────
+  // ── Add giro (paso 1) ────────────────────────────────────────────────────────
+  showAddGiro = false;
+  newGiroCodigo = '';
+  newGiroDesc = '';
+  /** Indica el origen de los giros actualmente cargados en el formulario */
+  girosOrigen: 'sii' | 'bd' | 'manual' | null = null;
+
+  // ── RUT ya registrado (EB-01) ────────────────────────────────────────────────
+  rutYaRegistrado: { id: string; razonSocial: string; giros: GiroComercial[] } | null = null;
+  /** RUT limpio (sin puntos/guión) del check en curso — evita que el debounce lo resetee */
+  private _pendingCheckClean = '';
+  showJoinModal = false;
+  joinSending = false;
+  joinError: string | null = null;
+  joinSuccess = false;
+
+  // ── Cascading geo (paso 2) ────────────────────────────────────────────────────
   regiones: GeoOption[] = [];
   provincias: GeoOption[] = [];
   comunas: GeoOption[] = [];
@@ -128,10 +177,21 @@ export class OrgWizardComponent implements OnInit, OnDestroy {
   loadingProvincias = false;
   loadingComunas = false;
 
+  // ── Cascading geo (paso 3b — cobertura) ──────────────────────────────────────
+  regionesCobertura: GeoOption[] = [];
+  loadingRegionesCobertura = false;
+
   // ── Bancos ───────────────────────────────────────────────────────────────────
   bancos: { id: string; nombre: string }[] = [];
 
-  // ── Step 4 file uploads ──────────────────────────────────────────────────────
+  // ── Productos financieros (paso 4 FINANCIERA/BROKER) ─────────────────────────
+  productosFinancieros: ProductoFinanciero[] = [];
+  loadingProductos = false;
+
+  // ── Plataformas de firma ──────────────────────────────────────────────────────
+  readonly PLATAFORMAS_FIRMA = ['DocuSign', 'Mifiel', 'FirmaVirtual', 'Otra'];
+
+  // ── Paso 5 file uploads ──────────────────────────────────────────────────────
   logoFile: File | null = null;
   bannerFile: File | null = null;
   logoPreview: string | null = null;
@@ -141,8 +201,10 @@ export class OrgWizardComponent implements OnInit, OnDestroy {
   step1!: FormGroup;
   step2!: FormGroup;
   step3Cedente!: FormGroup;
-  step3Financiera!: FormGroup;
-  step4!: FormGroup;
+  step3Cobertura!: FormGroup;
+  step4Perfil!: FormGroup;
+  step5!: FormGroup;
+  step6!: FormGroup;
 
   // ── Constants ─────────────────────────────────────────────────────────────────
   readonly TIPO_DIRECCION_OPTS = [
@@ -157,6 +219,11 @@ export class OrgWizardComponent implements OnInit, OnDestroy {
     { value: 'VISTA', label: 'Vista' },
     { value: 'AHORRO', label: 'Ahorro' },
   ];
+  readonly TIPO_PARTICIPANTE_OPTS: { value: TipoParticipante; label: string }[] = [
+    { value: 'CEDENTE',   label: 'Cedente' },
+    { value: 'FINANCIERA', label: 'Financiadora' },
+    { value: 'BROKER',    label: 'Broker' },
+  ];
 
   constructor(
     private readonly fb: FormBuilder,
@@ -164,18 +231,21 @@ export class OrgWizardComponent implements OnInit, OnDestroy {
     private readonly router: Router,
     private readonly session: SessionService,
     private readonly uploadService: ObjectUploadService,
-    private readonly breakpoints: BreakpointObserver,
   ) {}
 
   ngOnInit(): void {
     this.buildForms();
-    this.subscribeToBreakpoints();
     this.detectTipoParticipacion();
+    this.loadPerfilOrganizacion();
     this.subscribeRutFormatting();
     this.subscribeRutTitularFormatting();
     this.subscribeCascadingGeo();
+    this.subscribeTipoPersona();
+    this.subscribeFirmaDigital();
+    this.subscribeCoberturaGeo();
     this.loadRegiones('CL');
     this.loadBancos();
+    this.loadProductosFinancieros();
     this.checkExistingDraft();
   }
 
@@ -187,54 +257,113 @@ export class OrgWizardComponent implements OnInit, OnDestroy {
   // ── Build forms ──────────────────────────────────────────────────────────────
 
   private buildForms(): void {
+    // ── Paso 1: Identidad legal ─────────────────────────────────────────────
     this.step1 = this.fb.group({
-      rut: ['', [Validators.required, rutDvValidator]],
-      razonSocial: ['', Validators.required],
+      tipoPersona:       ['JURIDICA', Validators.required],
+      tipoParticipante:  ['CEDENTE', Validators.required],
+      rut:               ['', [Validators.required, rutDvValidator]],
+      razonSocial:       ['', Validators.required],
+      giros:             this.fb.array([]),
     });
+
+    // ── Paso 2: Dirección principal ─────────────────────────────────────────
     this.step2 = this.fb.group({
-      calle: ['', Validators.required],
-      numero: ['', Validators.required],
-      depto: [''],
-      pais: ['CL', Validators.required],
-      region: ['', Validators.required],
-      provincia: ['', Validators.required],
-      ciudad: ['', Validators.required],
-      comuna: ['', Validators.required],
-      codigoPostal: [''],
-      referencia: [''],
-      tipoDireccion: ['TRIBUTARIA', Validators.required],
+      calle:          ['', Validators.required],
+      numero:         ['', Validators.required],
+      depto:          [''],
+      pais:           ['CL', Validators.required],
+      region:         ['', Validators.required],
+      provincia:      [{ value: '', disabled: true }, Validators.required],
+      ciudad:         ['', Validators.required],
+      comuna:         [{ value: '', disabled: true }, Validators.required],
+      codigoPostal:   [''],
+      referencia:     [''],
+      tipoDireccion:  ['TRIBUTARIA', Validators.required],
+      esPrincipal:    [true],
     });
+
+    // ── Paso 3 CEDENTE: Cuenta bancaria ─────────────────────────────────────
     this.step3Cedente = this.fb.group({
-      banco: ['', Validators.required],
-      tipoCuenta: ['', Validators.required],
-      numeroCuenta: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
-      nombreTitular: ['', Validators.required],
-      rutTitular: ['', [Validators.required, rutDvValidator]],
+      banco:          ['', Validators.required],
+      tipoCuenta:     ['', Validators.required],
+      numeroCuenta:   ['', [Validators.required, Validators.pattern(/^\d+$/)]],
+      nombreTitular:  ['', Validators.required],
+      rutTitular:     ['', [Validators.required, rutDvValidator]],
     });
-    this.step3Financiera = this.fb.group({
-      telefonoOperaciones: ['', Validators.required],
-      emailOperaciones: ['', [Validators.required, Validators.email]],
+
+    // ── Paso 3 FINANCIERA/BROKER: Cobertura geográfica ──────────────────────
+    this.step3Cobertura = this.fb.group({
+      operaOtrasRegiones: [false],
+      zonas: this.fb.array([]),
     });
-    this.step4 = this.fb.group({
+
+    // ── Paso 4 FINANCIERA/BROKER: Perfil operativo ──────────────────────────
+    this.step4Perfil = this.fb.group({
+      montoMinimo:          [null, [Validators.required, Validators.min(0)]],
+      montoMaximo:          [null, [Validators.required, Validators.min(0)]],
+      plazoTipicoPago:      [null, [Validators.required, Validators.min(1)]],
+      firmaDigital:         [false],
+      plataformaFirma:      [''],
+      emailOperaciones:     ['', [Validators.required, Validators.email]],
+      telefonoOperaciones:  ['', Validators.required],
+      productosIds:         [[] as string[]],
+    });
+
+    // ── Paso 5: Presentación (logo, banner, descripción) ────────────────────
+    this.step5 = this.fb.group({
       descripcion: [''],
+    });
+
+    // ── Paso 6: Notificaciones ───────────────────────────────────────────────
+    this.step6 = this.fb.group({
+      notifEmail:           [true],
+      notifWhatsapp:        [false],
+      notifNuevasOfertas:   [true],
+      notifEstadoFacturas:  [true],
+      notifLiquidacion:     [true],
+      notifVencimientos:    [true],
+      notifInApp:           [true],
     });
   }
 
   // ── Subscriptions ─────────────────────────────────────────────────────────────
 
-  private subscribeToBreakpoints(): void {
-    this.breakpoints
-      .observe([Breakpoints.Handset, Breakpoints.Tablet])
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(result => {
-        this.stepperOrientation = result.matches ? 'vertical' : 'horizontal';
-      });
-  }
-
   private detectTipoParticipacion(): void {
     const rol = this.session.userRole();
     if (rol) {
       this.tipoParticipacion = getTipoParticipacion(rol);
+      this.step1.get('tipoParticipante')!.setValue(this.tipoParticipacion, { emitEvent: false });
+    }
+  }
+
+  private async loadPerfilOrganizacion(): Promise<void> {
+    try {
+      const res = await firstValueFrom(
+        this.http
+          .get<{ data: { organizaciones: { tipo_participante: string; tipo_organizacion: string }[] } }>(
+            '/api/bff/usuario/profile/organizacion',
+            { withCredentials: true },
+          )
+          .pipe(timeout(8_000)),
+      );
+      const org = res?.data?.organizaciones?.[0];
+      if (!org) return;
+
+      if (org.tipo_organizacion) {
+        this.step1.get('tipoPersona')!.setValue(org.tipo_organizacion, { emitEvent: false });
+        this.step1.get('tipoPersona')!.disable();
+        this.perfilOrgLocked = true;
+      }
+
+      if (org.tipo_participante) {
+        const participante = org.tipo_participante as TipoParticipante;
+        this.tipoParticipacion = participante;
+        this.step1.get('tipoParticipante')!.setValue(participante, { emitEvent: false });
+        this.step1.get('tipoParticipante')!.disable();
+        this.perfilOrgLocked = true;
+      }
+    } catch {
+      // No bloquear el wizard si el perfil no está disponible
     }
   }
 
@@ -247,11 +376,73 @@ export class OrgWizardComponent implements OnInit, OnDestroy {
         if (formatted !== val) {
           this.step1.get('rut')!.setValue(formatted, { emitEvent: false });
         }
-        // Reset SII state when the RUT changes (DV invalid or blank)
+        const cleanNew = formatted.replace(/[.\- ]/g, '');
+        // Si el debounce dispara para el mismo RUT que onRutBlur está verificando
+        // (race condition debounce vs HTTP), no resetear el estado ya establecido
+        if (cleanNew === this._pendingCheckClean) return;
+        this._pendingCheckClean = '';
+
+        // Reset SII state and RUT-registrado state when the RUT changes
         if (!isRutDvValid(formatted)) {
           this.siiStatus = 'idle';
           this.siiMessage = '';
           this.siiRazonSocialHint = null;
+        }
+        this.rutYaRegistrado = null;
+        this.joinSuccess = false;
+        this.girosOrigen = null;
+        this.step1.get('razonSocial')!.enable();
+        this.step1.get('giros')!.enable();
+        // Re-habilitar solo si fueron bloqueados por check-rut (no por loadPerfilOrganizacion)
+        if (!this.perfilOrgLocked) {
+          this.step1.get('tipoPersona')!.enable();
+          this.step1.get('tipoParticipante')!.enable();
+        }
+      });
+  }
+
+  private subscribeTipoPersona(): void {
+    this.step1.get('tipoPersona')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((tipo: TipoPersona) => {
+        const rutCtrl = this.step1.get('rut')!;
+        if (tipo === 'PERSONA_NATURAL') {
+          rutCtrl.clearValidators();
+          rutCtrl.setValidators([rutDvValidator]);
+        } else {
+          rutCtrl.setValidators([Validators.required, rutDvValidator]);
+        }
+        rutCtrl.updateValueAndValidity();
+      });
+
+    this.step1.get('tipoParticipante')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((val: TipoParticipante) => {
+        this.tipoParticipacion = val;
+      });
+  }
+
+  private subscribeFirmaDigital(): void {
+    this.step4Perfil.get('firmaDigital')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((activa: boolean) => {
+        const plataformaCtrl = this.step4Perfil.get('plataformaFirma')!;
+        if (activa) {
+          plataformaCtrl.setValidators(Validators.required);
+        } else {
+          plataformaCtrl.clearValidators();
+          plataformaCtrl.setValue('');
+        }
+        plataformaCtrl.updateValueAndValidity();
+      });
+  }
+
+  private subscribeCoberturaGeo(): void {
+    this.step3Cobertura.get('operaOtrasRegiones')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((activo: boolean) => {
+        if (!activo) {
+          this.zonasCobertura.clear();
         }
       });
   }
@@ -273,6 +464,8 @@ export class OrgWizardComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$), distinctUntilChanged())
       .subscribe((pais: string) => {
         this.step2.patchValue({ region: '', provincia: '', ciudad: '', comuna: '' });
+        this.step2.get('provincia')!.disable();
+        this.step2.get('comuna')!.disable();
         this.regiones = [];
         this.provincias = [];
         this.comunas = [];
@@ -285,7 +478,13 @@ export class OrgWizardComponent implements OnInit, OnDestroy {
         this.step2.patchValue({ provincia: '', comuna: '' });
         this.provincias = [];
         this.comunas = [];
-        if (region) this.loadProvincias(region);
+        this.step2.get('comuna')!.disable();
+        if (region) {
+          this.step2.get('provincia')!.enable();
+          this.loadProvincias(region);
+        } else {
+          this.step2.get('provincia')!.disable();
+        }
       });
 
     this.step2.get('provincia')!.valueChanges
@@ -293,17 +492,33 @@ export class OrgWizardComponent implements OnInit, OnDestroy {
       .subscribe((provincia: string) => {
         this.step2.patchValue({ comuna: '' });
         this.comunas = [];
-        if (provincia) this.loadComunas(provincia);
+        if (provincia) {
+          this.step2.get('comuna')!.enable();
+          this.loadComunas(provincia);
+        } else {
+          this.step2.get('comuna')!.disable();
+        }
       });
   }
 
   // ── SII Lookup ───────────────────────────────────────────────────────────────
 
   /** CA-01: trigger en blur del campo RUT */
-  onRutBlur(): void {
+  async onRutBlur(): Promise<void> {
     const val = (this.step1.get('rut')!.value as string) ?? '';
     if (!val || !isRutDvValid(val)) return;
     if (this.siiStatus === 'loading') return;
+
+    // Fijar RUT antes del await para que el debounce del formateador no resetee
+    // el resultado si dispara mientras el HTTP está en vuelo
+    this._pendingCheckClean = val.replace(/[.\- ]/g, '');
+
+    // EB-01: si el RUT ya está en la plataforma, pre-llenamos desde nuestra BD
+    // y NO consultamos el SII (los datos ya existen)
+    await this.checkRutRegistrado(val);
+    if (this.rutYaRegistrado) return;
+
+    // RUT nuevo → consultar SII
     this.lookupSii(val);
   }
 
@@ -375,6 +590,87 @@ export class OrgWizardComponent implements OnInit, OnDestroy {
     } else {
       this.siiRazonSocialHint = null;
     }
+
+    // Poblar giros desde SII (reemplaza los actuales)
+    if (res.girosNegocio?.length) {
+      this.girosArray.clear();
+      for (const g of res.girosNegocio) {
+        this.girosArray.push(this.buildGiroGroup(g));
+      }
+      this.girosOrigen = 'sii';
+    }
+  }
+
+  /** EB-01: verifica si el RUT ya está registrado en la plataforma */
+  async checkRutRegistrado(rut: string): Promise<void> {
+    const clean = rut.replace(/[.\- ]/g, '');
+    this.rutYaRegistrado = null;
+    this.joinSuccess = false;
+    try {
+      const res = await firstValueFrom(
+        this.http
+          .get<{ exists: boolean; organizacion?: { id: string; razonSocial: string; tipoPersona: string; tipoParticipante: string; giros: GiroComercial[] } }>(
+            '/api/bff/organizacion/check-rut',
+            { params: { rut: clean }, withCredentials: true },
+          )
+          .pipe(timeout(8_000)),
+      );
+      if (res?.exists && res.organizacion) {
+        this.rutYaRegistrado = res.organizacion;
+        this.step1.get('razonSocial')!.setValue(res.organizacion.razonSocial);
+        this.step1.get('razonSocial')!.disable();
+
+        if (res.organizacion.tipoPersona) {
+          this.step1.get('tipoPersona')!.setValue(res.organizacion.tipoPersona, { emitEvent: false });
+          this.step1.get('tipoPersona')!.disable();
+        }
+        if (res.organizacion.tipoParticipante) {
+          const participante = res.organizacion.tipoParticipante as TipoParticipante;
+          this.tipoParticipacion = participante;
+          this.step1.get('tipoParticipante')!.setValue(participante, { emitEvent: false });
+          this.step1.get('tipoParticipante')!.disable();
+        }
+
+        // Poblar giros desde nuestra BD (evita llamar al SII)
+        this.girosArray.clear();
+        for (const g of res.organizacion.giros ?? []) {
+          this.girosArray.push(this.buildGiroGroup(g));
+        }
+        this.girosOrigen = 'bd';
+      }
+    } catch {
+      // Silently fail — no bloquear al usuario si el check falla
+    }
+  }
+
+  openJoinModal(): void {
+    this.showJoinModal = true;
+    this.joinError = null;
+    this.joinSuccess = false;
+  }
+
+  closeJoinModal(): void {
+    this.showJoinModal = false;
+  }
+
+  async requestJoinOrg(): Promise<void> {
+    if (!this.rutYaRegistrado) return;
+    this.joinSending = true;
+    this.joinError = null;
+    try {
+      await firstValueFrom(
+        this.http.post(
+          `/api/bff/organizacion/${this.rutYaRegistrado.id}/solicitud-ingreso`,
+          {},
+          { withCredentials: true },
+        ),
+      );
+      this.joinSuccess = true;
+    } catch {
+      this.joinError = 'No fue posible enviar la solicitud. Por favor intenta de nuevo.';
+    } finally {
+      this.joinSending = false;
+    }
   }
 
   /** CA-05: el usuario acepta la razón social sugerida por el SII */
@@ -385,18 +681,18 @@ export class OrgWizardComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ── Geo cascading ────────────────────────────────────────────────────────────
+  // ── Get Catalogos ────────────────────────────────────────────────────────────
 
   async loadRegiones(pais: string): Promise<void> {
     this.loadingRegiones = true;
     try {
       const res = await firstValueFrom(
-        this.http.get<GeoOption[]>('/api/geo/regiones', {
+        this.http.get<ApiResp<GeoOption[]>>('/api/bff/catalogo/geo/regiones', {
           params: { pais },
           withCredentials: true,
         }),
       );
-      this.regiones = res ?? [];
+      this.regiones = res?.data ?? [];
     } catch {
       this.regiones = [];
     } finally {
@@ -408,12 +704,12 @@ export class OrgWizardComponent implements OnInit, OnDestroy {
     this.loadingProvincias = true;
     try {
       const res = await firstValueFrom(
-        this.http.get<GeoOption[]>('/api/geo/provincias', {
-          params: { region },
+        this.http.get<ApiResp<GeoOption[]>>('/api/bff/catalogo/geo/provincias', {
+          params: { region_id: region },
           withCredentials: true,
         }),
       );
-      this.provincias = res ?? [];
+      this.provincias = res?.data ?? [];
     } catch {
       this.provincias = [];
     } finally {
@@ -425,12 +721,12 @@ export class OrgWizardComponent implements OnInit, OnDestroy {
     this.loadingComunas = true;
     try {
       const res = await firstValueFrom(
-        this.http.get<GeoOption[]>('/api/geo/comunas', {
-          params: { provincia },
+        this.http.get<ApiResp<GeoOption[]>>('/api/bff/catalogo/geo/comunas', {
+          params: { provincia_id: provincia },
           withCredentials: true,
         }),
       );
-      this.comunas = res ?? [];
+      this.comunas = res?.data ?? [];
     } catch {
       this.comunas = [];
     } finally {
@@ -441,14 +737,126 @@ export class OrgWizardComponent implements OnInit, OnDestroy {
   async loadBancos(): Promise<void> {
     try {
       const res = await firstValueFrom(
-        this.http.get<{ id: string; nombre: string }[]>('/api/bancos', {
+        this.http.get<ApiResp<{ id: string; nombre: string }[]>>('/api/bff/catalogo/bancos', {
           withCredentials: true,
         }),
       );
-      this.bancos = res ?? [];
+      this.bancos = res?.data ?? [];
     } catch {
       this.bancos = [];
     }
+  }
+
+  async loadProductosFinancieros(): Promise<void> {
+    this.loadingProductos = true;
+    try {
+      const res = await firstValueFrom(
+        this.http.get<ApiResp<ProductoFinanciero[]>>('/api/bff/catalogo/productos-financieros', {
+          withCredentials: true,
+        }),
+      );
+      this.productosFinancieros = res?.data ?? [];
+    } catch {
+      this.productosFinancieros = [];
+    } finally {
+      this.loadingProductos = false;
+    }
+  }
+
+  async loadRegionesCobertura(pais: string): Promise<void> {
+    this.loadingRegionesCobertura = true;
+    try {
+      const res = await firstValueFrom(
+        this.http.get<ApiResp<GeoOption[]>>('/api/bff/catalogo/geo/regiones', {
+          params: { pais },
+          withCredentials: true,
+        }),
+      );
+      this.regionesCobertura = res?.data ?? [];
+    } catch {
+      this.regionesCobertura = [];
+    } finally {
+      this.loadingRegionesCobertura = false;
+    }
+  }
+
+  // ── Giros comerciales (FormArray helpers) ────────────────────────────────────
+
+  get girosArray(): FormArray {
+    return this.step1.get('giros') as FormArray;
+  }
+
+  private buildGiroGroup(g: Partial<GiroComercial>): FormGroup {
+    return this.fb.group({
+      codigo:              [g.codigo ?? ''],
+      descripcion:         [g.descripcion ?? '', Validators.required],
+      categoriaTributaria: [g.categoriaTributaria ?? ''],
+      fechaInicio:         [g.fechaInicio ?? ''],
+      indicadorAfectoIva:  [g.indicadorAfectoIva ?? ''],
+    });
+  }
+
+  removeGiro(i: number): void {
+    this.girosArray.removeAt(i);
+  }
+
+  cancelAddGiro(): void {
+    this.showAddGiro = false;
+    this.newGiroCodigo = '';
+    this.newGiroDesc = '';
+  }
+
+  confirmAddGiro(): void {
+    if (!this.newGiroDesc.trim()) return;
+    this.girosArray.push(this.buildGiroGroup({
+      codigo: this.newGiroCodigo.trim(),
+      descripcion: this.newGiroDesc.trim(),
+    }));
+    this.girosOrigen = 'manual';
+    this.showAddGiro = false;
+    this.newGiroCodigo = '';
+    this.newGiroDesc = '';
+  }
+
+  // ── Cobertura geográfica (FormArray helpers) ─────────────────────────────────
+
+  get zonasCobertura(): FormArray {
+    return this.step3Cobertura.get('zonas') as FormArray;
+  }
+
+  addZonaCobertura(): void {
+    const zona = this.fb.group({
+      pais:         ['CL', Validators.required],
+      regionId:     ['', Validators.required],
+      esPrincipal:  [false],
+    });
+    zona.get('pais')!.valueChanges
+      .pipe(takeUntil(this.destroy$), distinctUntilChanged())
+      .subscribe((p: string | null) => {
+        zona.get('regionId')!.setValue('');
+        if (p) this.loadRegionesCobertura(p);
+      });
+    this.zonasCobertura.push(zona);
+    this.loadRegionesCobertura('CL');
+  }
+
+  removeZonaCobertura(index: number): void {
+    this.zonasCobertura.removeAt(index);
+  }
+
+  // ── Productos financieros (toggle helper) ────────────────────────────────────
+
+  toggleProducto(id: string): void {
+    const ctrl = this.step4Perfil.get('productosIds')!;
+    const current: string[] = ctrl.value ?? [];
+    const updated = current.includes(id)
+      ? current.filter(p => p !== id)
+      : [...current, id];
+    ctrl.setValue(updated);
+  }
+
+  isProductoSelected(id: string): boolean {
+    return ((this.step4Perfil.get('productosIds')?.value ?? []) as string[]).includes(id);
   }
 
   // ── Draft recovery ───────────────────────────────────────────────────────────
@@ -460,51 +868,69 @@ export class OrgWizardComponent implements OnInit, OnDestroy {
           id: string;
           lastStep: number;
           data: Record<string, unknown>;
-        }>('/api/organizations/me/draft', { withCredentials: true }),
+        }>('/api/organizacion/me/draft', { withCredentials: true }),
       );
       if (res?.id) {
         this.orgId = res.id;
         this.restoreDraftData(res.data, res.lastStep);
       }
     } catch {
-      /* no draft in progress — start from step 1 */
+      /* no draft in progress */
     }
   }
 
   restoreDraftData(data: Record<string, unknown>, lastStep: number): void {
-    if (data['step1']) this.step1.patchValue(data['step1']);
-    if (data['step2']) this.step2.patchValue(data['step2']);
-    if (data['step3Cedente'])
-      this.step3Cedente.patchValue(data['step3Cedente']);
-    if (data['step3Financiera'])
-      this.step3Financiera.patchValue(data['step3Financiera']);
-    setTimeout(() => {
-      for (let i = 0; i < lastStep; i++) {
-        this.stepper?.next();
+    if (data['step1']) {
+      const s1 = data['step1'] as Record<string, unknown>;
+      this.step1.patchValue(s1);
+      if (Array.isArray(s1['giros'])) {
+        this.girosArray.clear();
+        for (const g of s1['giros'] as GiroComercial[]) {
+          this.girosArray.push(this.buildGiroGroup(g));
+        }
       }
-    }, 150);
+    }
+    if (data['step2']) {
+      const s2 = data['step2'] as Record<string, unknown>;
+      if (s2['region']) this.step2.get('provincia')!.enable();
+      if (s2['provincia']) this.step2.get('comuna')!.enable();
+      this.step2.patchValue(s2);
+    }
+    if (data['step3Cedente']) this.step3Cedente.patchValue(data['step3Cedente']);
+    if (data['step3Cobertura']) this.step3Cobertura.patchValue(data['step3Cobertura']);
+    if (data['step4Perfil']) this.step4Perfil.patchValue(data['step4Perfil']);
+    if (data['step5']) this.step5.patchValue(data['step5']);
+    if (data['step6']) this.step6.patchValue(data['step6']);
+    setTimeout(() => { this.currentStep = lastStep; }, 150);
   }
 
   // ── Computed ─────────────────────────────────────────────────────────────────
 
+  get esCedente(): boolean { return this.tipoParticipacion === 'CEDENTE'; }
+  get esFinancieraBroker(): boolean { return !this.esCedente; }
+
   get step3(): FormGroup {
-    return this.tipoParticipacion === 'CEDENTE' ? this.step3Cedente : this.step3Financiera;
+    return this.esCedente ? this.step3Cedente : this.step3Cobertura;
+  }
+
+  get step4(): FormGroup {
+    return this.esFinancieraBroker ? this.step4Perfil : this.step5;
   }
 
   get canAdvanceStep1(): boolean {
     return (
       this.step1.valid &&
+      this.girosArray.length > 0 &&
       this.siiStatus !== 'blocked' &&
-      this.siiStatus !== 'loading'
+      this.siiStatus !== 'loading' &&
+      !this.rutYaRegistrado
     );
   }
 
-  get canAdvanceStep2(): boolean {
-    return this.step2.valid;
-  }
-
-  get canAdvanceStep3(): boolean {
-    return this.step3.valid;
+  get canAdvanceStep2(): boolean { return this.step2.valid; }
+  get canAdvanceStep3(): boolean { return this.step3.valid; }
+  get canAdvanceStep4(): boolean {
+    return this.esFinancieraBroker ? this.step4Perfil.valid : true;
   }
 
   // ── Step advancement with incremental save ────────────────────────────────────
@@ -514,44 +940,51 @@ export class OrgWizardComponent implements OnInit, OnDestroy {
     this.saving = true;
     try {
       if (stepIndex === 0) {
+        const v = this.step1.getRawValue();
+        this.tipoParticipacion = v.tipoParticipante;
         const body = {
-          ...this.step1.value,
-          tipoParticipacion: this.tipoParticipacion,
+          tipoPersona:      v.tipoPersona,
+          tipoParticipacion: v.tipoParticipante,
+          rut:              v.rut,
+          razonSocial:      v.razonSocial,
+          giros:            v.giros as GiroComercial[],
         };
         if (this.orgId) {
           await firstValueFrom(
-            this.http.patch(`/api/organizations/${this.orgId}`, body, {
-              withCredentials: true,
-            }),
+            this.http.patch(`/api/bff/organizacion/${this.orgId}`, body, { withCredentials: true }),
           );
         } else {
           const res = await firstValueFrom(
-            this.http.post<{ id: string }>('/api/organizations', body, {
-              withCredentials: true,
-            }),
+            this.http.post<{ id: string }>('/api/bff/organizacion', body, { withCredentials: true }),
           );
           this.orgId = res.id;
         }
       } else if (stepIndex === 1) {
+
         await firstValueFrom(
           this.http.patch(
-            `/api/organizations/${this.orgId}`,
+            `/api/bff/organizacion/${this.orgId}`,
             { direccion: this.step2.value },
             { withCredentials: true },
           ),
         );
       } else if (stepIndex === 2) {
-        const payload =
-          this.tipoParticipacion === 'CEDENTE'
-            ? { cuentaBancaria: this.step3Cedente.value }
-            : { contactoOperativo: this.step3Financiera.value };
+        const payload = this.esCedente
+          ? { cuentaBancaria: this.step3Cedente.value }
+          : { coberturaGeografica: this.step3Cobertura.value };
         await firstValueFrom(
-          this.http.patch(`/api/organizations/${this.orgId}`, payload, {
-            withCredentials: true,
-          }),
+          this.http.patch(`/api/bff/organizacion/${this.orgId}`, payload, { withCredentials: true }),
+        );
+      } else if (stepIndex === 3 && this.esFinancieraBroker) {
+        await firstValueFrom(
+          this.http.patch(
+            `/api/bff/organizacion/${this.orgId}`,
+            { perfilOperativo: this.step4Perfil.value },
+            { withCredentials: true },
+          ),
         );
       }
-      this.stepper.next();
+      this.currentStep++;
     } catch {
       this.saveError = 'No fue posible guardar. Por favor intenta de nuevo.';
     } finally {
@@ -634,9 +1067,13 @@ export class OrgWizardComponent implements OnInit, OnDestroy {
       }
       const body = skip
         ? { estado: 'ONBOARDING_INCOMPLETO' }
-        : { ...this.step4.value, estado: 'ACTIVA' };
+        : {
+            ...this.step5.value,
+            notificaciones: this.step6.value,
+            estado: 'ACTIVA',
+          };
       await firstValueFrom(
-        this.http.patch(`/api/organizations/${this.orgId}/finalize`, body, {
+        this.http.patch(`/api/bff/organizacion/${this.orgId}/finalize`, body, {
           withCredentials: true,
         }),
       );

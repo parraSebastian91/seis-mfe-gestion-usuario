@@ -1,399 +1,530 @@
-<div class="wizard-container">
+﻿<div class="wizard-container">
 
-  <!-- ── Header ──────────────────────────────────────────────────── -->
+  <!-- Header -->
   <div class="wizard-header">
-    <h1 class="wizard-title">Crear organización</h1>
-    <p class="wizard-subtitle">Completa los pasos para registrar tu organización en la plataforma.</p>
+    <h1 class="wizard-title">Crear organizacion</h1>
+    <p class="wizard-subtitle">Completa los pasos para registrar tu organizacion en la plataforma.</p>
   </div>
 
-  <!-- ── Stepper ─────────────────────────────────────────────────── -->
-  <mat-stepper
-    #stepper
-    linear
-    [orientation]="stepperOrientation"
-    class="org-stepper">
+  <!-- Stepper nav -->
+  <div class="wiz-steps" role="list" aria-label="Pasos del formulario">
+    <ng-container *ngFor="let label of stepLabels; let i = index">
+      <div class="wiz-step" role="listitem"
+           [class.is-active]="currentStep === i"
+           [class.is-done]="currentStep > i"
+           [attr.aria-current]="currentStep === i ? 'step' : null">
+        <span class="wiz-step__bubble">
+          <mat-icon *ngIf="currentStep > i" class="wiz-step__check">check</mat-icon>
+          <span *ngIf="currentStep <= i">{{ i + 1 }}</span>
+        </span>
+        <span class="wiz-step__label">{{ label }}</span>
+      </div>
+      <div *ngIf="i < stepLabels.length - 1" class="wiz-connector" [class.is-done]="currentStep > i"></div>
+    </ng-container>
+  </div>
+  <!-- PASO 1 - Identidad legal -->
+  <form *ngIf="currentStep === 0" [formGroup]="step1" class="step-form">
+    <h2 class="step-title"><span class="step-num">1</span>Identidad legal</h2>
 
-    <!-- ════════════════════════════════════════════════════════════
-         Paso 1 — Identidad legal
-    ════════════════════════════════════════════════════════════════ -->
-    <mat-step [stepControl]="step1">
-      <ng-template matStepLabel>Identidad legal</ng-template>
+    <p class="field-label">Tipo de persona</p>
+    <div class="radio-group" role="radiogroup">
+      <label class="radio-pill" [class.is-disabled]="step1.get('tipoPersona')?.disabled">
+        <input type="radio" formControlName="tipoPersona" value="JURIDICA" [attr.disabled]="step1.get('tipoPersona')?.disabled ? '' : null">
+        <span>Persona juridica</span>
+      </label>
+      <label class="radio-pill" [class.is-disabled]="step1.get('tipoPersona')?.disabled">
+        <input type="radio" formControlName="tipoPersona" value="PERSONA_NATURAL" [attr.disabled]="step1.get('tipoPersona')?.disabled ? '' : null">
+        <span>Persona natural</span>
+      </label>
+    </div>
 
-      <form [formGroup]="step1" class="step-form">
-        <h2 class="step-title">
-          <span class="step-num">1</span>
-          Identidad legal
-        </h2>
+    <p class="field-label">Tipo de participante</p>
+    <div class="radio-group" role="radiogroup">
+      <label *ngFor="let opt of TIPO_PARTICIPANTE_OPTS" class="radio-pill" [class.is-disabled]="step1.get('tipoParticipante')?.disabled">
+        <input type="radio" formControlName="tipoParticipante" [value]="opt.value" [attr.disabled]="step1.get('tipoParticipante')?.disabled ? '' : null">
+        <span>{{ opt.label }}</span>
+      </label>
+    </div>
 
-        <!-- RUT empresa -->
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>RUT empresa</mat-label>
-          <input
-            matInput
-            formControlName="rut"
-            placeholder="12.345.678-9"
-            maxlength="12"
-            autocomplete="off"
-            (blur)="onRutBlur()">
-          <mat-spinner matSuffix *ngIf="siiStatus === 'loading'" diameter="20"></mat-spinner>
-          <mat-icon matSuffix *ngIf="siiStatus === 'success'" class="sii-icon sii-success">check_circle</mat-icon>
-          <mat-icon matSuffix *ngIf="siiStatus === 'warning'" class="sii-icon sii-warning">warning</mat-icon>
-          <mat-icon matSuffix *ngIf="siiStatus === 'blocked'" class="sii-icon sii-error">cancel</mat-icon>
-          <mat-icon matSuffix *ngIf="siiStatus === 'info'"    class="sii-icon sii-info">info</mat-icon>
-          <mat-error *ngIf="step1.get('rut')?.errors?.['required']">El RUT es requerido.</mat-error>
-          <mat-error *ngIf="step1.get('rut')?.errors?.['invalidRut']">Dígito verificador inválido.</mat-error>
-        </mat-form-field>
+    <div class="field-group full-width">
+      <label class="field-label">{{ step1.get('tipoPersona')?.value === 'JURIDICA' ? 'RUT empresa' : 'RUT' }}</label>
+      <div class="field-input-wrap">
+        <input class="field-input" formControlName="rut" placeholder="12.345.678-9" maxlength="12" autocomplete="off" (blur)="onRutBlur()" [class.has-error]="step1.get('rut')?.invalid && step1.get('rut')?.touched">
+        <span class="field-suffix">
+          <span *ngIf="siiStatus === 'loading'" class="spinner sm"></span>
+          <mat-icon *ngIf="siiStatus === 'success'" class="sii-icon sii-success">check_circle</mat-icon>
+          <mat-icon *ngIf="siiStatus === 'warning'" class="sii-icon sii-warning">warning</mat-icon>
+          <mat-icon *ngIf="siiStatus === 'blocked'" class="sii-icon sii-error">cancel</mat-icon>
+          <mat-icon *ngIf="siiStatus === 'info'" class="sii-icon sii-info">info</mat-icon>
+        </span>
+      </div>
+      <p class="field-error" *ngIf="step1.get('rut')?.errors?.['required'] && step1.get('rut')?.touched">El RUT es requerido.</p>
+      <p class="field-error" *ngIf="step1.get('rut')?.errors?.['invalidRut'] && step1.get('rut')?.touched">Digito verificador invalido.</p>
+    </div>
 
-        <!-- SII result banner -->
-        <div
-          class="sii-result"
-          *ngIf="siiStatus !== 'idle' && siiStatus !== 'loading'"
-          [class.sii-result--success]="siiStatus === 'success'"
-          [class.sii-result--warning]="siiStatus === 'warning'"
-          [class.sii-result--error]="siiStatus === 'blocked'"
-          [class.sii-result--info]="siiStatus === 'info'"
-          role="status"
-          aria-live="polite">
-          <mat-icon>{{ siiStatus === 'success' ? 'check_circle' : siiStatus === 'warning' ? 'warning' : siiStatus === 'info' ? 'info' : 'cancel' }}</mat-icon>
-          <span>{{ siiMessage }}</span>
+    <div *ngIf="siiStatus !== 'idle' && siiStatus !== 'loading'" class="sii-result"
+         [class.sii-result--success]="siiStatus === 'success'" [class.sii-result--warning]="siiStatus === 'warning'"
+         [class.sii-result--error]="siiStatus === 'blocked'" [class.sii-result--info]="siiStatus === 'info'"
+         role="status" aria-live="polite">
+      <mat-icon>{{ siiStatus === 'success' ? 'check_circle' : siiStatus === 'warning' ? 'warning' : siiStatus === 'info' ? 'info' : 'cancel' }}</mat-icon>
+      <span>{{ siiMessage }}</span>
+    </div>
+
+    <!-- EB-01: RUT ya registrado en la plataforma -->
+    <div *ngIf="rutYaRegistrado" class="rut-registrado-banner" role="alert">
+      <mat-icon>domain</mat-icon>
+      <div class="rut-registrado-banner__text">
+        <strong>Este RUT ya está registrado</strong>
+        <span>La organización <em>{{ rutYaRegistrado.razonSocial }}</em> ya existe en la plataforma.</span>
+      </div>
+      <button type="button" class="btn btn--outlined btn--sm" (click)="openJoinModal()">Solicitar ingreso</button>
+    </div>
+
+    <div class="field-group full-width">
+      <label class="field-label">{{ step1.get('tipoPersona')?.value === 'JURIDICA' ? 'Razon social' : 'Nombre completo' }}</label>
+      <input class="field-input" formControlName="razonSocial" placeholder="Empresa S.A." [class.has-error]="step1.get('razonSocial')?.invalid && step1.get('razonSocial')?.touched">
+      <p class="field-hint">Pre-rellenada desde el SII si el RUT es valido. Puedes editarla.</p>
+      <p class="field-error" *ngIf="step1.get('razonSocial')?.errors?.['required'] && step1.get('razonSocial')?.touched">La razon social es requerida.</p>
+    </div>
+
+    <div *ngIf="siiRazonSocialHint" class="sii-razon-social-hint">
+      <mat-icon>lightbulb_outline</mat-icon>
+      <span>El SII registra: <strong>{{ siiRazonSocialHint }}</strong></span>
+      <button class="btn btn--ghost btn--sm" type="button" (click)="acceptSiiRazonSocial()">Aceptar</button>
+    </div>
+
+    <!-- Giros / Actividades economicas -->
+    <div class="field-group full-width">
+      <label class="field-label">Giros / Actividades economicas</label>
+      <p class="field-hint" *ngIf="girosArray.length === 0">Se completan automaticamente al validar el RUT con el SII. Tambien puedes agregarlos manualmente.</p>
+
+      <div class="giros-list" *ngIf="girosArray.length > 0">
+        <div class="giros-origen-badge" *ngIf="girosOrigen">
+          <mat-icon>{{ girosOrigen === 'sii' ? 'cloud_download' : girosOrigen === 'bd' ? 'storage' : 'edit' }}</mat-icon>
+          <span *ngIf="girosOrigen === 'sii'">Cargados desde el SII</span>
+          <span *ngIf="girosOrigen === 'bd'">Cargados desde la plataforma</span>
+          <span *ngIf="girosOrigen === 'manual'">Ingresados manualmente</span>
         </div>
-
-        <!-- Razón social -->
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Razón social</mat-label>
-          <input matInput formControlName="razonSocial" placeholder="Empresa S.A.">
-          <mat-hint>Pre-rellenada desde el SII si el RUT es válido. Puedes editarla.</mat-hint>
-          <mat-error *ngIf="step1.get('razonSocial')?.errors?.['required']">La razón social es requerida.</mat-error>
-        </mat-form-field>
-
-        <!-- CA-05: hint si el SII devuelve un valor distinto al que ya escribió el usuario -->
-        <div class="sii-razon-social-hint" *ngIf="siiRazonSocialHint">
-          <mat-icon>lightbulb_outline</mat-icon>
-          <span>El SII registra: <strong>{{ siiRazonSocialHint }}</strong></span>
-          <button mat-button color="primary" type="button" (click)="acceptSiiRazonSocial()">
-            Aceptar
+        <div *ngFor="let g of girosArray.controls; let i = index" class="giro-card">
+          <div class="giro-card__body">
+            <!-- Fila principal: código + descripción + badge IVA -->
+            <span class="giro-card__codigo" *ngIf="g.value.codigo">{{ g.value.codigo }}</span>
+            <span class="giro-card__desc">{{ g.value.descripcion }}</span>
+            <span class="giro-badge" *ngIf="g.value.indicadorAfectoIva === 'S'">IVA Afecto</span>
+            <span class="giro-badge giro-badge--exento" *ngIf="g.value.indicadorAfectoIva === 'N'">IVA Exento</span>
+            <!-- Fila secundaria: categoría tributaria + fecha inicio -->
+            <div class="giro-card__meta" *ngIf="g.value.categoriaTributaria || g.value.fechaInicio">
+              <span class="giro-badge giro-badge--cat" *ngIf="g.value.categoriaTributaria">
+                Cat. {{ g.value.categoriaTributaria === '1' ? '1ª Categoria' : g.value.categoriaTributaria === '2' ? '2ª Categoria' : g.value.categoriaTributaria }}
+              </span>
+              <span class="giro-card__fecha" *ngIf="g.value.fechaInicio">
+                <mat-icon>calendar_today</mat-icon> Desde {{ g.value.fechaInicio }}
+              </span>
+            </div>
+          </div>
+          <button *ngIf="girosOrigen === 'manual'" type="button" class="btn btn--icon btn--sm btn--danger" (click)="removeGiro(i)" aria-label="Eliminar giro">
+            <mat-icon>close</mat-icon>
           </button>
         </div>
+      </div>
 
-        <p class="save-error" *ngIf="saveError" role="alert">{{ saveError }}</p>
+      <div *ngIf="!showAddGiro" class="giro-add-trigger">
+        <button type="button" class="btn btn--outlined btn--sm" (click)="showAddGiro = true">
+          <mat-icon>add</mat-icon> Agregar giro manualmente
+        </button>
+      </div>
 
-        <div class="step-actions">
-          <button
-            mat-flat-button
-            color="primary"
-            [disabled]="!canAdvanceStep1 || saving"
-            (click)="advanceStep(0)">
-            <mat-spinner *ngIf="saving" diameter="18" class="btn-spinner"></mat-spinner>
-            <span *ngIf="!saving">Siguiente →</span>
-          </button>
+      <div *ngIf="showAddGiro" class="giro-add-form">
+        <input class="field-input" placeholder="Codigo SII (opcional)"
+               [value]="newGiroCodigo" (input)="newGiroCodigo = $any($event.target).value">
+        <input class="field-input" placeholder="Descripcion del giro *"
+               [value]="newGiroDesc" (input)="newGiroDesc = $any($event.target).value">
+        <div class="giro-add-actions">
+          <button type="button" class="btn btn--ghost btn--sm" (click)="cancelAddGiro()">Cancelar</button>
+          <button type="button" class="btn btn--primary btn--sm"
+                  [disabled]="!newGiroDesc.trim()"
+                  (click)="confirmAddGiro()">Agregar</button>
         </div>
-      </form>
-    </mat-step>
+      </div>
 
-    <!-- ════════════════════════════════════════════════════════════
-         Paso 2 — Dirección tributaria
-    ════════════════════════════════════════════════════════════════ -->
-    <mat-step [stepControl]="step2">
-      <ng-template matStepLabel>Dirección tributaria</ng-template>
+      <p class="field-error" *ngIf="saving && girosArray.length === 0">Debes agregar al menos un giro comercial.</p>
+    </div>
 
-      <form [formGroup]="step2" class="step-form">
-        <h2 class="step-title">
-          <span class="step-num">2</span>
-          Dirección tributaria
-        </h2>
+    <p class="save-error" *ngIf="saveError" role="alert">{{ saveError }}</p>
+    <div class="step-actions">
+      <button type="button" class="btn btn--primary" [disabled]="!canAdvanceStep1 || saving" (click)="advanceStep(0)">
+        <span *ngIf="saving" class="spinner sm"></span>
+        <span *ngIf="!saving">Siguiente</span>
+      </button>
+    </div>
+  </form>
 
-        <!-- Calle + Número -->
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="field-grow">
-            <mat-label>Calle</mat-label>
-            <input matInput formControlName="calle">
-            <mat-error>Requerido.</mat-error>
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="field-num">
-            <mat-label>Número</mat-label>
-            <input matInput formControlName="numero">
-            <mat-error>Requerido.</mat-error>
-          </mat-form-field>
+  <!-- PASO 2 - Direccion principal -->
+  <form *ngIf="currentStep === 1" [formGroup]="step2" class="step-form">
+    <h2 class="step-title"><span class="step-num">2</span>Direccion principal</h2>
+    <div class="form-row">
+      <div class="field-group field-grow">
+        <label class="field-label">Calle</label>
+        <input class="field-input" formControlName="calle" [class.has-error]="step2.get('calle')?.invalid && step2.get('calle')?.touched">
+        <p class="field-error" *ngIf="step2.get('calle')?.invalid && step2.get('calle')?.touched">Requerido.</p>
+      </div>
+      <div class="field-group field-num">
+        <label class="field-label">Numero</label>
+        <input class="field-input" formControlName="numero" [class.has-error]="step2.get('numero')?.invalid && step2.get('numero')?.touched">
+        <p class="field-error" *ngIf="step2.get('numero')?.invalid && step2.get('numero')?.touched">Requerido.</p>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field-group field-grow">
+        <label class="field-label">Depto / Oficina</label>
+        <input class="field-input" formControlName="depto" placeholder="Opcional">
+      </div>
+      <div class="field-group field-grow">
+        <label class="field-label">Tipo de direccion</label>
+        <select class="field-select" formControlName="tipoDireccion">
+          <option *ngFor="let t of TIPO_DIRECCION_OPTS" [value]="t">{{ t }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-group full-width">
+      <label class="field-label">Pais</label>
+      <select class="field-select" formControlName="pais"><option value="CL">Chile</option></select>
+    </div>
+    <div class="field-group full-width">
+      <label class="field-label">Region</label>
+      <div class="field-input-wrap">
+        <select class="field-select" formControlName="region" [class.has-error]="step2.get('region')?.invalid && step2.get('region')?.touched">
+          <option value="" disabled selected>{{ loadingRegiones ? 'Cargando...' : 'Selecciona una region' }}</option>
+          <option *ngFor="let r of regiones" [value]="r.id">{{ r.nombre }}</option>
+        </select>
+        <span *ngIf="loadingRegiones" class="spinner sm field-spinner"></span>
+      </div>
+      <p class="field-error" *ngIf="step2.get('region')?.invalid && step2.get('region')?.touched">Requerido.</p>
+    </div>
+    <div class="field-group full-width">
+      <label class="field-label">Provincia</label>
+      <div class="field-input-wrap">
+        <select class="field-select" formControlName="provincia" [class.has-error]="step2.get('provincia')?.invalid && step2.get('provincia')?.touched">
+          <option value="" disabled selected>{{ loadingProvincias ? 'Cargando...' : 'Selecciona una provincia' }}</option>
+          <option *ngFor="let p of provincias" [value]="p.id">{{ p.nombre }}</option>
+        </select>
+        <span *ngIf="loadingProvincias" class="spinner sm field-spinner"></span>
+      </div>
+      <p class="field-error" *ngIf="step2.get('provincia')?.invalid && step2.get('provincia')?.touched">Requerido.</p>
+    </div>
+    <div class="form-row">
+      <div class="field-group field-grow">
+        <label class="field-label">Ciudad</label>
+        <input class="field-input" formControlName="ciudad" [class.has-error]="step2.get('ciudad')?.invalid && step2.get('ciudad')?.touched">
+        <p class="field-error" *ngIf="step2.get('ciudad')?.invalid && step2.get('ciudad')?.touched">Requerido.</p>
+      </div>
+      <div class="field-group field-grow">
+        <label class="field-label">Comuna</label>
+        <div class="field-input-wrap">
+          <select class="field-select" formControlName="comuna" [class.has-error]="step2.get('comuna')?.invalid && step2.get('comuna')?.touched">
+            <option value="" disabled selected>{{ loadingComunas ? 'Cargando...' : 'Selecciona una comuna' }}</option>
+            <option *ngFor="let c of comunas" [value]="c.id">{{ c.nombre }}</option>
+          </select>
+          <span *ngIf="loadingComunas" class="spinner sm field-spinner"></span>
         </div>
+        <p class="field-error" *ngIf="step2.get('comuna')?.invalid && step2.get('comuna')?.touched">Requerido.</p>
+      </div>
+    </div>
+    <div class="field-group full-width">
+      <label class="field-label">Codigo postal</label>
+      <input class="field-input" formControlName="codigoPostal" placeholder="Opcional">
+    </div>
+    <div class="field-group full-width">
+      <label class="field-label">Referencia</label>
+      <textarea class="field-input field-textarea" formControlName="referencia" rows="2" placeholder="Opcional"></textarea>
+    </div>
+    <label class="checkbox-row">
+      <input type="checkbox" formControlName="esPrincipal" class="checkbox-input">
+      <span class="checkbox-box"></span>
+      <span class="checkbox-label">Marcar como direccion principal</span>
+    </label>
+    <p class="info-hint"><mat-icon>info_outline</mat-icon>Podras agregar mas direcciones desde el perfil de tu organizacion.</p>
+    <p class="save-error" *ngIf="saveError" role="alert">{{ saveError }}</p>
+    <div class="step-actions">
+      <button type="button" class="btn btn--ghost" (click)="goBack()">Anterior</button>
+      <button type="button" class="btn btn--primary" [disabled]="!canAdvanceStep2 || saving" (click)="advanceStep(1)">
+        <span *ngIf="saving" class="spinner sm"></span>
+        <span *ngIf="!saving">Siguiente</span>
+      </button>
+    </div>
+  </form>
 
-        <!-- Depto + Tipo de dirección -->
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="field-grow">
-            <mat-label>Depto / Oficina</mat-label>
-            <input matInput formControlName="depto" placeholder="Opcional">
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="field-grow">
-            <mat-label>Tipo de dirección</mat-label>
-            <mat-select formControlName="tipoDireccion">
-              <mat-option *ngFor="let t of TIPO_DIRECCION_OPTS" [value]="t">{{ t }}</mat-option>
-            </mat-select>
-          </mat-form-field>
+  <!-- PASO 3a - Cuenta bancaria (CEDENTE) -->
+  <form *ngIf="currentStep === 2 && esCedente" [formGroup]="step3Cedente" class="step-form">
+    <h2 class="step-title"><span class="step-num">3</span>Cuenta bancaria</h2>
+    <p class="step-subtitle">Para recibir los fondos al ceder tus facturas.</p>
+    <div class="field-group full-width">
+      <label class="field-label">Banco</label>
+      <select class="field-select" formControlName="banco" [class.has-error]="step3Cedente.get('banco')?.invalid && step3Cedente.get('banco')?.touched">
+        <option value="" disabled selected>{{ bancos.length === 0 ? 'Cargando bancos...' : 'Selecciona un banco' }}</option>
+        <option *ngFor="let b of bancos" [value]="b.id">{{ b.nombre }}</option>
+      </select>
+      <p class="field-error" *ngIf="step3Cedente.get('banco')?.invalid && step3Cedente.get('banco')?.touched">Requerido.</p>
+    </div>
+    <div class="field-group full-width">
+      <label class="field-label">Tipo de cuenta</label>
+      <select class="field-select" formControlName="tipoCuenta" [class.has-error]="step3Cedente.get('tipoCuenta')?.invalid && step3Cedente.get('tipoCuenta')?.touched">
+        <option value="" disabled selected>Selecciona un tipo</option>
+        <option *ngFor="let t of TIPO_CUENTA_OPTS" [value]="t.value">{{ t.label }}</option>
+      </select>
+      <p class="field-error" *ngIf="step3Cedente.get('tipoCuenta')?.invalid && step3Cedente.get('tipoCuenta')?.touched">Requerido.</p>
+    </div>
+    <div class="field-group full-width">
+      <label class="field-label">Numero de cuenta</label>
+      <input class="field-input" formControlName="numeroCuenta" inputmode="numeric" autocomplete="off" [class.has-error]="step3Cedente.get('numeroCuenta')?.invalid && step3Cedente.get('numeroCuenta')?.touched">
+      <p class="field-error" *ngIf="step3Cedente.get('numeroCuenta')?.errors?.['required'] && step3Cedente.get('numeroCuenta')?.touched">Requerido.</p>
+      <p class="field-error" *ngIf="step3Cedente.get('numeroCuenta')?.errors?.['pattern'] && step3Cedente.get('numeroCuenta')?.touched">Solo se permiten digitos.</p>
+    </div>
+    <div class="field-group full-width">
+      <label class="field-label">Nombre del titular</label>
+      <input class="field-input" formControlName="nombreTitular" [class.has-error]="step3Cedente.get('nombreTitular')?.invalid && step3Cedente.get('nombreTitular')?.touched">
+      <p class="field-hint">La cuenta no necesita estar a nombre de la empresa.</p>
+      <p class="field-error" *ngIf="step3Cedente.get('nombreTitular')?.invalid && step3Cedente.get('nombreTitular')?.touched">Requerido.</p>
+    </div>
+    <div class="field-group full-width">
+      <label class="field-label">RUT del titular</label>
+      <input class="field-input" formControlName="rutTitular" placeholder="12.345.678-9" maxlength="12" autocomplete="off" [class.has-error]="step3Cedente.get('rutTitular')?.invalid && step3Cedente.get('rutTitular')?.touched">
+      <p class="field-error" *ngIf="step3Cedente.get('rutTitular')?.errors?.['required'] && step3Cedente.get('rutTitular')?.touched">Requerido.</p>
+      <p class="field-error" *ngIf="step3Cedente.get('rutTitular')?.errors?.['invalidRut'] && step3Cedente.get('rutTitular')?.touched">Digito verificador invalido.</p>
+    </div>
+    <p class="save-error" *ngIf="saveError" role="alert">{{ saveError }}</p>
+    <div class="step-actions">
+      <button type="button" class="btn btn--ghost" (click)="goBack()">Anterior</button>
+      <button type="button" class="btn btn--primary" [disabled]="!canAdvanceStep3 || saving" (click)="advanceStep(2)">
+        <span *ngIf="saving" class="spinner sm"></span><span *ngIf="!saving">Siguiente</span>
+      </button>
+    </div>
+  </form>
+
+  <!-- PASO 3b - Cobertura geografica (FINANCIERA/BROKER) -->
+  <form *ngIf="currentStep === 2 && esFinancieraBroker" [formGroup]="step3Cobertura" class="step-form">
+    <h2 class="step-title"><span class="step-num">3</span>Cobertura geografica</h2>
+    <p class="step-subtitle">Indica las regiones donde opera tu organizacion.</p>
+    <div class="toggle-row">
+      <label class="toggle-switch">
+        <input type="checkbox" formControlName="operaOtrasRegiones" class="toggle-input">
+        <span class="toggle-track"><span class="toggle-thumb"></span></span>
+      </label>
+      <span class="toggle-label">Opera en otras regiones sin oficina fisica?</span>
+    </div>
+    <div *ngIf="step3Cobertura.get('operaOtrasRegiones')?.value" class="zonas-container">
+      <div *ngFor="let zona of zonasCobertura.controls; let i = index" [formGroup]="$any(zona)" class="zona-row">
+        <div class="field-group field-grow">
+          <label class="field-label">Pais</label>
+          <select class="field-select" formControlName="pais"><option value="CL">Chile</option></select>
         </div>
-
-        <!-- País -->
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>País</mat-label>
-          <mat-select formControlName="pais">
-            <mat-option value="CL">Chile</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <!-- Región -->
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Región</mat-label>
-          <mat-select formControlName="region">
-            <mat-option *ngIf="loadingRegiones" disabled>Cargando…</mat-option>
-            <mat-option *ngFor="let r of regiones" [value]="r.id">{{ r.nombre }}</mat-option>
-          </mat-select>
-          <mat-spinner matSuffix *ngIf="loadingRegiones" diameter="18"></mat-spinner>
-          <mat-error>Requerido.</mat-error>
-        </mat-form-field>
-
-        <!-- Provincia -->
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Provincia</mat-label>
-          <mat-select formControlName="provincia" [disabled]="!step2.get('region')?.value">
-            <mat-option *ngIf="loadingProvincias" disabled>Cargando…</mat-option>
-            <mat-option *ngFor="let p of provincias" [value]="p.id">{{ p.nombre }}</mat-option>
-          </mat-select>
-          <mat-spinner matSuffix *ngIf="loadingProvincias" diameter="18"></mat-spinner>
-          <mat-error>Requerido.</mat-error>
-        </mat-form-field>
-
-        <!-- Ciudad + Comuna -->
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="field-grow">
-            <mat-label>Ciudad</mat-label>
-            <input matInput formControlName="ciudad">
-            <mat-error>Requerido.</mat-error>
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="field-grow">
-            <mat-label>Comuna</mat-label>
-            <mat-select formControlName="comuna" [disabled]="!step2.get('provincia')?.value">
-              <mat-option *ngIf="loadingComunas" disabled>Cargando…</mat-option>
-              <mat-option *ngFor="let c of comunas" [value]="c.id">{{ c.nombre }}</mat-option>
-            </mat-select>
-            <mat-spinner matSuffix *ngIf="loadingComunas" diameter="18"></mat-spinner>
-            <mat-error>Requerido.</mat-error>
-          </mat-form-field>
-        </div>
-
-        <!-- Código postal -->
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Código postal</mat-label>
-          <input matInput formControlName="codigoPostal" placeholder="Opcional">
-        </mat-form-field>
-
-        <!-- Referencia -->
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Referencia</mat-label>
-          <textarea matInput formControlName="referencia" rows="2" placeholder="Opcional"></textarea>
-        </mat-form-field>
-
-        <p class="info-hint">
-          <mat-icon>info_outline</mat-icon>
-          Podrás agregar más direcciones desde el perfil de tu organización.
-        </p>
-
-        <p class="save-error" *ngIf="saveError" role="alert">{{ saveError }}</p>
-
-        <div class="step-actions">
-          <button mat-button matStepperPrevious type="button">← Anterior</button>
-          <button
-            mat-flat-button
-            color="primary"
-            [disabled]="!canAdvanceStep2 || saving"
-            (click)="advanceStep(1)">
-            <mat-spinner *ngIf="saving" diameter="18" class="btn-spinner"></mat-spinner>
-            <span *ngIf="!saving">Siguiente →</span>
-          </button>
-        </div>
-      </form>
-    </mat-step>
-
-    <!-- ════════════════════════════════════════════════════════════
-         Paso 3 — Cuenta bancaria (CEDENTE) / Contacto operativo (FINANCIERA / BROKER)
-    ════════════════════════════════════════════════════════════════ -->
-    <mat-step [stepControl]="step3">
-      <ng-template matStepLabel>
-        {{ tipoParticipacion === 'CEDENTE' ? 'Cuenta bancaria' : 'Contacto operativo' }}
-      </ng-template>
-
-      <!-- ── 3a: CEDENTE ──────────────────────────────────────── -->
-      <form [formGroup]="step3Cedente" class="step-form" *ngIf="tipoParticipacion === 'CEDENTE'">
-        <h2 class="step-title">
-          <span class="step-num">3</span>
-          Cuenta bancaria
-        </h2>
-        <p class="step-subtitle">Para recibir los fondos al ceder tus facturas.</p>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Banco</mat-label>
-          <mat-select formControlName="banco">
-            <mat-option *ngIf="bancos.length === 0" disabled>Cargando bancos…</mat-option>
-            <mat-option *ngFor="let b of bancos" [value]="b.id">{{ b.nombre }}</mat-option>
-          </mat-select>
-          <mat-error>Requerido.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Tipo de cuenta</mat-label>
-          <mat-select formControlName="tipoCuenta">
-            <mat-option *ngFor="let t of TIPO_CUENTA_OPTS" [value]="t.value">{{ t.label }}</mat-option>
-          </mat-select>
-          <mat-error>Requerido.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Número de cuenta</mat-label>
-          <input matInput formControlName="numeroCuenta" inputmode="numeric" autocomplete="off">
-          <mat-error *ngIf="step3Cedente.get('numeroCuenta')?.errors?.['required']">Requerido.</mat-error>
-          <mat-error *ngIf="step3Cedente.get('numeroCuenta')?.errors?.['pattern']">Solo se permiten dígitos.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Nombre del titular</mat-label>
-          <input matInput formControlName="nombreTitular">
-          <mat-hint>La cuenta no necesita estar a nombre de la empresa.</mat-hint>
-          <mat-error>Requerido.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>RUT del titular</mat-label>
-          <input matInput formControlName="rutTitular" placeholder="12.345.678-9" maxlength="12" autocomplete="off">
-          <mat-error *ngIf="step3Cedente.get('rutTitular')?.errors?.['required']">Requerido.</mat-error>
-          <mat-error *ngIf="step3Cedente.get('rutTitular')?.errors?.['invalidRut']">Dígito verificador inválido.</mat-error>
-        </mat-form-field>
-
-        <p class="save-error" *ngIf="saveError" role="alert">{{ saveError }}</p>
-
-        <div class="step-actions">
-          <button mat-button matStepperPrevious type="button">← Anterior</button>
-          <button
-            mat-flat-button
-            color="primary"
-            [disabled]="!canAdvanceStep3 || saving"
-            (click)="advanceStep(2)">
-            <mat-spinner *ngIf="saving" diameter="18" class="btn-spinner"></mat-spinner>
-            <span *ngIf="!saving">Siguiente →</span>
-          </button>
-        </div>
-      </form>
-
-      <!-- ── 3b: FINANCIERA / BROKER ──────────────────────────── -->
-      <form [formGroup]="step3Financiera" class="step-form" *ngIf="tipoParticipacion !== 'CEDENTE'">
-        <h2 class="step-title">
-          <span class="step-num">3</span>
-          Contacto operativo
-        </h2>
-        <p class="step-subtitle" *ngIf="tipoParticipacion === 'BROKER'" class="warning-text">
-          <mat-icon>warning</mat-icon>
-          El flujo para BROKER está en definición. Completa los datos de contacto por ahora.
-        </p>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Teléfono de operaciones</mat-label>
-          <input matInput formControlName="telefonoOperaciones" placeholder="+56 9 XXXX XXXX">
-          <mat-error>Requerido.</mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Email de operaciones</mat-label>
-          <input matInput formControlName="emailOperaciones" type="email">
-          <mat-error *ngIf="step3Financiera.get('emailOperaciones')?.errors?.['required']">Requerido.</mat-error>
-          <mat-error *ngIf="step3Financiera.get('emailOperaciones')?.errors?.['email']">Email inválido.</mat-error>
-        </mat-form-field>
-
-        <p class="save-error" *ngIf="saveError" role="alert">{{ saveError }}</p>
-
-        <div class="step-actions">
-          <button mat-button matStepperPrevious type="button">← Anterior</button>
-          <button
-            mat-flat-button
-            color="primary"
-            [disabled]="!canAdvanceStep3 || saving"
-            (click)="advanceStep(2)">
-            <mat-spinner *ngIf="saving" diameter="18" class="btn-spinner"></mat-spinner>
-            <span *ngIf="!saving">Siguiente →</span>
-          </button>
-        </div>
-      </form>
-    </mat-step>
-
-    <!-- ════════════════════════════════════════════════════════════
-         Paso 4 — Presentación (opcional)
-    ════════════════════════════════════════════════════════════════ -->
-    <mat-step>
-      <ng-template matStepLabel>Presentación</ng-template>
-
-      <form [formGroup]="step4" class="step-form">
-        <h2 class="step-title">
-          <span class="step-num">4</span>
-          Presentación
-          <span class="optional-tag">opcional</span>
-        </h2>
-        <p class="step-subtitle">Puedes completar esto ahora o hacerlo desde el perfil de tu organización.</p>
-
-        <!-- Logo upload -->
-        <p class="upload-label">Logo de la organización</p>
-        <div class="upload-zone" (click)="logoInput.click()" role="button" tabindex="0"
-             (keydown.enter)="logoInput.click()" (keydown.space)="logoInput.click()"
-             aria-label="Seleccionar logo de la organización">
-          <img *ngIf="logoPreview" [src]="logoPreview" alt="Vista previa del logo" class="upload-preview logo-preview">
-          <div *ngIf="!logoPreview" class="upload-placeholder">
-            <mat-icon>add_photo_alternate</mat-icon>
-            <span>Seleccionar logo</span>
-            <small>JPG, PNG o WebP · máx. 5 MB</small>
+        <div class="field-group field-grow">
+          <label class="field-label">Region</label>
+          <div class="field-input-wrap">
+            <select class="field-select" formControlName="regionId">
+              <option value="" disabled selected>{{ loadingRegionesCobertura ? 'Cargando...' : 'Selecciona' }}</option>
+              <option *ngFor="let r of regionesCobertura" [value]="r.id">{{ r.nombre }}</option>
+            </select>
+            <span *ngIf="loadingRegionesCobertura" class="spinner sm field-spinner"></span>
           </div>
         </div>
-        <input #logoInput type="file" accept="image/jpeg,image/png,image/webp" hidden
-               (change)="onLogoSelected($event)">
+        <label class="checkbox-row zona-check">
+          <input type="checkbox" formControlName="esPrincipal" class="checkbox-input">
+          <span class="checkbox-box"></span><span class="checkbox-label">Principal</span>
+        </label>
+        <button type="button" class="btn btn--icon btn--danger" (click)="removeZonaCobertura(i)" aria-label="Eliminar zona">
+          <mat-icon>delete_outline</mat-icon>
+        </button>
+      </div>
+      <button type="button" class="btn btn--outlined btn--sm" (click)="addZonaCobertura()">
+        <mat-icon>add</mat-icon>Agregar region
+      </button>
+    </div>
+    <p class="save-error" *ngIf="saveError" role="alert">{{ saveError }}</p>
+    <div class="step-actions">
+      <button type="button" class="btn btn--ghost" (click)="goBack()">Anterior</button>
+      <button type="button" class="btn btn--primary" [disabled]="!canAdvanceStep3 || saving" (click)="advanceStep(2)">
+        <span *ngIf="saving" class="spinner sm"></span><span *ngIf="!saving">Siguiente</span>
+      </button>
+    </div>
+  </form>
 
-        <!-- Banner upload -->
-        <p class="upload-label">Banner de la organización</p>
-        <div class="upload-zone banner-zone" (click)="bannerInput.click()" role="button" tabindex="0"
-             (keydown.enter)="bannerInput.click()" (keydown.space)="bannerInput.click()"
-             aria-label="Seleccionar banner de la organización">
-          <img *ngIf="bannerPreview" [src]="bannerPreview" alt="Vista previa del banner" class="upload-preview banner-preview">
-          <div *ngIf="!bannerPreview" class="upload-placeholder">
-            <mat-icon>panorama</mat-icon>
-            <span>Seleccionar banner</span>
-            <small>JPG, PNG o WebP · máx. 5 MB</small>
-          </div>
+  <!-- PASO 4 - Perfil operativo (FINANCIERA/BROKER) -->
+  <form *ngIf="currentStep === 3 && esFinancieraBroker" [formGroup]="step4Perfil" class="step-form">
+    <h2 class="step-title"><span class="step-num">4</span>Perfil operativo</h2>
+    <p class="section-label">Capacidad financiera</p>
+    <div class="form-row">
+      <div class="field-group field-grow">
+        <label class="field-label">Monto minimo por operacion (USD)</label>
+        <input class="field-input" type="number" min="0" formControlName="montoMinimo" inputmode="numeric" [class.has-error]="step4Perfil.get('montoMinimo')?.invalid && step4Perfil.get('montoMinimo')?.touched">
+        <p class="field-error" *ngIf="step4Perfil.get('montoMinimo')?.invalid && step4Perfil.get('montoMinimo')?.touched">Requerido.</p>
+      </div>
+      <div class="field-group field-grow">
+        <label class="field-label">Monto maximo por operacion (USD)</label>
+        <input class="field-input" type="number" min="0" formControlName="montoMaximo" inputmode="numeric" [class.has-error]="step4Perfil.get('montoMaximo')?.invalid && step4Perfil.get('montoMaximo')?.touched">
+        <p class="field-error" *ngIf="step4Perfil.get('montoMaximo')?.invalid && step4Perfil.get('montoMaximo')?.touched">Requerido.</p>
+      </div>
+    </div>
+    <div class="field-group full-width">
+      <label class="field-label">Plazo tipico de pago (dias)</label>
+      <input class="field-input" type="number" min="1" formControlName="plazoTipicoPago" inputmode="numeric" [class.has-error]="step4Perfil.get('plazoTipicoPago')?.invalid && step4Perfil.get('plazoTipicoPago')?.touched">
+      <p class="field-error" *ngIf="step4Perfil.get('plazoTipicoPago')?.invalid && step4Perfil.get('plazoTipicoPago')?.touched">Requerido.</p>
+    </div>
+    <p class="section-label">Contacto operativo</p>
+    <div class="form-row">
+      <div class="field-group field-grow">
+        <label class="field-label">Email de operaciones</label>
+        <input class="field-input" type="email" formControlName="emailOperaciones" [class.has-error]="step4Perfil.get('emailOperaciones')?.invalid && step4Perfil.get('emailOperaciones')?.touched">
+        <p class="field-error" *ngIf="step4Perfil.get('emailOperaciones')?.errors?.['required'] && step4Perfil.get('emailOperaciones')?.touched">Requerido.</p>
+        <p class="field-error" *ngIf="step4Perfil.get('emailOperaciones')?.errors?.['email'] && step4Perfil.get('emailOperaciones')?.touched">Email invalido.</p>
+      </div>
+      <div class="field-group field-grow">
+        <label class="field-label">Telefono de operaciones</label>
+        <input class="field-input" formControlName="telefonoOperaciones" placeholder="+56 9 XXXX XXXX" [class.has-error]="step4Perfil.get('telefonoOperaciones')?.invalid && step4Perfil.get('telefonoOperaciones')?.touched">
+        <p class="field-error" *ngIf="step4Perfil.get('telefonoOperaciones')?.invalid && step4Perfil.get('telefonoOperaciones')?.touched">Requerido.</p>
+      </div>
+    </div>
+    <p class="section-label">Firma de contratos</p>
+    <div class="toggle-row">
+      <label class="toggle-switch">
+        <input type="checkbox" formControlName="firmaDigital" class="toggle-input">
+        <span class="toggle-track"><span class="toggle-thumb"></span></span>
+      </label>
+      <span class="toggle-label">Firma contratos digitalmente?</span>
+    </div>
+    <div *ngIf="step4Perfil.get('firmaDigital')?.value" class="field-group full-width">
+      <label class="field-label">Plataforma de firma</label>
+      <select class="field-select" formControlName="plataformaFirma" [class.has-error]="step4Perfil.get('plataformaFirma')?.invalid && step4Perfil.get('plataformaFirma')?.touched">
+        <option value="" disabled selected>Selecciona una plataforma</option>
+        <option *ngFor="let p of PLATAFORMAS_FIRMA" [value]="p">{{ p }}</option>
+      </select>
+      <p class="field-error" *ngIf="step4Perfil.get('plataformaFirma')?.invalid && step4Perfil.get('plataformaFirma')?.touched">Requerido.</p>
+    </div>
+    <p class="section-label">Productos que maneja</p>
+    <div class="productos-grid">
+      <span *ngIf="loadingProductos" class="spinner md"></span>
+      <label *ngFor="let prod of productosFinancieros" class="checkbox-row">
+        <input type="checkbox" class="checkbox-input" [checked]="isProductoSelected(prod.id)" (change)="toggleProducto(prod.id)">
+        <span class="checkbox-box"></span><span class="checkbox-label">{{ prod.nombre }}</span>
+      </label>
+    </div>
+    <p class="save-error" *ngIf="saveError" role="alert">{{ saveError }}</p>
+    <div class="step-actions">
+      <button type="button" class="btn btn--ghost" (click)="goBack()">Anterior</button>
+      <button type="button" class="btn btn--primary" [disabled]="!canAdvanceStep4 || saving" (click)="advanceStep(3)">
+        <span *ngIf="saving" class="spinner sm"></span><span *ngIf="!saving">Siguiente</span>
+      </button>
+    </div>
+  </form>
+
+  <!-- PASO Presentacion (opcional) -->
+  <form *ngIf="currentStep === presentacionStep" [formGroup]="step5" class="step-form">
+    <h2 class="step-title">
+      <span class="step-num">{{ esFinancieraBroker ? '5' : '4' }}</span>Presentacion
+      <span class="optional-tag">opcional</span>
+    </h2>
+    <p class="step-subtitle">Puedes completar esto ahora o hacerlo desde el perfil de tu organizacion.</p>
+    <p class="upload-label">Logo de la organizacion</p>
+    <div class="upload-zone" (click)="logoInput.click()" role="button" tabindex="0" (keydown.enter)="logoInput.click()" (keydown.space)="logoInput.click()" aria-label="Seleccionar logo">
+      <img *ngIf="logoPreview" [src]="logoPreview" alt="Vista previa del logo" class="upload-preview logo-preview">
+      <div *ngIf="!logoPreview" class="upload-placeholder">
+        <mat-icon>add_photo_alternate</mat-icon>
+        <span>Seleccionar logo</span>
+        <small>JPG, PNG o WebP - max. 5 MB</small>
+      </div>
+    </div>
+    <input #logoInput type="file" accept="image/jpeg,image/png,image/webp" hidden (change)="onLogoSelected($event)">
+    <p class="upload-label">Banner de la organizacion</p>
+    <div class="upload-zone banner-zone" (click)="bannerInput.click()" role="button" tabindex="0" (keydown.enter)="bannerInput.click()" (keydown.space)="bannerInput.click()" aria-label="Seleccionar banner">
+      <img *ngIf="bannerPreview" [src]="bannerPreview" alt="Vista previa del banner" class="upload-preview banner-preview">
+      <div *ngIf="!bannerPreview" class="upload-placeholder">
+        <mat-icon>panorama</mat-icon>
+        <span>Seleccionar banner</span>
+        <small>JPG, PNG o WebP - max. 5 MB</small>
+      </div>
+    </div>
+    <input #bannerInput type="file" accept="image/jpeg,image/png,image/webp" hidden (change)="onBannerSelected($event)">
+    <div class="field-group full-width">
+      <label class="field-label">Descripcion</label>
+      <textarea class="field-input field-textarea" formControlName="descripcion" rows="4" placeholder="Cuentanos brevemente sobre tu organizacion..."></textarea>
+    </div>
+    <p class="save-error" *ngIf="saveError" role="alert">{{ saveError }}</p>
+    <div class="step-actions">
+      <button type="button" class="btn btn--ghost" (click)="goBack()">Anterior</button>
+      <button type="button" class="btn btn--primary" [disabled]="saving" (click)="goNext()">Siguiente</button>
+    </div>
+  </form>
+
+  <!-- PASO Notificaciones (ultimo) -->
+  <form *ngIf="currentStep === notifStep" [formGroup]="step6" class="step-form">
+    <h2 class="step-title">
+      <span class="step-num">{{ esFinancieraBroker ? '6' : '5' }}</span>Notificaciones
+    </h2>
+    <p class="step-subtitle">Elige como quieres recibir alertas de la plataforma.</p>
+    <p class="section-label">Canales</p>
+    <div class="notif-list">
+      <div class="notif-row"><span>Email</span><label class="toggle-switch"><input type="checkbox" formControlName="notifEmail" class="toggle-input"><span class="toggle-track"><span class="toggle-thumb"></span></span></label></div>
+      <div class="notif-row"><span>WhatsApp</span><label class="toggle-switch"><input type="checkbox" formControlName="notifWhatsapp" class="toggle-input"><span class="toggle-track"><span class="toggle-thumb"></span></span></label></div>
+      <div class="notif-row"><span>Notificaciones in-app</span><label class="toggle-switch"><input type="checkbox" formControlName="notifInApp" class="toggle-input"><span class="toggle-track"><span class="toggle-thumb"></span></span></label></div>
+    </div>
+    <p class="section-label">Eventos</p>
+    <div class="notif-list">
+      <div class="notif-row"><span>Nuevas ofertas en el marketplace</span><label class="toggle-switch"><input type="checkbox" formControlName="notifNuevasOfertas" class="toggle-input"><span class="toggle-track"><span class="toggle-thumb"></span></span></label></div>
+      <div class="notif-row"><span>Cambio de estado de facturas</span><label class="toggle-switch"><input type="checkbox" formControlName="notifEstadoFacturas" class="toggle-input"><span class="toggle-track"><span class="toggle-thumb"></span></span></label></div>
+      <div class="notif-row"><span>Alertas de liquidacion y pago</span><label class="toggle-switch"><input type="checkbox" formControlName="notifLiquidacion" class="toggle-input"><span class="toggle-track"><span class="toggle-thumb"></span></span></label></div>
+      <div class="notif-row"><span>Vencimiento de documentos</span><label class="toggle-switch"><input type="checkbox" formControlName="notifVencimientos" class="toggle-input"><span class="toggle-track"><span class="toggle-thumb"></span></span></label></div>
+    </div>
+    <p class="save-error" *ngIf="saveError" role="alert">{{ saveError }}</p>
+    <div class="step-actions">
+      <button type="button" class="btn btn--ghost" (click)="goBack()">Anterior</button>
+      <button type="button" class="btn btn--outlined" [disabled]="saving" (click)="finalize(true)">Completar despues</button>
+      <button type="button" class="btn btn--primary" [disabled]="saving" (click)="finalize(false)">
+        <span *ngIf="saving" class="spinner sm"></span><span *ngIf="!saving">Finalizar</span>
+      </button>
+    </div>
+  </form>
+
+  <!-- Modal: Solicitar ingreso a organización existente -->
+  <div *ngIf="showJoinModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="join-modal-title" (click)="closeJoinModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <span class="modal-title" id="join-modal-title">Solicitar ingreso a la organización</span>
+        <button type="button" class="btn btn--icon" aria-label="Cerrar" (click)="closeJoinModal()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <ng-container *ngIf="!joinSuccess">
+        <div class="modal-body">
+          <p class="modal-desc">
+            Vas a enviar una solicitud para unirte a
+            <strong>{{ rutYaRegistrado?.razonSocial }}</strong>.
+            Un administrador de la organización deberá aprobarla antes de que puedas operar.
+          </p>
+          <p class="modal-desc modal-desc--muted">
+            Si no perteneces a esta organización, utiliza un RUT diferente para crear la tuya.
+          </p>
+          <p *ngIf="joinError" class="save-error" role="alert">{{ joinError }}</p>
         </div>
-        <input #bannerInput type="file" accept="image/jpeg,image/png,image/webp" hidden
-               (change)="onBannerSelected($event)">
-
-        <!-- Descripción -->
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Descripción</mat-label>
-          <textarea matInput formControlName="descripcion" rows="4"
-                    placeholder="Cuéntanos brevemente sobre tu organización…"></textarea>
-        </mat-form-field>
-
-        <p class="save-error" *ngIf="saveError" role="alert">{{ saveError }}</p>
-
-        <div class="step-actions">
-          <button mat-button matStepperPrevious type="button">← Anterior</button>
-          <button
-            mat-stroked-button
-            type="button"
-            [disabled]="saving"
-            (click)="finalize(true)">
-            Completar después
-          </button>
-          <button
-            mat-flat-button
-            color="primary"
-            type="button"
-            [disabled]="saving"
-            (click)="finalize(false)">
-            <mat-spinner *ngIf="saving" diameter="18" class="btn-spinner"></mat-spinner>
-            <span *ngIf="!saving">Finalizar</span>
+        <div class="modal-footer">
+          <button type="button" class="btn btn--ghost" (click)="closeJoinModal()" [disabled]="joinSending">Cancelar</button>
+          <button type="button" class="btn btn--primary" (click)="requestJoinOrg()" [disabled]="joinSending">
+            <span *ngIf="joinSending" class="spinner sm"></span>
+            <span *ngIf="!joinSending">Enviar solicitud</span>
           </button>
         </div>
-      </form>
-    </mat-step>
+      </ng-container>
 
-  </mat-stepper>
+      <ng-container *ngIf="joinSuccess">
+        <div class="modal-body modal-body--success">
+          <mat-icon class="modal-success-icon">check_circle</mat-icon>
+          <p class="modal-desc">Tu solicitud fue enviada correctamente. El administrador de la organización será notificado.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn--primary" (click)="closeJoinModal()">Cerrar</button>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+
 </div>

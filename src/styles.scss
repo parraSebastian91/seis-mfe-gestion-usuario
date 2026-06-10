@@ -1,10 +1,13 @@
 /* You can add global styles to this file, and also import other style files */
+@import '../../shared-utils/src/lib/styles/tokens';
 
 /* Reset de estilos globales */
 body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  background-color: var(--color-bg-base, #0D1655);
+  color: var(--color-text-primary, #fff);
 }
 
 html, body {

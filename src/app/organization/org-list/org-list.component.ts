@@ -37,7 +37,7 @@ export class OrgListComponent implements OnInit {
     this.error = null;
     try {
       const res = await firstValueFrom(
-        this.http.get<OrgSummary[]>('/api/organizations/me', {
+        this.http.get<OrgSummary[]>('/api/bff/organizations/me', {
           withCredentials: true,
         }),
       );
