@@ -79,6 +79,8 @@ export interface OrgProfileData {
   logoUrl?: string;
   bannerUrl?: string;
   descripcion?: string;
+  telefono?: string;
+  correoContacto?: string;
   direccionTributaria?: AddressData;
   ecosistemaDigital?: SocialLink[];
 }
@@ -153,6 +155,12 @@ export class OrgProfileComponent implements OnInit, OnDestroy {
   uploadingBanner = false;
   uploadingLogo = false;
 
+  // ── Contact field inline edit ────────────────────────────────────────────────
+  editingContactField: 'telefono' | 'correoContacto' | 'direccion' | null = null;
+  contactDraft = '';
+  savingContact = false;
+  contactError: string | null = null;
+
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
@@ -202,6 +210,8 @@ export class OrgProfileComponent implements OnInit, OnDestroy {
         tipo: raw.tipo ?? raw.tipo_participante ?? raw.tipoParticipante ?? raw.tipoParticipacion,
         logoUrl: raw.logoUrl ?? raw.logo_url ?? undefined,
         bannerUrl: raw.bannerUrl ?? raw.banner_url ?? undefined,
+        telefono: raw.telefono ?? undefined,
+        correoContacto: raw.correoContacto ?? raw.email_contacto ?? raw.emailContacto ?? undefined,
       } as OrgProfileData;
     } catch {
       this.error = 'No fue posible cargar el perfil de la organización.';
@@ -347,6 +357,55 @@ export class OrgProfileComponent implements OnInit, OnDestroy {
       this.org = { ...this.org, ecosistemaDigital: links };
     } catch {
       /* silently ignore — UI stays consistent */
+    }
+  }
+
+  // ── Contact edit ──────────────────────────────────────────────────────────────
+
+  openEditContact(field: 'telefono' | 'correoContacto' | 'direccion'): void {
+    if (!this.org) return;
+    if (field === 'telefono') this.contactDraft = this.org.telefono ?? '';
+    else if (field === 'correoContacto') this.contactDraft = this.org.correoContacto ?? '';
+    else this.contactDraft = this.formatAddress(this.org.direccionTributaria);
+    this.editingContactField = field;
+    this.contactError = null;
+  }
+
+  cancelContact(): void {
+    this.editingContactField = null;
+    this.contactError = null;
+  }
+
+  async saveContact(): Promise<void> {
+    if (!this.org || !this.editingContactField) return;
+    this.savingContact = true;
+    this.contactError = null;
+    const field = this.editingContactField;
+    let patch: Record<string, unknown>;
+    if (field === 'direccion') {
+      patch = { direccionTributaria: { ...this.org.direccionTributaria, calle: this.contactDraft } };
+    } else {
+      patch = { [field]: this.contactDraft };
+    }
+    try {
+      await firstValueFrom(
+        this.http.patch(`/api/bff/organizacion/${this.orgId}`, patch, { withCredentials: true }),
+      );
+      if (field === 'telefono') {
+        this.org = { ...this.org, telefono: this.contactDraft };
+      } else if (field === 'correoContacto') {
+        this.org = { ...this.org, correoContacto: this.contactDraft };
+      } else {
+        this.org = {
+          ...this.org,
+          direccionTributaria: { ...this.org.direccionTributaria, calle: this.contactDraft },
+        };
+      }
+      this.editingContactField = null;
+    } catch {
+      this.contactError = 'No fue posible guardar el cambio.';
+    } finally {
+      this.savingContact = false;
     }
   }
 

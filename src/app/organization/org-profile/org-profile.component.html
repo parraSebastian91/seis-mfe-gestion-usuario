@@ -14,107 +14,111 @@
 <div class="org-profile-container" *ngIf="!loading && !error && org">
 
   <!-- ── Header Card ──────────────────────────────────────────────────────── -->
-  <mat-card class="profile-header-card">
+  <app-card [width]="'100%'" [padding]="'none'" [radius]="'14px'" class="profile-header-card">
+    <div card-content>
 
-    <!-- Banner -->
-    <div class="banner-wrapper">
-      <div class="banner-placeholder" [class.is-hidden]="!!org.bannerUrl"></div>
-      <img *ngIf="org.bannerUrl" [src]="org.bannerUrl" [alt]="org.razonSocial + ' banner'"
-           class="banner-img">
-      <div class="banner-gradient"></div>
+      <!-- Banner -->
+      <div class="banner-wrapper">
+        <div class="banner-placeholder" [class.is-hidden]="!!org.bannerUrl"></div>
+        <img *ngIf="org.bannerUrl" [src]="org.bannerUrl" [alt]="org.razonSocial + ' banner'" class="banner-img">
+        <div class="banner-gradient"></div>
 
-      <div *ngIf="uploadingBanner" class="upload-overlay" aria-live="polite">
-        <mat-spinner diameter="40" color="accent"></mat-spinner>
-        <span>Subiendo banner…</span>
+        <div *ngIf="uploadingBanner" class="upload-overlay" aria-live="polite">
+          <mat-spinner diameter="40" color="accent"></mat-spinner>
+          <span>Subiendo banner…</span>
+        </div>
+
+        <button *ngIf="isAdmin" mat-mini-fab color="basic" class="edit-banner-btn" (click)="bannerFileInput.click()"
+          aria-label="Cambiar banner">
+          <mat-icon>photo_camera</mat-icon>
+        </button>
+        <input #bannerFileInput type="file" accept="image/jpeg,image/png,image/webp" class="hidden-file-input"
+          (change)="onBannerSelected($event)">
+
+        <button *ngIf="isAdmin" mat-flat-button color="primary" class="gestionar-btn" (click)="goToGestor()">
+          <mat-icon>settings</mat-icon>
+          Gestionar
+        </button>
       </div>
 
-      <button *ngIf="isAdmin" mat-mini-fab color="basic" class="edit-banner-btn"
-              (click)="bannerFileInput.click()" aria-label="Cambiar banner">
-        <mat-icon>photo_camera</mat-icon>
-      </button>
-      <input #bannerFileInput type="file" accept="image/jpeg,image/png,image/webp"
-             class="hidden-file-input" (change)="onBannerSelected($event)">
+      <!-- Identity -->
+      <div class="profile-main-content">
+        <div class="identity-section">
 
-      <button *ngIf="isAdmin" mat-flat-button color="primary" class="gestionar-btn"
-              (click)="goToGestor()">
-        <mat-icon>settings</mat-icon>
-        Gestionar
-      </button>
-    </div>
-
-    <mat-card-content class="profile-main-content">
-      <div class="identity-section">
-
-        <div class="logo-container" [class.logo-container--uploading]="uploadingLogo">
-          <img *ngIf="org.logoUrl && !uploadingLogo" [src]="org.logoUrl"
-               [alt]="org.razonSocial + ' logo'" class="org-logo">
-          <div *ngIf="!org.logoUrl && !uploadingLogo" class="logo-placeholder">
-            {{ getInitials(org.razonSocial) }}
+          <div class="logo-container" [class.logo-container--uploading]="uploadingLogo">
+            <img *ngIf="org.logoUrl && !uploadingLogo" [src]="org.logoUrl" [alt]="org.razonSocial + ' logo'"
+              class="org-logo">
+            <div *ngIf="!org.logoUrl && !uploadingLogo" class="logo-placeholder">
+              {{ getInitials(org.razonSocial) }}
+            </div>
+            <div *ngIf="uploadingLogo" class="logo-spinner-wrap">
+              <mat-spinner diameter="36"></mat-spinner>
+            </div>
+            <div *ngIf="isAdmin" class="add-logo-badge">
+              <button mat-mini-fab color="basic" class="logo-edit-btn" (click)="logoFileInput.click()"
+                aria-label="Cambiar logo de la organización">
+                <mat-icon>photo_camera</mat-icon>
+              </button>
+            </div>
+            <input #logoFileInput type="file" accept="image/jpeg,image/png,image/webp" class="hidden-file-input"
+              (change)="onLogoSelected($event)">
           </div>
-          <div *ngIf="uploadingLogo" class="logo-spinner-wrap">
-            <mat-spinner diameter="36"></mat-spinner>
+
+          <div class="org-info">
+            <div class="org-name-row">
+              <h1 class="org-name">{{ org?.razonSocial }}</h1>
+              <span *ngIf="org?.tipo" class="tipo-badge" [ngClass]="'tipo-badge--' + org?.tipo?.toLowerCase()">
+                {{ org?.tipo }}
+              </span>
+            </div>
+            <p class="org-rut">
+              <mat-icon aria-hidden="true">badge</mat-icon>
+              RUT {{ org?.rut }}
+            </p>
+            <div class="org-stats">
+              <span class="stat-pill">
+                <mat-icon aria-hidden="true">groups</mat-icon>
+                {{ groups.length }} grupo{{ groups.length !== 1 ? 's' : '' }}
+              </span>
+              <span class="stat-pill">
+                <mat-icon aria-hidden="true">people</mat-icon>
+                {{ allCollaborators.length }} colaborador{{ allCollaborators.length !== 1 ? 'es' : '' }}
+              </span>
+            </div>
           </div>
-          <div *ngIf="isAdmin" class="add-logo-badge">
-            <button mat-mini-fab color="basic" class="logo-edit-btn"
-                    (click)="logoFileInput.click()" aria-label="Cambiar logo de la organización">
-              <mat-icon>photo_camera</mat-icon>
+
+          <div class="org-actions">
+            <button *ngIf="isAdmin" mat-flat-button color="primary" class="action-btn" (click)="goToGestor()">
+              <mat-icon>settings</mat-icon>
+              Gestionar organización
             </button>
           </div>
-          <input #logoFileInput type="file" accept="image/jpeg,image/png,image/webp"
-                 class="hidden-file-input" (change)="onLogoSelected($event)">
-        </div>
 
-        <div class="org-info">
-          <div class="org-name-row">
-            <h1 class="org-name">{{ org.razonSocial }}</h1>
-            <span *ngIf="org.tipo" class="tipo-badge" [ngClass]="'tipo-badge--' + org.tipo.toLowerCase()">
-              {{ org.tipo }}
-            </span>
-          </div>
-          <p class="org-rut">
-            <mat-icon aria-hidden="true">badge</mat-icon>
-            RUT {{ org.rut }}
-          </p>
-          <div class="org-stats">
-            <span class="stat-pill">
-              <mat-icon aria-hidden="true">groups</mat-icon>
-              {{ groups.length }} grupo{{ groups.length !== 1 ? 's' : '' }}
-            </span>
-            <span class="stat-pill">
-              <mat-icon aria-hidden="true">people</mat-icon>
-              {{ allCollaborators.length }} colaborador{{ allCollaborators.length !== 1 ? 'es' : '' }}
-            </span>
-          </div>
         </div>
-
-        <div class="org-actions">
-          <button *ngIf="isAdmin" mat-flat-button color="primary" class="action-btn"
-                  (click)="goToGestor()">
-            <mat-icon>settings</mat-icon>
-            Gestionar organización
-          </button>
-        </div>
-
       </div>
-    </mat-card-content>
-  </mat-card>
+
+    </div>
+  </app-card>
 
   <!-- ── Descripción institucional ───────────────────────────────────────── -->
-  <section *ngIf="org.descripcion || isAdmin" class="description-section"
-           aria-label="Descripción institucional">
-    <mat-card class="section-card description-card">
-      <mat-card-content>
+  <section *ngIf="org.descripcion || isAdmin" class="description-section" aria-label="Descripción institucional">
+    <app-card [width]="'100%'">
+      <div card-title class="section-header">
+        <div class="section-header__label">
+          <mat-icon>subject</mat-icon>
+          <h3>Descripción institucional</h3>
+        </div>
+      </div>
+      <div card-content>
 
         <div *ngIf="editingDescription" class="description-edit">
           <textarea class="description-textarea" [(ngModel)]="descriptionDraft" rows="4"
-                    placeholder="Describe tu organización…"
-                    aria-label="Descripción de la organización">
+            placeholder="Describe tu organización…" aria-label="Descripción de la organización">
           </textarea>
           <p *ngIf="descriptionError" class="inline-error" role="alert">{{ descriptionError }}</p>
           <div class="description-actions">
             <button mat-button (click)="cancelDescription()">Cancelar</button>
-            <button mat-flat-button color="primary" [disabled]="savingDescription"
-                    (click)="saveDescription()">
+            <button mat-flat-button color="primary" [disabled]="savingDescription" (click)="saveDescription()">
               <mat-spinner *ngIf="savingDescription" diameter="16" class="btn-spinner"></mat-spinner>
               <span *ngIf="!savingDescription">Guardar</span>
             </button>
@@ -122,12 +126,11 @@
         </div>
 
         <div *ngIf="!editingDescription && org.descripcion" class="description-read"
-             [class.description-read--admin]="isAdmin">
+          [class.description-read--admin]="isAdmin">
           <mat-icon class="desc-quote-icon" aria-hidden="true">format_quote</mat-icon>
           <p>{{ org.descripcion }}</p>
-          <button *ngIf="isAdmin" mat-icon-button class="edit-btn"
-                  matTooltip="Editar descripción" aria-label="Editar descripción"
-                  (click)="openEditDescription()">
+          <button *ngIf="isAdmin" mat-icon-button class="edit-btn" matTooltip="Editar descripción"
+            aria-label="Editar descripción" (click)="openEditDescription()">
             <mat-icon>edit</mat-icon>
           </button>
         </div>
@@ -140,8 +143,8 @@
           </button>
         </div>
 
-      </mat-card-content>
-    </mat-card>
+      </div>
+    </app-card>
   </section>
 
   <!-- ── Profile grid ─────────────────────────────────────────────────────── -->
@@ -150,15 +153,17 @@
     <!-- ── Left sidebar ────────────────────────────────────────────────────── -->
     <aside class="info-column">
 
-      <mat-card class="section-card">
-        <mat-card-header>
-          <mat-card-title class="card-title">
+      <!-- Datos de la empresa -->
+      <app-card [width]="'100%'">
+        <div card-title class="section-header">
+          <div class="section-header__label">
             <mat-icon>business</mat-icon>
-            Datos de la empresa
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
+            <h3>Datos de la empresa</h3>
+          </div>
+        </div>
+        <div card-content>
           <ul class="data-list" aria-label="Datos de la empresa">
+
             <li>
               <div class="data-icon-wrap"><mat-icon aria-hidden="true">badge</mat-icon></div>
               <div class="data-item">
@@ -166,6 +171,7 @@
                 <span class="data-value">{{ org.rut }}</span>
               </div>
             </li>
+
             <li>
               <div class="data-icon-wrap"><mat-icon aria-hidden="true">work</mat-icon></div>
               <div class="data-item">
@@ -173,13 +179,98 @@
                 <span class="data-value">{{ org.razonSocial }}</span>
               </div>
             </li>
+
+            <!-- Dirección — editable por admins -->
             <li>
               <div class="data-icon-wrap"><mat-icon aria-hidden="true">location_on</mat-icon></div>
               <div class="data-item">
                 <span class="data-label">Dirección</span>
-                <span class="data-value">{{ formatAddress(org.direccionTributaria) }}</span>
+                <div *ngIf="editingContactField !== 'direccion'" class="data-value-row">
+                  <span class="data-value">{{ formatAddress(org.direccionTributaria) }}</span>
+                  <button *ngIf="isAdmin" mat-icon-button class="field-edit-btn" matTooltip="Editar dirección"
+                    aria-label="Editar dirección" (click)="openEditContact('direccion')">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                </div>
+                <ng-container *ngIf="editingContactField === 'direccion'">
+                  <div class="field-edit-row">
+                    <input class="field-input" [(ngModel)]="contactDraft" placeholder="Calle y número"
+                      (keydown.enter)="saveContact()" (keydown.escape)="cancelContact()">
+                    <button mat-icon-button (click)="cancelContact()" [disabled]="savingContact">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                    <button mat-icon-button color="primary" (click)="saveContact()" [disabled]="savingContact">
+                      <mat-spinner *ngIf="savingContact" diameter="16" class="btn-spinner"></mat-spinner>
+                      <mat-icon *ngIf="!savingContact">check</mat-icon>
+                    </button>
+                  </div>
+                  <p *ngIf="contactError" class="inline-error" role="alert">{{ contactError }}</p>
+                </ng-container>
               </div>
             </li>
+
+            <!-- Teléfono — editable por admins -->
+            <li>
+              <div class="data-icon-wrap"><mat-icon aria-hidden="true">phone</mat-icon></div>
+              <div class="data-item">
+                <span class="data-label">Teléfono</span>
+                <div *ngIf="editingContactField !== 'telefono'" class="data-value-row">
+                  <span class="data-value" [class.data-value--placeholder]="!org.telefono">
+                    {{ org.telefono || (isAdmin ? 'Agregar teléfono' : 'No registrado') }}
+                  </span>
+                  <button *ngIf="isAdmin" mat-icon-button class="field-edit-btn" matTooltip="Editar teléfono"
+                    aria-label="Editar teléfono" (click)="openEditContact('telefono')">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                </div>
+                <ng-container *ngIf="editingContactField === 'telefono'">
+                  <div class="field-edit-row">
+                    <input class="field-input" [(ngModel)]="contactDraft" type="tel" placeholder="+56 9 XXXX XXXX"
+                      (keydown.enter)="saveContact()" (keydown.escape)="cancelContact()">
+                    <button mat-icon-button (click)="cancelContact()" [disabled]="savingContact">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                    <button mat-icon-button color="primary" (click)="saveContact()" [disabled]="savingContact">
+                      <mat-spinner *ngIf="savingContact" diameter="16" class="btn-spinner"></mat-spinner>
+                      <mat-icon *ngIf="!savingContact">check</mat-icon>
+                    </button>
+                  </div>
+                  <p *ngIf="contactError" class="inline-error" role="alert">{{ contactError }}</p>
+                </ng-container>
+              </div>
+            </li>
+
+            <!-- Correo de contacto — editable por admins -->
+            <li>
+              <div class="data-icon-wrap"><mat-icon aria-hidden="true">email</mat-icon></div>
+              <div class="data-item">
+                <span class="data-label">Correo de contacto</span>
+                <div *ngIf="editingContactField !== 'correoContacto'" class="data-value-row">
+                  <span class="data-value" [class.data-value--placeholder]="!org.correoContacto">
+                    {{ org.correoContacto || (isAdmin ? 'Agregar correo' : 'No registrado') }}
+                  </span>
+                  <button *ngIf="isAdmin" mat-icon-button class="field-edit-btn" matTooltip="Editar correo"
+                    aria-label="Editar correo de contacto" (click)="openEditContact('correoContacto')">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                </div>
+                <ng-container *ngIf="editingContactField === 'correoContacto'">
+                  <div class="field-edit-row">
+                    <input class="field-input" [(ngModel)]="contactDraft" type="email" placeholder="contacto@empresa.cl"
+                      (keydown.enter)="saveContact()" (keydown.escape)="cancelContact()">
+                    <button mat-icon-button (click)="cancelContact()" [disabled]="savingContact">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                    <button mat-icon-button color="primary" (click)="saveContact()" [disabled]="savingContact">
+                      <mat-spinner *ngIf="savingContact" diameter="16" class="btn-spinner"></mat-spinner>
+                      <mat-icon *ngIf="!savingContact">check</mat-icon>
+                    </button>
+                  </div>
+                  <p *ngIf="contactError" class="inline-error" role="alert">{{ contactError }}</p>
+                </ng-container>
+              </div>
+            </li>
+
             <li *ngIf="org.tipo">
               <div class="data-icon-wrap"><mat-icon aria-hidden="true">category</mat-icon></div>
               <div class="data-item">
@@ -187,24 +278,24 @@
                 <span class="data-value">{{ org.tipo }}</span>
               </div>
             </li>
-          </ul>
-        </mat-card-content>
-      </mat-card>
 
-      <mat-card class="section-card ecosystem-card">
-        <mat-card-header>
-          <mat-card-title class="card-title">
+          </ul>
+        </div>
+      </app-card>
+
+      <!-- Ecosistema Digital -->
+      <app-card [width]="'100%'">
+        <div card-title class="section-header">
+          <div class="section-header__label">
             <mat-icon>language</mat-icon>
-            Ecosistema Digital
-          </mat-card-title>
-          <div class="card-header-action" *ngIf="isAdmin && !showAddLinkForm">
-            <button mat-icon-button (click)="openAddLink()" matTooltip="Agregar enlace"
-                    aria-label="Agregar enlace">
-              <mat-icon>add</mat-icon>
-            </button>
+            <h3>Ecosistema Digital</h3>
           </div>
-        </mat-card-header>
-        <mat-card-content>
+          <button *ngIf="isAdmin && !showAddLinkForm" mat-icon-button matTooltip="Agregar enlace"
+            aria-label="Agregar enlace" (click)="openAddLink()">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+        <div card-content>
 
           <div *ngIf="showAddLinkForm" class="link-form" [formGroup]="linkForm">
             <mat-form-field appearance="outline" class="full-width">
@@ -226,8 +317,7 @@
             <p *ngIf="linkError" class="inline-error" role="alert">{{ linkError }}</p>
             <div class="link-form-actions">
               <button mat-button (click)="cancelLink()">Cancelar</button>
-              <button mat-flat-button color="primary"
-                      [disabled]="linkForm.invalid || savingLink" (click)="saveLink()">
+              <button mat-flat-button color="primary" [disabled]="linkForm.invalid || savingLink" (click)="saveLink()">
                 <mat-spinner *ngIf="savingLink" diameter="16" class="btn-spinner"></mat-spinner>
                 <span *ngIf="!savingLink">Guardar</span>
               </button>
@@ -235,10 +325,10 @@
           </div>
 
           <div *ngIf="(org.ecosistemaDigital?.length ?? 0) > 0; else noLinks" class="links-list">
-            <div *ngFor="let link of org.ecosistemaDigital; let i = index"
-                 class="link-row" [class.link-row--admin]="isAdmin">
+            <div *ngFor="let link of org.ecosistemaDigital; let i = index" class="link-row"
+              [class.link-row--admin]="isAdmin">
               <a [href]="link.url" target="_blank" rel="noopener noreferrer" class="link-anchor"
-                 [attr.aria-label]="LINK_TIPO_LABELS[link.tipo] + ': ' + link.url">
+                [attr.aria-label]="LINK_TIPO_LABELS[link.tipo] + ': ' + link.url">
                 <div class="link-icon-wrap">
                   <mat-icon>{{ LINK_TIPO_ICONS[link.tipo] }}</mat-icon>
                 </div>
@@ -259,8 +349,8 @@
             <p class="empty-text" *ngIf="!showAddLinkForm">Sin enlaces registrados.</p>
           </ng-template>
 
-        </mat-card-content>
-      </mat-card>
+        </div>
+      </app-card>
 
     </aside>
 
@@ -268,20 +358,18 @@
     <div class="main-column">
 
       <!-- Colaboradores -->
-      <mat-card class="section-card">
-        <mat-card-header>
-          <mat-card-title class="card-title">
+      <app-card [width]="'100%'">
+        <div card-title class="section-header">
+          <div class="section-header__label">
             <mat-icon>people</mat-icon>
-            Colaboradores
-          </mat-card-title>
-          <div class="card-header-action" *ngIf="isAdmin">
-            <button mat-stroked-button (click)="goToGestor()">
-              <mat-icon>settings</mat-icon>
-              Gestionar grupos
-            </button>
+            <h3>Colaboradores</h3>
           </div>
-        </mat-card-header>
-        <mat-card-content>
+          <button *ngIf="isAdmin" mat-icon-button matTooltip="Gestionar colaboradores"
+            aria-label="Gestionar colaboradores" (click)="goToGestor()">
+            <mat-icon>manage_accounts</mat-icon>
+          </button>
+        </div>
+        <div card-content>
 
           <div *ngIf="loadingGroups" class="section-loading" aria-busy="true">
             <mat-spinner diameter="32"></mat-spinner>
@@ -297,25 +385,22 @@
           </div>
 
           <div *ngIf="!loadingGroups && allCollaborators.length > 0" class="collaborators-grid">
-            <app-card-colaborador
-              *ngFor="let c of allCollaborators; trackBy: trackById"
-              [colaborador]="c"
-              (cardClick)="onCollaboratorSelect($event)"
-            ></app-card-colaborador>
+            <app-card-colaborador *ngFor="let c of allCollaborators; trackBy: trackById" [colaborador]="c"
+              (cardClick)="onCollaboratorSelect($event)"></app-card-colaborador>
           </div>
 
-        </mat-card-content>
-      </mat-card>
+        </div>
+      </app-card>
 
       <!-- Empresas conectadas -->
-      <mat-card class="section-card">
-        <mat-card-header>
-          <mat-card-title class="card-title">
+      <app-card [width]="'100%'">
+        <div card-title class="section-header">
+          <div class="section-header__label">
             <mat-icon>hub</mat-icon>
-            Empresas conectadas
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
+            <h3>Empresas conectadas</h3>
+          </div>
+        </div>
+        <div card-content>
           <div class="coming-soon-state">
             <div class="coming-soon-icon-wrap">
               <mat-icon>account_tree</mat-icon>
@@ -328,24 +413,24 @@
               </p>
             </div>
           </div>
-        </mat-card-content>
-      </mat-card>
+        </div>
+      </app-card>
 
       <!-- Publicaciones -->
-      <mat-card class="section-card">
-        <mat-card-header>
-          <mat-card-title class="card-title">
+      <app-card [width]="'100%'">
+        <div card-title class="section-header">
+          <div class="section-header__label">
             <mat-icon>article</mat-icon>
-            Publicaciones
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
+            <h3>Publicaciones</h3>
+          </div>
+        </div>
+        <div card-content>
           <div class="empty-state publications-empty">
             <mat-icon class="empty-state-icon">description</mat-icon>
             <p>No hay publicaciones de esta organización.</p>
           </div>
-        </mat-card-content>
-      </mat-card>
+        </div>
+      </app-card>
 
     </div>
 
