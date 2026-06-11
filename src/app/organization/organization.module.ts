@@ -18,6 +18,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatCardModule } from '@angular/material/card';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { CardColaboradorComponent } from 'shared-utils';
 
 import { OrganizationRoutingModule } from './organization-routing.module';
 import { OrgListComponent } from './org-list/org-list.component';
@@ -62,6 +63,7 @@ import { AdminGrupoDetalleComponent } from './org-gestor/admin-grupos/admin-grup
     MatExpansionModule,
     MatCardModule,
     MatSlideToggleModule,
+    CardColaboradorComponent,
   ],
 })
 export class OrganizationModule {}

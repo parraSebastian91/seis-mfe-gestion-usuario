@@ -297,28 +297,11 @@
           </div>
 
           <div *ngIf="!loadingGroups && allCollaborators.length > 0" class="collaborators-grid">
-            <div *ngFor="let c of allCollaborators; trackBy: trackById"
-                 class="collaborator-card"
-                 (click)="goToMemberProfile(c.username)"
-                 role="link" tabindex="0"
-                 (keydown.enter)="goToMemberProfile(c.username)"
-                 [attr.aria-label]="'Ver perfil de ' + c.nombre + ' ' + c.apellido">
-              <div class="collab-avatar">
-                <img *ngIf="c.avatarUrl" [src]="c.avatarUrl"
-                     [alt]="c.nombre + ' ' + c.apellido" class="collab-avatar-img">
-                <span *ngIf="!c.avatarUrl" class="collab-avatar-initials">
-                  {{ getInitials(c.nombre + ' ' + c.apellido) }}
-                </span>
-              </div>
-              <div class="collab-info">
-                <span class="collab-name">{{ c.nombre }} {{ c.apellido }}</span>
-                <span *ngIf="c.cargo" class="collab-cargo">{{ c.cargo }}</span>
-                <span class="collab-grupo">
-                  <mat-icon aria-hidden="true">group</mat-icon>
-                  {{ c.grupoNombre }}
-                </span>
-              </div>
-            </div>
+            <app-card-colaborador
+              *ngFor="let c of allCollaborators; trackBy: trackById"
+              [colaborador]="c"
+              (cardClick)="onCollaboratorSelect($event)"
+            ></app-card-colaborador>
           </div>
 
         </mat-card-content>

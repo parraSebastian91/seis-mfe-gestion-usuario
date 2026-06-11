@@ -29,13 +29,13 @@ export interface WorkGroup {
 }
 
 export interface CollaboratorFlat {
-  id: string;
+  id: string | number;
   nombre: string;
   apellido: string;
-  username: string;
-  avatarUrl?: string;
-  cargo?: string;
-  grupoNombre: string;
+  username?: string | null;
+  avatarUrl?: string | null;
+  cargo?: string | null;
+  grupoNombre?: string | null;
 }
 
 // Raw shape returned by the groups API
@@ -436,6 +436,12 @@ export class OrgProfileComponent implements OnInit, OnDestroy {
     this.router.navigate(['contenedor', 'pages', 'u', username]);
   }
 
+  onCollaboratorSelect(collab: CollaboratorFlat): void {
+    if (collab.username) {
+      this.goToMemberProfile(collab.username);
+    }
+  }
+
   goToGestor(): void {
     this.router.navigate(['contenedor', 'pages', 'organizaciones', this.orgId, 'gestor']);
   }
@@ -523,7 +529,7 @@ export class OrgProfileComponent implements OnInit, OnDestroy {
     return parts.join(' ') || 'Dirección no registrada.';
   }
 
-  trackById(_index: number, item: { id: string }): string {
-    return item.id;
+  trackById(_index: number, item: { id: string | number }): string {
+    return String(item.id);
   }
 }
