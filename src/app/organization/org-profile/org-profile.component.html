@@ -14,7 +14,7 @@
 <div class="org-profile-container" *ngIf="!loading && !error && org">
 
   <!-- ── Header Card ──────────────────────────────────────────────────────── -->
-  <app-card [width]="'100%'" [padding]="'none'" [radius]="'14px'" class="profile-header-card">
+ <app-card [loading]="loading" [width]="'100%'" [padding]="'none'" [radius]="'14px'" class="profile-header-card">
     <div card-content>
 
       <!-- Banner -->
@@ -102,7 +102,7 @@
 
   <!-- ── Descripción institucional ───────────────────────────────────────── -->
   <section *ngIf="org.descripcion || isAdmin" class="description-section" aria-label="Descripción institucional">
-    <app-card [width]="'100%'">
+   <app-card [loading]="loading" [width]="'100%'">
       <div card-title class="section-header">
         <div class="section-header__label">
           <mat-icon>subject</mat-icon>
@@ -154,7 +154,7 @@
     <aside class="info-column">
 
       <!-- Datos de la empresa -->
-      <app-card [width]="'100%'">
+     <app-card [loading]="loading" [width]="'100%'">
         <div card-title class="section-header">
           <div class="section-header__label">
             <mat-icon>business</mat-icon>
@@ -284,7 +284,7 @@
       </app-card>
 
       <!-- Ecosistema Digital -->
-      <app-card [width]="'100%'">
+     <app-card [loading]="loading" [width]="'100%'">
         <div card-title class="section-header">
           <div class="section-header__label">
             <mat-icon>language</mat-icon>
@@ -358,7 +358,7 @@
     <div class="main-column">
 
       <!-- Colaboradores -->
-      <app-card [width]="'100%'">
+     <app-card [loading]="loading" [width]="'100%'">
         <div card-title class="section-header">
           <div class="section-header__label">
             <mat-icon>people</mat-icon>
@@ -385,15 +385,18 @@
           </div>
 
           <div *ngIf="!loadingGroups && allCollaborators.length > 0" class="collaborators-grid">
-            <app-card-colaborador *ngFor="let c of allCollaborators; trackBy: trackById" [colaborador]="c"
-              (cardClick)="onCollaboratorSelect($event)"></app-card-colaborador>
+            <app-card-colaborador
+              *ngFor="let c of allCollaborators; trackBy: trackById"
+              [colaborador]="c"
+              (cardClick)="onCollaboratorSelect($event)">
+            </app-card-colaborador>
           </div>
 
         </div>
       </app-card>
 
       <!-- Empresas conectadas -->
-      <app-card [width]="'100%'">
+     <app-card [loading]="loading" [width]="'100%'">
         <div card-title class="section-header">
           <div class="section-header__label">
             <mat-icon>hub</mat-icon>
@@ -417,7 +420,7 @@
       </app-card>
 
       <!-- Publicaciones -->
-      <app-card [width]="'100%'">
+     <app-card [loading]="loading" [width]="'100%'">
         <div card-title class="section-header">
           <div class="section-header__label">
             <mat-icon>article</mat-icon>
