@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { firstValueFrom, Subject } from 'rxjs';
-import { ObjectUploadService, SessionService, UserRole } from 'shared-utils';
+import { ObjectUploadService, SearchableCardItem, SessionService, UserRole } from 'shared-utils';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -216,7 +216,7 @@ export class OrgProfileComponent implements OnInit, OnDestroy {
     } catch {
       this.error = 'No fue posible cargar el perfil de la organización.';
     } finally {
-      this.loading = false;
+      setTimeout(() => this.loading = false, 500);
     }
   }
 
@@ -250,7 +250,7 @@ export class OrgProfileComponent implements OnInit, OnDestroy {
     } catch {
       this.groups = [];
     } finally {
-      this.loadingGroups = false;
+      setTimeout(() => this.loadingGroups = false, 500);
     }
   }
 
@@ -415,21 +415,24 @@ export class OrgProfileComponent implements OnInit, OnDestroy {
     group.expanded = !group.expanded;
   }
 
-  async openChangeLeader(group: WorkGroup): Promise<void> {
+  openChangeLeader(group: WorkGroup): void {
+    // Use the already-loaded miembros — no extra API call needed
     group.changingLeader = true;
     group.selectedNewLeader = group.lider.id;
-    if (!group.leaderCandidates) {
-      try {
-        const res = await firstValueFrom(
-          this.http.get<GroupMember[]>(`/api/bff/organizacion/${this.orgId}/miembros`, {
-            withCredentials: true,
-          }),
-        );
-        group.leaderCandidates = res ?? [];
-      } catch {
-        group.leaderCandidates = [];
-      }
-    }
+  }
+
+  /** Map group members to SearchableCardItem for app-searchable-card-select */
+  groupMembersAsItems(group: WorkGroup): SearchableCardItem[] {
+    return group.miembros.map(m => ({
+      id: m.id,
+      name: `${m.nombre} ${m.apellido}`,
+      meta: m.cargo,
+      avatarUrl: m.avatarUrl,
+    }));
+  }
+
+  onLeaderSelectionChange(group: WorkGroup, item: SearchableCardItem): void {
+    group.selectedNewLeader = item.id;
   }
 
   cancelChangeLeader(group: WorkGroup): void {

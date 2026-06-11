@@ -1,12 +1,28 @@
 @import 'admin-shared';
 
+// ── Layout tokens ─────────────────────────────────────────────────────────────
+// --topbar-height  : altura total del top-navbar (barra sticky dentro de <main>)
+// --main-content-height : alto disponible debajo del top-navbar dentro de <main>
+:root {
+  --topbar-height: 135px; // altura total del header del gestor (incluye padding)
+  --main-content-height: calc(100dvh - var(--topbar-height));
+}
+
 // ── Shell wrapper ─────────────────────────────────────────────────────────────
 .gestor-shell {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: var(--main-content-height);
   background: $bg-base;
   padding-bottom: 64px; // reserva para bottom-nav en mobile
+}
+
+// ── Gestor card — passthrough mobile / card desktop ───────────────────────────
+.gestor-card {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  // mobile: sin contención, hereda fondo del shell
 }
 
 // ── Loading / Error ───────────────────────────────────────────────────────────
@@ -26,8 +42,16 @@
   text-align: center;
   color: $danger;
 
-  mat-icon { font-size: 40px; width: 40px; height: 40px; }
-  p { color: $text-muted; font-size: .9rem; }
+  mat-icon {
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+  }
+
+  p {
+    color: $text-muted;
+    font-size: .9rem;
+  }
 }
 
 // ── Header ────────────────────────────────────────────────────────────────────
@@ -40,10 +64,11 @@
   border-bottom: 1px solid $border;
   position: sticky;
   top: 0;
-  z-index: 100;
   box-shadow: $shadow-sm;
 
-  .back-btn { color: $text-muted; }
+  .back-btn {
+    color: $text-muted;
+  }
 
   &__info {
     display: flex;
@@ -77,7 +102,9 @@
 }
 
 // Desktop sidenav — oculto en mobile
-.shell-sidenav { display: none; }
+.shell-sidenav {
+  display: none;
+}
 
 // ── Content area ──────────────────────────────────────────────────────────────
 .shell-content {
@@ -98,7 +125,7 @@
   align-items: stretch;
   background: $bg-surface;
   border-top: 1px solid $border;
-  box-shadow: 0 -2px 12px rgba(0,0,0,.30);
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, .30);
   z-index: 200;
 }
 
@@ -116,24 +143,53 @@
   transition: color .15s, background .15s;
   padding: 4px 0;
 
-  mat-icon { font-size: 22px; width: 22px; height: 22px; }
+  mat-icon {
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+  }
 
   &.is-active {
     color: $brand;
-    mat-icon { color: $brand; }
+
+    mat-icon {
+      color: $brand;
+    }
   }
 
   &:hover:not(.is-active) {
-    background: rgba(255,255,255,.04);
+    background: rgba(255, 255, 255, .04);
     color: $text;
   }
 }
 
-// ── Desktop (≥ 768px) ─────────────────────────────────────────────────────────
 @media (min-width: 768px) {
-  .gestor-shell { padding-bottom: 0; }
+  .gestor-shell {
+    padding-bottom: 0;
+    padding: 24px; // breathing room around the card
+    align-items: stretch;
+  }
 
-  .shell-bottom-nav { display: none; }
+  .gestor-card {
+    width: 100%;
+    margin: 0 auto;
+    border-radius: $radius-lg;
+    overflow: hidden;
+    border: 1px solid $border;
+    box-shadow: $shadow-md;
+    background: $bg-surface;
+    // height driven by content — no min-height
+  }
+
+  .shell-header {
+    // inside card: no need to be full-bleed sticky; keep top-sticky within card
+    top: 0;
+    border-radius: 0; // card provides the outer radius
+  }
+
+  .shell-bottom-nav {
+    display: none;
+  }
 
   .shell-sidenav {
     display: flex;
@@ -144,10 +200,12 @@
     border-right: 1px solid $border;
     padding: 20px 10px;
     gap: 2px;
+    // sticky relative to the card scroll, capped to viewport height
     position: sticky;
     top: 57px;
-    height: calc(100vh - 57px);
+    height: -webkit-fill-available;
     overflow-y: auto;
+    align-self: flex-start;
   }
 
   .sidenav-item {
@@ -162,23 +220,34 @@
     font-weight: 500;
     transition: background .15s, color .15s;
 
-    &__icon { font-size: 20px; width: 20px; height: 20px; }
+    &__icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
 
     &.is-active {
       background: rgba(0, 191, 165, .12);
       color: $brand;
-      .sidenav-item__icon { color: $brand; }
+
+      .sidenav-item__icon {
+        color: $brand;
+      }
     }
 
     &:hover:not(.is-active) {
-      background: rgba(255,255,255,.05);
+      background: rgba(255, 255, 255, .05);
       color: $text;
     }
   }
 
-  .shell-content { padding: 24px 28px; }
+  .shell-content {
+    padding: 24px 28px;
+  }
 }
 
 @media (min-width: 1024px) {
-  .shell-sidenav { width: 220px; }
+  .shell-sidenav {
+    width: 220px;
+  }
 }

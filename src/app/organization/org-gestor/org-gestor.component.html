@@ -14,40 +14,44 @@
 
   <ng-container *ngIf="!loading && !generalError">
 
-    <!-- ── Header ─────────────────────────────────────────────────────────── -->
-    <header class="shell-header">
-      <button mat-icon-button class="back-btn" (click)="goBack()" aria-label="Volver">
-        <mat-icon>arrow_back</mat-icon>
-      </button>
-      <div class="shell-header__info">
-        <span class="shell-header__label">Gestión de organización</span>
-        <h1 class="shell-header__name">{{ org?.razonSocial }}</h1>
+    <div class="gestor-card">
+
+      <!-- ── Header ─────────────────────────────────────────────────────────── -->
+      <header class="shell-header">
+        <button mat-icon-button class="back-btn" (click)="goBack()" aria-label="Volver">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <div class="shell-header__info">
+          <span class="shell-header__label">Gestión de organización</span>
+          <h1 class="shell-header__name">{{ org?.razonSocial }}</h1>
+        </div>
+      </header>
+
+      <!-- ── Body: sidenav (desktop) + content ─────────────────────────────── -->
+      <div class="shell-body">
+
+        <!-- Desktop side nav -->
+        <nav class="shell-sidenav" aria-label="Secciones de administración">
+          <a
+            *ngFor="let item of navItems"
+            class="sidenav-item"
+            [class.is-active]="isNavActive(item.path)"
+            [routerLink]="item.path">
+            <mat-icon class="sidenav-item__icon">{{ item.icon }}</mat-icon>
+            <span class="sidenav-item__label">{{ item.label }}</span>
+          </a>
+        </nav>
+
+        <!-- Content area -->
+        <main class="shell-content">
+          <router-outlet></router-outlet>
+        </main>
+
       </div>
-    </header>
 
-    <!-- ── Body: sidenav (desktop) + bottom-nav (mobile) ─────────────────── -->
-    <div class="shell-body">
+    </div><!-- /gestor-card -->
 
-      <!-- Desktop side nav -->
-      <nav class="shell-sidenav" aria-label="Secciones de administración">
-        <a
-          *ngFor="let item of navItems"
-          class="sidenav-item"
-          [class.is-active]="isNavActive(item.path)"
-          [routerLink]="item.path">
-          <mat-icon class="sidenav-item__icon">{{ item.icon }}</mat-icon>
-          <span class="sidenav-item__label">{{ item.label }}</span>
-        </a>
-      </nav>
-
-      <!-- Content area -->
-      <main class="shell-content">
-        <router-outlet></router-outlet>
-      </main>
-
-    </div>
-
-    <!-- Mobile bottom nav -->
+    <!-- Mobile bottom nav (fixed, outside card) -->
     <nav class="shell-bottom-nav" aria-label="Navegación de secciones">
       <a
         *ngFor="let item of navItems"

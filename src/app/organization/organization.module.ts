@@ -18,7 +18,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatCardModule } from '@angular/material/card';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { CardColaboradorComponent, CardComponent, CardTitleDirective, CardFooterDirective } from 'shared-utils';
+import { CardColaboradorComponent, CardComponent, CardTitleDirective, CardFooterDirective, SearchableCardSelectComponent } from 'shared-utils';
 
 import { OrganizationRoutingModule } from './organization-routing.module';
 import { OrgListComponent } from './org-list/org-list.component';
@@ -67,6 +67,7 @@ import { AdminGrupoDetalleComponent } from './org-gestor/admin-grupos/admin-grup
     CardComponent,
     CardTitleDirective,
     CardFooterDirective,
+    SearchableCardSelectComponent,
   ],
 })
 export class OrganizationModule {}

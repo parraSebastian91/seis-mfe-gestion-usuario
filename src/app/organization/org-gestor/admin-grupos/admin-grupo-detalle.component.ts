@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { GrupoTrabajo, GrupoMiembro, OrgMiembro } from '../org-gestor.component';
+import { SearchableCardItem } from 'shared-utils';
 
 @Component({
   selector: 'app-admin-grupo-detalle',
@@ -38,8 +39,8 @@ export class AdminGrupoDetalleComponent implements OnInit {
   ) { }
 
   async ngOnInit(): Promise<void> {
-    // Parent route has :id, current has :grupoId
-    this.orgId   = this.route.parent?.parent?.snapshot.params['id'] as string ?? '';
+    // Parent route (:id/gestor) has :id, current (grupos/:grupoId) has :grupoId
+    this.orgId   = this.route.parent?.snapshot.params['id'] as string ?? '';
     this.grupoId = this.route.snapshot.params['grupoId'] as string ?? '';
     await Promise.all([this.loadGrupo(), this.loadMiembrosOrg()]);
   }
@@ -79,6 +80,19 @@ export class AdminGrupoDetalleComponent implements OnInit {
     if (!this.grupo) return this.miembrosOrg;
     const inGroup = new Set(this.grupo.miembros.map(m => m.usuarioUuid));
     return this.miembrosOrg.filter(m => !inGroup.has(m.usuarioUuid));
+  }
+
+  get availableMiembrosAsItems(): SearchableCardItem[] {
+    return this.availableMiembros.map(m => ({
+      id: m.usuarioUuid,
+      name: `${m.nombre} ${m.apellido}`,
+      meta: m.rolNombre ?? undefined,
+      avatarUrl: m.avatarUrl ?? undefined,
+    }));
+  }
+
+  onMiembroSelected(item: SearchableCardItem): void {
+    this.selectedUuid = item.id;
   }
 
   // ── Add ───────────────────────────────────────────────────────────────────

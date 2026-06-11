@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { SolicitudAcceso } from '../org-gestor.component';
+import { UserStateService } from 'shared-utils';
 
 @Component({
   selector: 'app-admin-solicitudes',
@@ -38,10 +39,12 @@ export class AdminSolicitudesComponent implements OnInit {
   constructor(
     private readonly route: ActivatedRoute,
     private readonly http: HttpClient,
+    private readonly userStateService: UserStateService,
   ) { }
 
   async ngOnInit(): Promise<void> {
-    this.orgId = this.route.parent?.snapshot.params['id'] as string ?? '';
+    this.orgId    = this.route.parent?.snapshot.params['id'] as string ?? '';
+    this.adminUuid = this.userStateService.state().id;
     await this.load();
   }
 

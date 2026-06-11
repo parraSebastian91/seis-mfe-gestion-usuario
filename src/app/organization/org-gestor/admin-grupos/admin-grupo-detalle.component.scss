@@ -94,3 +94,48 @@
   text-align: center;
   padding: 8px 0;
 }
+
+// ── Add member inline panel ───────────────────────────────────────────────────
+
+.add-panel {
+  margin-top: 20px;
+  padding: 20px;
+  background: $bg-elevated;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: .95rem;
+    font-weight: 600;
+    color: $text;
+    margin: 0 0 16px;
+
+    mat-icon { font-size: 20px; width: 20px; height: 20px; color: $brand; }
+  }
+
+  &__error {
+    color: $danger;
+    font-size: .82rem;
+    margin: 6px 0 0;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 14px;
+  }
+}
+
+.cargo-field {
+  margin-top: 12px;
+}
+
+.btn-spinner {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 4px;
+}

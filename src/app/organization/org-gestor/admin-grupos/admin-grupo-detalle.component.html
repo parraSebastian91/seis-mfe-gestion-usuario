@@ -69,41 +69,45 @@
   </ng-container>
 </div>
 
-<!-- ── Add member panel ──────────────────────────────────────────────────── -->
-<div class="modal-backdrop" *ngIf="showAddPanel" (click)="showAddPanel = false">
-  <div class="modal-panel" (click)="$event.stopPropagation()">
-    <h3 class="modal-title">Agregar miembro al grupo</h3>
+<!-- ── Add member panel (inline, no modal) ──────────────────────────────── -->
+<div class="add-panel" *ngIf="showAddPanel">
+  <h3 class="add-panel__title">
+    <mat-icon>person_add</mat-icon>
+    Agregar miembro al grupo
+  </h3>
 
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Miembro</mat-label>
-      <mat-select [(ngModel)]="selectedUuid">
-        <mat-option *ngFor="let m of availableMiembros" [value]="m.usuarioUuid">
-          {{ m.nombre }} {{ m.apellido }}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
+  <p class="no-members-msg" *ngIf="availableMiembros.length === 0">
+    Todos los miembros de la organización ya están en este grupo.
+  </p>
 
-    <mat-form-field appearance="outline" class="full-width">
+  <ng-container *ngIf="availableMiembros.length > 0">
+    <app-searchable-card-select
+      [items]="availableMiembrosAsItems"
+      [selectedId]="selectedUuid || null"
+      placeholder="Selecciona un miembro"
+      searchPlaceholder="Buscar por nombre..."
+      icon="person"
+      (selectionChange)="onMiembroSelected($event)">
+    </app-searchable-card-select>
+
+    <mat-form-field appearance="outline" class="full-width cargo-field">
       <mat-label>Cargo en el grupo (opcional)</mat-label>
-      <input matInput [(ngModel)]="cargo" />
+      <input matInput [(ngModel)]="cargo" placeholder="Ej: Ejecutivo contable" />
     </mat-form-field>
+  </ng-container>
 
-    <p class="modal-error" *ngIf="addError">{{ addError }}</p>
-    <p class="no-members-msg" *ngIf="availableMiembros.length === 0">
-      Todos los miembros de la organización ya están en este grupo.
-    </p>
+  <p class="add-panel__error" *ngIf="addError" role="alert">{{ addError }}</p>
 
-    <div class="modal-actions">
-      <button mat-button [disabled]="adding" (click)="showAddPanel = false">Cancelar</button>
-      <button
-        mat-flat-button
-        color="primary"
-        [disabled]="adding || !selectedUuid || availableMiembros.length === 0"
-        (click)="addMiembro()">
-        <mat-spinner *ngIf="adding" diameter="18"></mat-spinner>
-        <span *ngIf="!adding">Agregar</span>
-      </button>
-    </div>
+  <div class="add-panel__actions">
+    <button mat-button [disabled]="adding" (click)="showAddPanel = false; selectedUuid = ''; cargo = ''">
+      Cancelar
+    </button>
+    <button mat-flat-button color="primary"
+            [disabled]="adding || !selectedUuid || availableMiembros.length === 0"
+            (click)="addMiembro()">
+      <mat-spinner *ngIf="adding" diameter="18" class="btn-spinner"></mat-spinner>
+      <span *ngIf="!adding">Agregar</span>
+    </button>
   </div>
 </div>
 

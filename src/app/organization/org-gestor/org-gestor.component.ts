@@ -97,12 +97,14 @@ export class OrgGestorComponent implements OnInit {
 
   private async verifyAdminAccess(): Promise<void> {
     try {
-      const result = await firstValueFrom(
-        this.http.get<{ rol: string }>(`/api/bff/organizacion/${this.orgId}/mi-rol`, {
+      const response = await firstValueFrom(
+        this.http.get<any>(`/api/bff/organizacion/${this.orgId}/mi-rol`, {
           withCredentials: true,
         }),
       );
-      if (result.rol !== 'admin' && result.rol !== 'ADMIN') {
+      // BFF wraps in ApiResponse — unwrap
+      const rol: string | null = response?.data?.rol ?? response?.rol ?? null;
+      if (!rol || (rol.toUpperCase() !== 'ADMIN')) {
         await this.router.navigate(['contenedor', 'pages', 'organizaciones', this.orgId]);
         return;
       }
@@ -114,12 +116,13 @@ export class OrgGestorComponent implements OnInit {
 
   private async loadOrg(): Promise<void> {
     try {
-      const org = await firstValueFrom(
-        this.http.get<OrgGestorData>(`/api/bff/organizacion/${this.orgId}`, {
+      const response = await firstValueFrom(
+        this.http.get<any>(`/api/bff/organizacion/${this.orgId}`, {
           withCredentials: true,
         }),
       );
-      this.org = org;
+      // BFF wraps in ApiResponse — unwrap
+      this.org = response?.data ?? response;
     } catch {
       this.generalError = 'No fue posible cargar los datos de la organización.';
     } finally {

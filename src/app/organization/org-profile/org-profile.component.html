@@ -1,20 +1,14 @@
-<!-- ── Loading / Error global ──────────────────────────────────────────────── -->
-<div *ngIf="loading" class="page-state" aria-busy="true" aria-live="polite">
-  <mat-spinner diameter="56"></mat-spinner>
-  <p>Cargando perfil…</p>
-</div>
-
-<div *ngIf="!loading && error" class="page-state page-state--error" role="alert">
+<div *ngIf="error" class="page-state page-state--error" role="alert">
   <mat-icon color="warn">error_outline</mat-icon>
   <p>{{ error }}</p>
   <button mat-stroked-button (click)="loadOrg()">Reintentar</button>
 </div>
 
 <!-- ══ Org Profile ═══════════════════════════════════════════════════════════ -->
-<div class="org-profile-container" *ngIf="!loading && !error && org">
+<div class="org-profile-container" *ngIf="!error && org">
 
   <!-- ── Header Card ──────────────────────────────────────────────────────── -->
- <app-card [loading]="loading" [width]="'100%'" [padding]="'none'" [radius]="'14px'" class="profile-header-card">
+  <app-card [loading]="loading" [width]="'100%'" [padding]="'none'" [radius]="'14px'" class="profile-header-card">
     <div card-content>
 
       <!-- Banner -->
@@ -66,14 +60,14 @@
 
           <div class="org-info">
             <div class="org-name-row">
-              <h1 class="org-name">{{ org?.razonSocial }}</h1>
-              <span *ngIf="org?.tipo" class="tipo-badge" [ngClass]="'tipo-badge--' + org?.tipo?.toLowerCase()">
-                {{ org?.tipo }}
+              <h1 class="org-name">{{ org.razonSocial }}</h1>
+              <span *ngIf="org.tipo" class="tipo-badge" [ngClass]="'tipo-badge--' + org.tipo.toLowerCase()">
+                {{ org.tipo }}
               </span>
             </div>
             <p class="org-rut">
               <mat-icon aria-hidden="true">badge</mat-icon>
-              RUT {{ org?.rut }}
+              RUT {{ org.rut }}
             </p>
             <div class="org-stats">
               <span class="stat-pill">
@@ -102,7 +96,7 @@
 
   <!-- ── Descripción institucional ───────────────────────────────────────── -->
   <section *ngIf="org.descripcion || isAdmin" class="description-section" aria-label="Descripción institucional">
-   <app-card [loading]="loading" [width]="'100%'">
+    <app-card [loading]="loading" [width]="'100%'">
       <div card-title class="section-header">
         <div class="section-header__label">
           <mat-icon>subject</mat-icon>
@@ -154,7 +148,7 @@
     <aside class="info-column">
 
       <!-- Datos de la empresa -->
-     <app-card [loading]="loading" [width]="'100%'">
+      <app-card [loading]="loading" [width]="'100%'">
         <div card-title class="section-header">
           <div class="section-header__label">
             <mat-icon>business</mat-icon>
@@ -284,7 +278,7 @@
       </app-card>
 
       <!-- Ecosistema Digital -->
-     <app-card [loading]="loading" [width]="'100%'">
+      <app-card [loading]="loading" [width]="'100%'">
         <div card-title class="section-header">
           <div class="section-header__label">
             <mat-icon>language</mat-icon>
@@ -358,7 +352,7 @@
     <div class="main-column">
 
       <!-- Colaboradores -->
-     <app-card [loading]="loading" [width]="'100%'">
+      <app-card [loading]="loading" [width]="'100%'">
         <div card-title class="section-header">
           <div class="section-header__label">
             <mat-icon>people</mat-icon>
@@ -385,9 +379,7 @@
           </div>
 
           <div *ngIf="!loadingGroups && allCollaborators.length > 0" class="collaborators-grid">
-            <app-card-colaborador
-              *ngFor="let c of allCollaborators; trackBy: trackById"
-              [colaborador]="c"
+            <app-card-colaborador *ngFor="let c of allCollaborators; trackBy: trackById" [colaborador]="c"
               (cardClick)="onCollaboratorSelect($event)">
             </app-card-colaborador>
           </div>
@@ -395,8 +387,88 @@
         </div>
       </app-card>
 
+      <!-- ── Grupos de trabajo ──────────────────────────────────────────── -->
+      <app-card *ngIf="!loadingGroups && groups.length > 0" [loading]="false" [width]="'100%'">
+        <div card-title class="section-header">
+          <div class="section-header__label">
+            <mat-icon>groups</mat-icon>
+            <h3>Grupos de trabajo</h3>
+          </div>
+        </div>
+        <div card-content>
+          <div class="groups-list">
+
+            <div *ngFor="let group of groups; trackBy: trackById" class="group-row">
+
+              <!-- Group header -->
+              <div class="group-row__header">
+                <span class="group-row__name">{{ group.nombre }}</span>
+                <button *ngIf="isAdmin && !group.changingLeader"
+                        mat-button color="primary" class="change-leader-btn"
+                        (click)="openChangeLeader(group)">
+                  <mat-icon>swap_horiz</mat-icon>
+                  Cambiar líder
+                </button>
+                <button *ngIf="isAdmin && group.changingLeader"
+                        mat-icon-button (click)="cancelChangeLeader(group)"
+                        matTooltip="Cancelar" aria-label="Cancelar cambio de líder">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+
+              <!-- Leader chip (read state) -->
+              <div *ngIf="!group.changingLeader" class="group-row__leader"
+                   (click)="goToMemberProfile(group.lider.username)"
+                   role="link" tabindex="0"
+                   (keydown.enter)="goToMemberProfile(group.lider.username)"
+                   [attr.aria-label]="'Ver perfil de ' + group.lider.nombre">
+                <div class="leader-avatar">
+                  <img *ngIf="group.lider.avatarUrl" [src]="group.lider.avatarUrl"
+                       [alt]="group.lider.nombre" class="leader-avatar__img">
+                  <span *ngIf="!group.lider.avatarUrl" class="leader-avatar__initials">
+                    {{ getInitials(group.lider.nombre + ' ' + group.lider.apellido) }}
+                  </span>
+                </div>
+                <div class="leader-info">
+                  <span class="leader-info__name">
+                    {{ group.lider.nombre }} {{ group.lider.apellido }}
+                  </span>
+                  <span class="leader-info__role">
+                    <mat-icon aria-hidden="true">star</mat-icon>
+                    Líder del grupo
+                  </span>
+                </div>
+              </div>
+
+              <!-- Searchable card select (change leader state) -->
+              <div *ngIf="group.changingLeader" class="group-row__selector">
+                <app-searchable-card-select
+                  [items]="groupMembersAsItems(group)"
+                  [selectedId]="group.selectedNewLeader ?? null"
+                  placeholder="Selecciona el nuevo líder"
+                  searchPlaceholder="Buscar miembro..."
+                  icon="person"
+                  (selectionChange)="onLeaderSelectionChange(group, $event)">
+                </app-searchable-card-select>
+                <div class="group-row__confirm-actions">
+                  <button mat-button (click)="cancelChangeLeader(group)">Cancelar</button>
+                  <button mat-flat-button color="primary"
+                          [disabled]="!group.selectedNewLeader || group.savingLeader"
+                          (click)="saveNewLeader(group)">
+                    <mat-spinner *ngIf="group.savingLeader" diameter="16" class="btn-spinner"></mat-spinner>
+                    <span *ngIf="!group.savingLeader">Confirmar</span>
+                  </button>
+                </div>
+              </div>
+
+            </div><!-- /group-row -->
+
+          </div>
+        </div>
+      </app-card>
+
       <!-- Empresas conectadas -->
-     <app-card [loading]="loading" [width]="'100%'">
+      <app-card [loading]="loading" [width]="'100%'">
         <div card-title class="section-header">
           <div class="section-header__label">
             <mat-icon>hub</mat-icon>
@@ -420,7 +492,7 @@
       </app-card>
 
       <!-- Publicaciones -->
-     <app-card [loading]="loading" [width]="'100%'">
+      <app-card [loading]="loading" [width]="'100%'">
         <div card-title class="section-header">
           <div class="section-header__label">
             <mat-icon>article</mat-icon>

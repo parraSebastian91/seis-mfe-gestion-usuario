@@ -63,6 +63,11 @@ export class ViewComponent implements OnInit {
 
   // ── Profile mode (CA-03) ─────────────────────────────────────────────────
   readonly isOwnProfile: boolean;
+  readonly viewedUserUuid: string | null;
+
+  // ── Loading / error state ────────────────────────────────────────────────
+  profileLoading = false;
+  profileError: string | null = null;
 
   // ── Información General form ──────────────────────────────────────────────
   showEditGeneralInfoForm = false;
@@ -131,6 +136,7 @@ export class ViewComponent implements OnInit {
     cargo: 'Cargo en la Empresa',
     telefono: '123456789',
     ubicacion: 'Ubicación',
+    roles: [],
   };
 
   constructor(
@@ -145,6 +151,7 @@ export class ViewComponent implements OnInit {
     @Inject(LOGIN_APP_URL) private readonly loginAppUrl: string,
   ) {
     this.isOwnProfile = !this.route.snapshot.params['username'];
+    this.viewedUserUuid = this.route.snapshot.params['username'] ?? null;
 
     this.editGeneralInfoForm = this.fb.group({
       nombres: ['', Validators.required],
@@ -182,19 +189,22 @@ export class ViewComponent implements OnInit {
   ngOnInit(): void {
     this.setAvatarImage(this.userProfile.assets.avatar.md.path);
     this.setBannerImage(this.userProfile.assets.banner.lg.path);
+
+    if (this.isOwnProfile) {
+      this.loadOwnProfile();
+    } else {
+      this.loadUserProfileByUuid(this.viewedUserUuid!);
+    }
+  }
+
+  // ── Carga perfil propio (usuario autenticado) ─────────────────────────────
+
+  private loadOwnProfile(): void {
     this.userStateService.patch({ status: 'LOADING' });
 
     this.userProfileService.getUserProfile()
       .then((profile: UserProfile) => {
-        this.userProfile.username = profile.username;
-        this.userProfile.nombreCompleto = profile.nombreCompleto;
-        this.userProfile.nombre = profile.nombre;
-        this.userProfile.datosContacto = profile.datosContacto;
-        this.userProfile.rrss = profile.rrss;
-        this.userProfile.cargo = profile.cargo;
-        this.userProfile.telefono = profile.telefono;
-        this.userProfile.ubicacion = profile.ubicacion;
-
+        this.applyProfile(profile);
         this.userStateService.patch({
           username: profile.username,
           NombreCompleto: profile.nombreCompleto,
@@ -206,32 +216,100 @@ export class ViewComponent implements OnInit {
 
     this.userProfileService.getUserImage(this.apiBase)
       .then((imageUrl: UserImageProfile) => {
-        this.userProfile.assets.avatar = imageUrl.avatar;
-        this.userProfile.assets.banner = imageUrl.banner;
-
-        if (imageUrl.avatar.sm) {
-          this.setAvatarImage(imageUrl.avatar.md.path || imageUrl.avatar.sm.path);
-          this.userStateService.setAvatar({
-            small: imageUrl.avatar.sm.path,
-            medium: imageUrl.avatar.md.path,
-            large: imageUrl.avatar.lg.path,
-          });
-        }
-
-        if (imageUrl.banner.sm) {
-          this.setBannerImage(imageUrl.banner.lg.path || imageUrl.banner.md.path || imageUrl.banner.sm.path);
-          this.userStateService.setBanner({
-            small: imageUrl.banner.sm.path,
-            medium: imageUrl.banner.md.path,
-            large: imageUrl.banner.lg.path,
-          });
-        }
-
+        this.applyImages(imageUrl, true);
         this.userStateService.setStatus('READY');
       })
       .catch(() => this.userStateService.setStatus('READY'));
 
     this.syncFormWithProfile();
+  }
+
+  // ── Carga perfil de otro usuario por UUID ────────────────────────────────
+
+  private async loadUserProfileByUuid(uuid: string): Promise<void> {
+    this.profileLoading = true;
+    this.profileError = null;
+    try {
+      const [profileRes, imgRes] = await Promise.allSettled([
+        firstValueFrom(
+          this.http.get<any>(`/api/bff/usuario/profile/${uuid}`, { withCredentials: true }),
+        ),
+        firstValueFrom(
+          this.http.get<any>(`/api/bff/usuario/profile/${uuid}/img`, { withCredentials: true }),
+        ),
+      ]);
+
+      if (profileRes.status === 'fulfilled') {
+        const raw = profileRes.value?.data ?? profileRes.value;
+        // Map BFF response → UserProfile shape
+        const mapped: Partial<UserProfile> = {
+          username: raw.username ?? uuid,
+          usuarioUUID: raw.usuarioUUID ?? uuid,
+          nombreCompleto: raw.nombreCompleto ?? [raw.nombre?.nombres, raw.nombre?.apellidoPaterno].filter(Boolean).join(' '),
+          nombre: raw.nombre ?? { nombres: '', apellidoPaterno: '', apellidoMaterno: '' },
+          datosContacto: raw.datosContacto ?? { tipoContacto: '', correo: '', telefono: '', ubicacion: '', documento: { tipo: '', numero: '' } },
+          rrss: raw.rrss ?? [],
+          cargo: raw.cargo ?? '',
+          telefono: raw.telefono ?? '',
+          ubicacion: raw.ubicacion ?? '',
+          roles: Array.isArray(raw.roles) ? raw.roles : [],
+        };
+        this.applyProfile(mapped as UserProfile);
+        this.syncFormWithProfile();
+      } else {
+        this.profileError = 'No fue posible cargar el perfil de este usuario.';
+      }
+
+      if (imgRes.status === 'fulfilled') {
+        const imgRaw = imgRes.value?.data ?? imgRes.value;
+        this.applyImages(imgRaw, false);
+      }
+    } catch {
+      this.profileError = 'No fue posible cargar el perfil de este usuario.';
+    } finally {
+      this.profileLoading = false;
+    }
+  }
+
+  // ── Helpers compartidos ───────────────────────────────────────────────────
+
+  private applyProfile(profile: UserProfile): void {
+    this.userProfile.username = profile.username;
+    this.userProfile.nombreCompleto = profile.nombreCompleto;
+    this.userProfile.nombre = profile.nombre;
+    this.userProfile.datosContacto = profile.datosContacto;
+    this.userProfile.rrss = profile.rrss;
+    this.userProfile.cargo = profile.cargo;
+    this.userProfile.telefono = profile.telefono;
+    this.userProfile.ubicacion = profile.ubicacion;
+    this.userProfile.roles = profile.roles ?? [];
+  }
+
+  private applyImages(imageUrl: UserImageProfile, updateState: boolean): void {
+    this.userProfile.assets.avatar = imageUrl.avatar;
+    this.userProfile.assets.banner = imageUrl.banner;
+
+    if (imageUrl.avatar?.sm) {
+      this.setAvatarImage(imageUrl.avatar.md?.path || imageUrl.avatar.sm.path);
+      if (updateState) {
+        this.userStateService.setAvatar({
+          small: imageUrl.avatar.sm.path,
+          medium: imageUrl.avatar.md.path,
+          large: imageUrl.avatar.lg.path,
+        });
+      }
+    }
+
+    if (imageUrl.banner?.sm) {
+      this.setBannerImage(imageUrl.banner.lg?.path || imageUrl.banner.md?.path || imageUrl.banner.sm.path);
+      if (updateState) {
+        this.userStateService.setBanner({
+          small: imageUrl.banner.sm.path,
+          medium: imageUrl.banner.md.path,
+          large: imageUrl.banner.lg.path,
+        });
+      }
+    }
   }
 
   // ── CA-02 · Logout ────────────────────────────────────────────────────────
