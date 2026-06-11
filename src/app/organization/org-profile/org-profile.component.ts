@@ -28,6 +28,36 @@ export interface WorkGroup {
   savingLeader?: boolean;
 }
 
+export interface CollaboratorFlat {
+  id: string;
+  nombre: string;
+  apellido: string;
+  username: string;
+  avatarUrl?: string;
+  cargo?: string;
+  grupoNombre: string;
+}
+
+// Raw shape returned by the groups API
+interface WorkGroupRaw {
+  grupoId: string;
+  nombre: string;
+  descripcion?: string;
+  liderUuid: string;
+  liderNombre: string;
+  liderApellido: string;
+  activo: boolean;
+  creadoEn: string;
+  miembros: Array<{
+    miembroId: string;
+    usuarioUuid: string;
+    nombre: string;
+    apellido: string;
+    avatarUrl?: string | null;
+    cargoEnGrupo?: string;
+  }>;
+}
+
 export interface SocialLink {
   tipo: 'LINKEDIN' | 'TWITTER' | 'WEBSITE' | 'OTRO';
   url: string;
@@ -45,7 +75,7 @@ export interface OrgProfileData {
   id: string;
   rut: string;
   razonSocial: string;
-  tipo: 'CEDENTE' | 'FINANCIERA' | 'BROKER';
+  tipo?: 'CEDENTE' | 'FINANCIERA' | 'BROKER';
   logoUrl?: string;
   bannerUrl?: string;
   descripcion?: string;
@@ -130,7 +160,7 @@ export class OrgProfileComponent implements OnInit, OnDestroy {
     private readonly fb: FormBuilder,
     readonly session: SessionService,
     private readonly uploadService: ObjectUploadService,
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.orgId = this.route.snapshot.params['id'] ?? '';
@@ -159,11 +189,20 @@ export class OrgProfileComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.error = null;
     try {
-      this.org = await firstValueFrom(
-        this.http.get<OrgProfileData>(`/api/bff/organizacion/${this.orgId}`, {
+      const { data: raw } = await firstValueFrom(
+        this.http.get<any>(`/api/bff/organizacion/${this.orgId}`, {
           withCredentials: true,
         }),
       );
+      this.org = {
+        ...raw,
+        id: raw.organizacionUUID ?? raw.id,
+        razonSocial: raw.razonSocial ?? raw.razon_social ?? raw.nombre ?? '',
+        rut: raw.dv ? `${raw.rut}-${raw.dv}` : raw.rut,
+        tipo: raw.tipo ?? raw.tipo_participante ?? raw.tipoParticipante ?? raw.tipoParticipacion,
+        logoUrl: raw.logoUrl ?? raw.logo_url ?? undefined,
+        bannerUrl: raw.bannerUrl ?? raw.banner_url ?? undefined,
+      } as OrgProfileData;
     } catch {
       this.error = 'No fue posible cargar el perfil de la organización.';
     } finally {
@@ -174,12 +213,30 @@ export class OrgProfileComponent implements OnInit, OnDestroy {
   async loadGroups(): Promise<void> {
     this.loadingGroups = true;
     try {
-      const res = await firstValueFrom(
-        this.http.get<WorkGroup[]>(`/api/bff/organizacion/${this.orgId}/grupos`, {
+      const { data: raw } = await firstValueFrom(
+        this.http.get<{ status:number, message: string, data: WorkGroupRaw[] }>(`/api/bff/organizacion/${this.orgId}/grupos`, {
           withCredentials: true,
         }),
       );
-      this.groups = (res ?? []).map(g => ({ ...g, expanded: false }));
+      this.groups = (raw ?? []).map(g => ({
+        id: g.grupoId,
+        nombre: g.nombre,
+        lider: {
+          id: g.liderUuid,
+          nombre: g.liderNombre,
+          apellido: g.liderApellido,
+          username: g.liderUuid,
+        },
+        miembros: g.miembros.map(m => ({
+          id: m.miembroId,
+          nombre: m.nombre,
+          apellido: m.apellido,
+          username: m.usuarioUuid,
+          avatarUrl: m.avatarUrl ?? undefined,
+          cargo: m.cargoEnGrupo,
+        })),
+        expanded: false,
+      }));
     } catch {
       this.groups = [];
     } finally {
@@ -348,6 +405,31 @@ export class OrgProfileComponent implements OnInit, OnDestroy {
     } finally {
       group.savingLeader = false;
     }
+  }
+
+  // ── Computed ─────────────────────────────────────────────────────────────────
+
+  /** Flat deduplicated list of all collaborators across all groups */
+  get allCollaborators(): CollaboratorFlat[] {
+    const seen = new Set<string>();
+    const result: CollaboratorFlat[] = [];
+    for (const g of this.groups) {
+      for (const m of g.miembros) {
+        if (!seen.has(m.username)) {
+          seen.add(m.username);
+          result.push({
+            id: m.id,
+            nombre: m.nombre,
+            apellido: m.apellido,
+            username: m.username,
+            avatarUrl: m.avatarUrl,
+            cargo: m.cargo,
+            grupoNombre: g.nombre,
+          });
+        }
+      }
+    }
+    return result;
   }
 
   goToMemberProfile(username: string): void {

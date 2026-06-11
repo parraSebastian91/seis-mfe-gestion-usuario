@@ -61,7 +61,7 @@
 
       <mat-card-content>
         <div class="chip-row">
-          <span class="tipo-chip" [class]="'tipo-chip--' + org.tipo.toLowerCase()">
+          <span *ngIf="org.tipo" class="tipo-chip" [class]="'tipo-chip--' + org.tipo.toLowerCase()">
             {{ org.tipo }}
           </span>
           <span

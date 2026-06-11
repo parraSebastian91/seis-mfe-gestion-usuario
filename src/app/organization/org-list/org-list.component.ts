@@ -7,7 +7,7 @@ interface OrgSummary {
   id: string;
   nombre: string;
   rut: string;
-  tipo: 'CEDENTE' | 'FINANCIERA' | 'BROKER';
+  tipo?: 'CEDENTE' | 'FINANCIERA' | 'BROKER';
   logoUrl?: string;
   estado?: 'ACTIVA' | 'ONBOARDING_INCOMPLETO';
 }
@@ -37,11 +37,18 @@ export class OrgListComponent implements OnInit {
     this.error = null;
     try {
       const res = await firstValueFrom(
-        this.http.get<OrgSummary[]>('/api/bff/organizations/me', {
+        this.http.get<any[]>('/api/bff/organizations/me', {
           withCredentials: true,
         }),
       );
-      this.organizations = res ?? [];
+      this.organizations = (res ?? []).map(o => ({
+        id:      o.organizacionUUID ?? o.id,
+        nombre:  o.razonSocial ?? o.razon_social ?? o.nombre ?? '',
+        rut:     o.dv ? `${o.rut}-${o.dv}` : o.rut,
+        tipo:    o.tipo ?? o.tipo_participante ?? o.tipoParticipante ?? o.tipoParticipacion,
+        logoUrl: o.logoUrl ?? o.logo_url ?? undefined,
+        estado:  o.estado,
+      } as OrgSummary));
     } catch {
       this.error = 'No fue posible cargar tus organizaciones. Intenta de nuevo.';
     } finally {
