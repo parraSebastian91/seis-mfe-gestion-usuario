@@ -1,95 +1,94 @@
 <div class="profile-container">
-  <!-- ── Banner + Avatar + Identidad ───────────────────────────────────── -->
-  <mat-card class="profile-header-card">
-    <div class="banner-wrapper image-shell">
-      <img [src]="defaultBannerImage" alt="banner" class="banner-img banner-img-placeholder" [class.is-hidden]="bannerLoaded">
-      <img [src]="bannerImageSrc" alt="banner" class="banner-img banner-img-main" [class.is-loaded]="bannerLoaded"
-        (load)="onBannerImageLoad()" (error)="onBannerImageError()">
-      <div class="image-obfuscation banner-obfuscation" [class.is-hidden]="bannerLoaded"></div>
-      <div class="banner-overlay"></div>
 
-      <button *ngIf="isOwnProfile" mat-mini-fab color="basic" class="edit-banner-btn"
-        (click)="openAvatarFilePicker(bannerFileInput)" aria-label="Cambiar banner">
-        <mat-icon>photo_camera</mat-icon>
-      </button>
-      <!-- CA-02: logout solo mobile -->
-      <button mat-mini-fab color="basic" class="logout-btn" (click)="logout()" aria-label="Cerrar sesión">
-        <mat-icon>logout</mat-icon>
-      </button>
-      <input #bannerFileInput type="file" accept="image/jpeg,image/png,image/webp"
-        class="hidden-file-input" (change)="onBannerFileSelected($event)" />
-    </div>
+  <app-card padding="none">
+    <div card-content>
+      <div class="profile-header-card">
+        <div class="banner-wrapper image-shell">
+          <img [src]="defaultBannerImage" alt="banner" class="banner-img banner-img-placeholder"
+            [class.is-hidden]="bannerLoaded">
+          <img [src]="bannerImageSrc" alt="banner" class="banner-img banner-img-main" [class.is-loaded]="bannerLoaded"
+            (load)="onBannerImageLoad()" (error)="onBannerImageError()">
+          <div class="image-obfuscation banner-obfuscation" [class.is-hidden]="bannerLoaded"></div>
+          <div class="banner-overlay"></div>
 
-    <mat-card-content class="profile-main-content">
-      <div class="identity-section">
-        <div class="avatar-container">
-          <img [src]="defaultAvatarImage" alt="avatar"
-            class="profile-avatar profile-avatar-placeholder" [class.is-hidden]="avatarLoaded">
-          <img [src]="avatarImageSrc" alt="avatar"
-            class="profile-avatar profile-avatar-main" [class.is-loaded]="avatarLoaded"
-            (load)="onAvatarImageLoad()" (error)="onAvatarImageError()">
-          <div class="image-obfuscation avatar-obfuscation" [class.is-hidden]="avatarLoaded"></div>
-          <div class="status-badge online"></div>
-          <div class="add-avatar-badge" *ngIf="isOwnProfile">
-            <button type="button" mat-mini-fab color="basic" aria-label="Cambiar foto de perfil"
-              class="avatar-edit-btn" (click)="openAvatarFilePicker(avatarFileInput)">
-              <mat-icon>add</mat-icon>
-            </button>
-          </div>
-          <input #avatarFileInput type="file" accept="image/jpeg,image/png,image/webp"
-            class="hidden-file-input" (change)="onAvatarFileSelected($event)" />
+          <button *ngIf="isOwnProfile" mat-mini-fab color="basic" class="edit-banner-btn"
+            (click)="openAvatarFilePicker(bannerFileInput)" aria-label="Cambiar banner">
+            <mat-icon>photo_camera</mat-icon>
+          </button>
+          <button mat-mini-fab color="basic" class="logout-btn" (click)="logout()" aria-label="Cerrar sesión">
+            <mat-icon>logout</mat-icon>
+          </button>
+          <input #bannerFileInput type="file" accept="image/jpeg,image/png,image/webp" class="hidden-file-input"
+            (change)="onBannerFileSelected($event)" />
         </div>
-
-        <div class="user-info">
-          <h1 class="mat-headline-4 no-margin">{{ userProfile.nombreCompleto }}</h1>
-          <mat-chip-set class="company-chip-set">
-            <mat-chip class="company-chip">
-              <div class="chip-content">
-                <mat-icon>account_circle</mat-icon>
-                <span>{{ userProfile.username }}</span>
+        <div class="profile-main-content">
+          <div class="identity-section">
+            <div class="avatar-container">
+              <img [src]="defaultAvatarImage" alt="avatar" class="profile-avatar profile-avatar-placeholder"
+                [class.is-hidden]="avatarLoaded">
+              <img [src]="avatarImageSrc" alt="avatar" class="profile-avatar profile-avatar-main"
+                [class.is-loaded]="avatarLoaded" (load)="onAvatarImageLoad()" (error)="onAvatarImageError()">
+              <div class="image-obfuscation avatar-obfuscation" [class.is-hidden]="avatarLoaded"></div>
+              <div class="status-badge online"></div>
+              <div class="add-avatar-badge" *ngIf="isOwnProfile">
+                <button type="button" mat-mini-fab color="basic" aria-label="Cambiar foto de perfil"
+                  class="avatar-edit-btn" (click)="openAvatarFilePicker(avatarFileInput)">
+                  <mat-icon>add</mat-icon>
+                </button>
               </div>
-            </mat-chip>
-          </mat-chip-set>
-        </div>
+              <input #avatarFileInput type="file" accept="image/jpeg,image/png,image/webp" class="hidden-file-input"
+                (change)="onAvatarFileSelected($event)" />
+            </div>
 
-        <!-- CA-03: acciones según perfil propio vs ajeno -->
-        <div class="profile-actions">
-          <ng-container *ngIf="isOwnProfile; else publicActions">
-            <button mat-flat-button color="primary" class="action-btn" (click)="openEditGeneralInfo()">
-              <mat-icon>edit</mat-icon> Editar perfil
-            </button>
-            <button mat-stroked-button class="action-btn" (click)="openPasswordForm()">
-              <mat-icon>lock</mat-icon> Cambiar contraseña
-            </button>
-          </ng-container>
-          <ng-template #publicActions>
-            <button mat-flat-button color="primary" class="action-btn" disabled
-              matTooltip="Próximamente">
-              <mat-icon>person_add</mat-icon> Conectar
-            </button>
-            <button mat-stroked-button class="action-btn" disabled matTooltip="Próximamente">
-              <mat-icon>chat_bubble_outline</mat-icon> Mensaje
-            </button>
-          </ng-template>
+            <div class="user-info">
+              <h1 class="mat-headline-4 no-margin">{{ userProfile.nombreCompleto }}</h1>
+              <mat-chip-set class="company-chip-set">
+                <mat-chip class="company-chip">
+                  <div class="chip-content">
+                    <mat-icon>account_circle</mat-icon>
+                    <span>{{ userProfile.username }}</span>
+                  </div>
+                </mat-chip>
+              </mat-chip-set>
+            </div>
+
+            <div class="profile-actions">
+              <ng-container *ngIf="isOwnProfile; else publicActions">
+                <button mat-flat-button color="primary" class="action-btn" (click)="openEditGeneralInfo()">
+                  <mat-icon>edit</mat-icon> Editar perfil
+                </button>
+                <button mat-stroked-button class="action-btn" (click)="openPasswordForm()">
+                  <mat-icon>lock</mat-icon> Cambiar contraseña
+                </button>
+              </ng-container>
+              <ng-template #publicActions>
+                <button mat-flat-button color="primary" class="action-btn" disabled matTooltip="Próximamente">
+                  <mat-icon>person_add</mat-icon> Conectar
+                </button>
+                <button mat-stroked-button class="action-btn" disabled matTooltip="Próximamente">
+                  <mat-icon>chat_bubble_outline</mat-icon> Mensaje
+                </button>
+              </ng-template>
+            </div>
+          </div>
         </div>
       </div>
-    </mat-card-content>
-  </mat-card>
+    </div>
+  </app-card>
 
   <!-- ── Grid principal ─────────────────────────────────────────────────── -->
   <div class="profile-grid" *ngIf="!showEditGeneralInfoForm && !showPasswordForm">
     <div class="info-column">
 
-      <!-- Información General -->
-      <mat-card class="section-card">
-        <mat-card-header class="info-gral">
-          <mat-card-title>Información General</mat-card-title>
+      <app-card>
+        <div card-title class="info-gral">
+          <h3>Información General</h3>
           <button *ngIf="isOwnProfile" mat-mini-fab color="basic" class="edit-gral-info-btn"
             (click)="openEditGeneralInfo()" aria-label="Editar información general">
             <mat-icon>edit</mat-icon>
           </button>
-        </mat-card-header>
-        <mat-card-content>
+        </div>
+        <div card-content>
           <mat-list>
             <mat-list-item *ngIf="isOwnProfile">
               <mat-icon matListItemIcon>email</mat-icon>
@@ -115,20 +114,18 @@
               <div matListItemLine>{{ userProfile.cargo }}</div>
             </mat-list-item>
           </mat-list>
-        </mat-card-content>
-      </mat-card>
+        </div>
+      </app-card>
 
-      <!-- CA-07 · Redes Sociales -->
-      <mat-card class="section-card">
-        <mat-card-header class="info-gral">
-          <mat-card-title>Redes Sociales</mat-card-title>
-          <button *ngIf="isOwnProfile && !showSocialForm" mat-mini-fab color="basic"
-            (click)="openAddSocial()" aria-label="Agregar red social">
+      <app-card>
+        <div card-title class="info-gral">
+          <h3>Redes Sociales</h3>
+          <button *ngIf="isOwnProfile && !showSocialForm" mat-mini-fab color="basic" (click)="openAddSocial()"
+            aria-label="Agregar red social">
             <mat-icon>add</mat-icon>
           </button>
-        </mat-card-header>
-        <mat-card-content>
-          <!-- Formulario inline -->
+        </div>
+        <div card-content>
           <form *ngIf="showSocialForm" [formGroup]="socialForm" (ngSubmit)="saveSocial()" class="social-form">
             <mat-form-field appearance="outline">
               <mat-label>Red social</mat-label>
@@ -151,13 +148,9 @@
               </button>
             </div>
           </form>
-
-          <!-- Chips de redes -->
           <mat-chip-set *ngIf="(userProfile.rrss?.length ?? 0) > 0" class="social-chip-set">
-            <mat-chip *ngFor="let red of userProfile.rrss; let i = index"
-              class="social-chip"
-              [class.editable]="isOwnProfile"
-              (click)="isOwnProfile ? editSocial(i) : null">
+            <mat-chip *ngFor="let red of userProfile.rrss; let i = index" class="social-chip"
+              [class.editable]="isOwnProfile" (click)="isOwnProfile ? editSocial(i) : null">
               <mat-icon class="chip-icon">link</mat-icon>
               <span class="chip-label">{{ red.tipo }}</span>
               <button *ngIf="isOwnProfile" matChipRemove (click)="$event.stopPropagation(); removeSocial(i)"
@@ -169,31 +162,35 @@
           <p *ngIf="!userProfile.rrss?.length && !showSocialForm" class="text-muted">
             Sin redes sociales registradas.
           </p>
-        </mat-card-content>
-      </mat-card>
+        </div>
+      </app-card>
 
     </div>
 
     <!-- CA-08 · Actividad Social-Financiera -->
     <div class="feed-column">
-      <mat-card class="section-card">
-        <mat-card-content>
-          <h2 class="mat-headline-6 section-title">Actividad Social-Financiera</h2>
+
+      <app-card>
+        <div card-title>
+          <h2>Actividad Social-Financiera</h2>
+        </div>
+        <div card-content>
           <div class="empty-state">
             <mat-icon>history_edu</mat-icon>
             <p>No hay publicaciones recientes en el ecosistema.</p>
           </div>
-        </mat-card-content>
-      </mat-card>
+        </div>
+      </app-card>
     </div>
   </div>
 
   <!-- ── Editar Información General ─────────────────────────────────────── -->
-  <mat-card class="section-card edit-gral-information" *ngIf="showEditGeneralInfoForm">
-    <mat-card-header style="margin-bottom: 1.5em;">
-      <mat-card-title>Editar Información del Usuario</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
+
+  <app-card class="section-card edit-gral-information" *ngIf="showEditGeneralInfoForm">
+    <div card-title>
+      Editar Información del Usuario
+    </div>
+    <div card-content>
       <form class="edit-form" [formGroup]="editGeneralInfoForm" (ngSubmit)="saveGeneralInformation()">
         <div class="form-grid">
           <mat-form-field appearance="outline">
@@ -233,19 +230,18 @@
         </div>
         <div class="form-actions">
           <button mat-stroked-button type="button" (click)="cancelEditGeneralInfo()">Cancelar</button>
-          <button mat-flat-button color="primary" type="submit"
-            [disabled]="editGeneralInfoForm.invalid">Guardar Cambios</button>
+          <button mat-flat-button color="primary" type="submit" [disabled]="editGeneralInfoForm.invalid">Guardar
+            Cambios</button>
         </div>
       </form>
-    </mat-card-content>
-  </mat-card>
+    </div>
+  </app-card>
 
-  <!-- ── CA-09 · Cambio de contraseña ──────────────────────────────────── -->
-  <mat-card class="section-card edit-gral-information" *ngIf="showPasswordForm">
-    <mat-card-header style="margin-bottom: 1.5em;">
-      <mat-card-title>Cambiar Contraseña</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
+  <app-card class="section-card edit-gral-information" *ngIf="showPasswordForm">
+    <div card-title>
+      <h3>Cambiar Contraseña</h3>
+    </div>
+    <div card-content>
       <p *ngIf="passwordErrorMsg" class="error-msg" role="alert">{{ passwordErrorMsg }}</p>
       <p *ngIf="passwordSuccessMsg" class="success-msg" role="status">{{ passwordSuccessMsg }}</p>
 
@@ -254,8 +250,8 @@
           <!-- Contraseña actual -->
           <mat-form-field appearance="outline" class="full-width-field">
             <mat-label>Contraseña actual</mat-label>
-            <input matInput [type]="showCurrentPw ? 'text' : 'password'"
-              formControlName="currentPassword" autocomplete="current-password" />
+            <input matInput [type]="showCurrentPw ? 'text' : 'password'" formControlName="currentPassword"
+              autocomplete="current-password" />
             <button matSuffix mat-icon-button type="button" (click)="showCurrentPw = !showCurrentPw"
               [attr.aria-label]="showCurrentPw ? 'Ocultar' : 'Mostrar'">
               <mat-icon>{{ showCurrentPw ? 'visibility_off' : 'visibility' }}</mat-icon>
@@ -268,8 +264,8 @@
           <!-- Nueva contraseña -->
           <mat-form-field appearance="outline" class="full-width-field">
             <mat-label>Nueva contraseña</mat-label>
-            <input matInput [type]="showNewPw ? 'text' : 'password'"
-              formControlName="newPassword" autocomplete="new-password" />
+            <input matInput [type]="showNewPw ? 'text' : 'password'" formControlName="newPassword"
+              autocomplete="new-password" />
             <button matSuffix mat-icon-button type="button" (click)="showNewPw = !showNewPw"
               [attr.aria-label]="showNewPw ? 'Ocultar' : 'Mostrar'">
               <mat-icon>{{ showNewPw ? 'visibility_off' : 'visibility' }}</mat-icon>
@@ -283,8 +279,7 @@
           </mat-form-field>
 
           <!-- Medidor de fortaleza -->
-          <div class="strength-wrap full-width-field"
-            *ngIf="passwordForm.get('newPassword')?.value" aria-live="polite">
+          <div class="strength-wrap full-width-field" *ngIf="passwordForm.get('newPassword')?.value" aria-live="polite">
             <div class="strength-bar">
               <span class="bar-segment" [class.filled]="strengthLevel >= 1"
                 [ngClass]="strengthLevel >= 1 ? STRENGTH_CLASSES[strengthLevel] : ''"></span>
@@ -303,8 +298,8 @@
           <!-- Confirmar contraseña -->
           <mat-form-field appearance="outline" class="full-width-field">
             <mat-label>Confirmar nueva contraseña</mat-label>
-            <input matInput [type]="showConfirmPw ? 'text' : 'password'"
-              formControlName="confirmPassword" autocomplete="new-password" />
+            <input matInput [type]="showConfirmPw ? 'text' : 'password'" formControlName="confirmPassword"
+              autocomplete="new-password" />
             <button matSuffix mat-icon-button type="button" (click)="showConfirmPw = !showConfirmPw"
               [attr.aria-label]="showConfirmPw ? 'Ocultar' : 'Mostrar'">
               <mat-icon>{{ showConfirmPw ? 'visibility_off' : 'visibility' }}</mat-icon>
@@ -317,13 +312,15 @@
 
         <div class="form-actions">
           <button mat-stroked-button type="button" (click)="cancelPasswordChange()">Cancelar</button>
-          <button mat-flat-button color="primary" type="submit"
-            [disabled]="passwordForm.invalid || passwordSaving">
+          <button mat-flat-button color="primary" type="submit" [disabled]="passwordForm.invalid || passwordSaving">
             <mat-spinner *ngIf="passwordSaving" diameter="18" class="btn-spinner"></mat-spinner>
             {{ passwordSaving ? 'Guardando...' : 'Cambiar contraseña' }}
           </button>
         </div>
       </form>
-    </mat-card-content>
-  </mat-card>
+    </div>
+  </app-card>
+
+
+
 </div>

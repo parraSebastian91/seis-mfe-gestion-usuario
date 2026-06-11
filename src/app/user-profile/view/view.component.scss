@@ -1,17 +1,8 @@
-/* Variables para inyectar colores corporativos */
-:host {
-    --corp-color: #1458b8;
-    --corp-color-light: #e8f0ff;
-    --text-main: #17212f;
-    --text-muted: #5f6b7a;
-    --border-soft: #d9e2ef;
-}
-
 .profile-container {
-    padding: 20px;
-    max-width: 1140px;
-    margin: 0 auto;
-    color: var(--text-main);
+    display: grid;
+    padding: 0px 25px;
+    color: var(--color-text-secondary);
+    gap: 24px;
 }
 
 .logout-btn {
@@ -23,8 +14,7 @@
     padding: 0 !important;
     overflow: hidden;
     border-radius: 16px !important;
-    margin-bottom: 24px;
-    border: 1px solid var(--border-soft);
+    border: 1px solid var(--color-border);
     box-shadow: 0 12px 28px rgba(20, 41, 74, 0.08);
 }
 
@@ -89,7 +79,7 @@
 
 /* Identidad y Avatar */
 .profile-main-content {
-    padding: 0 22px 24px !important;
+    padding: 0 22px 25px !important;
 }
 
 .identity-section {
@@ -182,7 +172,7 @@
 
 
 .status-badge.online {
-    background: #1fb36b;
+    background: var(--color-success);
 }
 
 .add-avatar-badge {
@@ -208,7 +198,7 @@
         width: 16px;
         height: 16px;
         line-height: 16px;
-        color: #3a4a5c;
+        color: var(--color-text-secondary);
     }
 }
 
@@ -249,9 +239,10 @@
     gap: 20px;
 }
 
+// estilos que pueden desaparecer
 .section-card {
     border-radius: 14px !important;
-    border: 1px solid var(--border-soft);
+    border: 1px solid var(--color-border);
     box-shadow: 0 8px 22px rgba(20, 41, 74, 0.06);
 }
 
@@ -266,9 +257,9 @@
 }
 
 .social-chip {
-    border: 1px solid #c6d7f0;
-    background: #f3f8ff !important;
-    color: #1f467d !important;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-elevated) !important;
+    color: var(--color-text-primary) !important;
 }
 
 /* Adaptación a Desktop */
@@ -299,12 +290,12 @@
 
 /* Aplicación del Color Corporativo Dinámico */
 ::ng-deep .mat-mdc-flat-button.mat-primary {
-    --mdc-flat-button-container-color: var(--corp-color) !important;
+    --mdc-flat-button-container-color: var(--color-brand-primary) !important;
 }
 
 .company-chip {
-    background-color: var(--corp-color-light) !important;
-    color: var(--corp-color) !important;
+    background-color: color-mix(in srgb, var(--color-brand-primary) 12%, var(--color-bg-surface)) !important;
+    color: var(--color-brand-primary) !important;
 
     .chip-content {
         display: flex;
@@ -319,14 +310,14 @@
 }
 
 .text-secondary {
-    color: var(--text-muted);
+    color: var(--color-text-secondary);
     margin: 0;
 }
 
 .empty-state {
     padding: 46px 24px;
     text-align: center;
-    color: #7b8796;
+    color: var(--color-text-secondary);
 }
 
 .empty-state mat-icon {
@@ -334,7 +325,7 @@
     width: 48px;
     height: 48px;
     margin-bottom: 12px;
-    color: #6f86a6;
+    color: var(--color-text-secondary);
 }
 
 .edit-gral-information {
@@ -447,7 +438,7 @@
     cursor: pointer;
 
     &:hover {
-        background: var(--corp-color-light, #e8f0ff);
+        background: color-mix(in srgb, var(--color-brand-primary) 12%, var(--color-bg-surface));
     }
 }
 
@@ -460,7 +451,7 @@
 }
 
 .text-muted {
-    color: var(--text-muted, #5f6b7a);
+    color: var(--color-text-secondary);
     font-size: 0.85rem;
     padding: 0.5rem 0;
     margin: 0;
@@ -484,20 +475,31 @@
     flex: 1;
     height: 5px;
     border-radius: 3px;
-    background: var(--border-soft, #d9e2ef);
+    background: var(--color-border);
     transition: background 220ms ease;
 
-    &.filled.danger  { background: #d32f2f; }
-    &.filled.warning { background: #f57c00; }
-    &.filled.good    { background: #fbc02d; }
-    &.filled.strong  { background: #388e3c; }
+    &.filled.danger {
+        background: var(--color-error);
+    }
+
+    &.filled.warning {
+        background: var(--color-warning);
+    }
+
+    &.filled.good {
+        background: color-mix(in srgb, var(--color-warning) 60%, var(--color-success));
+    }
+
+    &.filled.strong {
+        background: var(--color-success);
+    }
 }
 
 .strength-label {
     font-size: 0.75rem;
     font-weight: 600;
     white-space: nowrap;
-    color: var(--text-muted, #5f6b7a);
+    color: var(--color-text-secondary);
     min-width: 68px;
     text-align: right;
 }
@@ -507,9 +509,9 @@
     margin: 0 0 1rem;
     padding: 0.6rem 0.75rem;
     font-size: 0.82rem;
-    color: #c62828;
-    background: #ffebee;
-    border: 1px solid #ef9a9a;
+    color: var(--color-error);
+    background: color-mix(in srgb, var(--color-error) 8%, var(--color-bg-surface));
+    border: 1px solid color-mix(in srgb, var(--color-error) 40%, transparent);
     border-radius: 6px;
 }
 
@@ -517,9 +519,9 @@
     margin: 0 0 1rem;
     padding: 0.6rem 0.75rem;
     font-size: 0.82rem;
-    color: #2e7d32;
-    background: #e8f5e9;
-    border: 1px solid #a5d6a7;
+    color: var(--color-success);
+    background: color-mix(in srgb, var(--color-success) 8%, var(--color-bg-surface));
+    border: 1px solid color-mix(in srgb, var(--color-success) 35%, transparent);
     border-radius: 6px;
 }
 
