@@ -12,7 +12,7 @@
 .gestor-shell {
   display: flex;
   flex-direction: column;
-  min-height: var(--main-content-height);
+  height: calc(100vh - 140px);
   background: $bg-base;
   padding-bottom: 64px; // reserva para bottom-nav en mobile
 }
