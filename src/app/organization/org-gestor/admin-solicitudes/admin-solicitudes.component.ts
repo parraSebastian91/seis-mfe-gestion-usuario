@@ -54,7 +54,7 @@ export class AdminSolicitudesComponent implements OnInit {
     try {
       const res = await firstValueFrom(
         this.http.get<{ data: SolicitudAcceso[] }>(
-          `/api/bff/organizations/${this.orgId}/solicitudes-acceso?estado=PENDIENTE`,
+          `/api/bff/organizacion/${this.orgId}/solicitudes-acceso?estado=PENDIENTE`,
           { withCredentials: true },
         ),
       );
@@ -90,7 +90,7 @@ export class AdminSolicitudesComponent implements OnInit {
     try {
       await firstValueFrom(
         this.http.post(
-          `/api/bff/organizations/solicitud-acceso/${this.resolviendo.token}/resolver`,
+          `/api/bff/organizacion/solicitud-acceso/${this.resolviendo.token}/resolver`,
           {
             adminUuid: this.adminUuid,
             decision: this.decision,
