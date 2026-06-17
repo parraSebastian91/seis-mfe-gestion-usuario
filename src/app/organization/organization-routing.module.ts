@@ -8,6 +8,7 @@ import { AdminMiembrosComponent } from './org-gestor/admin-miembros/admin-miembr
 import { AdminSolicitudesComponent } from './org-gestor/admin-solicitudes/admin-solicitudes.component';
 import { AdminGruposComponent } from './org-gestor/admin-grupos/admin-grupos.component';
 import { AdminGrupoDetalleComponent } from './org-gestor/admin-grupos/admin-grupo-detalle.component';
+import { AdmOrganizacionComponent } from './org-gestor/adm-organizacion/adm-organizacion.component';
 
 const routes: Routes = [
   { path: '', component: OrgListComponent },
@@ -21,7 +22,8 @@ const routes: Routes = [
       { path: 'solicitudes',  component: AdminSolicitudesComponent },
       { path: 'grupos',       component: AdminGruposComponent },
       { path: 'grupos/:grupoId', component: AdminGrupoDetalleComponent },
-      { path: 'configuracion', redirectTo: 'miembros', pathMatch: 'full' },
+      { path: 'organizacion',  component: AdmOrganizacionComponent },
+      { path: 'configuracion', redirectTo: 'organizacion', pathMatch: 'full' },
     ],
   },
   { path: ':id', component: OrgProfileComponent },

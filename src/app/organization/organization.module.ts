@@ -29,6 +29,7 @@ import { AdminMiembrosComponent } from './org-gestor/admin-miembros/admin-miembr
 import { AdminSolicitudesComponent } from './org-gestor/admin-solicitudes/admin-solicitudes.component';
 import { AdminGruposComponent } from './org-gestor/admin-grupos/admin-grupos.component';
 import { AdminGrupoDetalleComponent } from './org-gestor/admin-grupos/admin-grupo-detalle.component';
+import { AdmOrganizacionComponent } from './org-gestor/adm-organizacion/adm-organizacion.component';
 
 @NgModule({
   declarations: [
@@ -40,6 +41,7 @@ import { AdminGrupoDetalleComponent } from './org-gestor/admin-grupos/admin-grup
     AdminSolicitudesComponent,
     AdminGruposComponent,
     AdminGrupoDetalleComponent,
+    AdmOrganizacionComponent,
   ],
   imports: [
     CommonModule,

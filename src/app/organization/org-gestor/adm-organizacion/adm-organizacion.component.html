@@ -1,0 +1,660 @@
+<div class="adm-org-wrapper">
+
+  <!-- ── Loading ─────────────────────────────────────────────────────────── -->
+  <div class="section-loading" *ngIf="loading">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <ng-container *ngIf="!loading">
+
+    <!-- ═══════════════════════════════════════════════════════════
+         TAB NAVIGATION — 4 pestañas
+    ═══════════════════════════════════════════════════════════ -->
+    <div class="adm-tabs-header" role="tablist" aria-label="Secciones de administración de organización">
+
+      <button
+        *ngFor="let tab of tabDefs; let i = index"
+        role="tab"
+        type="button"
+        class="adm-tab-btn"
+        [class.is-active]="activeTab === i"
+        [class.is-danger]="i === 3"
+        [attr.aria-selected]="activeTab === i"
+        [attr.aria-controls]="'tabpanel-' + i"
+        [id]="'tab-' + i"
+        (click)="setTab($any(i))">
+        <mat-icon class="adm-tab-icon">{{ tab.icon }}</mat-icon>
+        <span class="adm-tab-label">{{ tab.label }}</span>
+      </button>
+
+    </div>
+
+    <!-- Feedback global -->
+    <div class="adm-feedback adm-feedback--success" *ngIf="saveSuccess" role="alert">
+      <mat-icon>check_circle</mat-icon>
+      {{ saveSuccess }}
+    </div>
+    <div class="adm-feedback adm-feedback--error" *ngIf="saveError" role="alert">
+      <mat-icon>error_outline</mat-icon>
+      {{ saveError }}
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         TAB 0 — Identidad y Presentación
+    ═══════════════════════════════════════════════════════════ -->
+    <section
+      *ngIf="activeTab === 0"
+      id="tabpanel-0"
+      role="tabpanel"
+      aria-labelledby="tab-0"
+      class="adm-tabpanel">
+
+      <h2 class="section-title">Identidad y Presentación</h2>
+      <p class="section-hint">
+        Estos contenidos serán visibles en el perfil público de tu organización.
+      </p>
+
+      <form [formGroup]="identidadForm" (ngSubmit)="saveIdentidad()" class="adm-form" novalidate>
+
+        <!-- Reseña / Presentación -->
+        <div class="adm-field adm-field--full">
+          <label class="adm-label" for="desc">
+            Reseña / Presentación de la empresa
+            <span class="adm-char-count">{{ identidadDescLen }}&thinsp;/&thinsp;1500</span>
+          </label>
+          <textarea
+            id="desc"
+            class="adm-textarea"
+            formControlName="descripcion"
+            rows="5"
+            placeholder="Describe brevemente la historia, misión y propuesta de valor de tu organización..."
+            [class.is-invalid]="!!fieldError(identidadForm, 'descripcion')">
+          </textarea>
+          <small class="adm-field-error" *ngIf="fieldError(identidadForm, 'descripcion')">
+            {{ fieldError(identidadForm, 'descripcion') }}
+          </small>
+        </div>
+
+        <!-- Visión -->
+        <div class="adm-field adm-field--full">
+          <label class="adm-label" for="vision">Visión</label>
+          <textarea
+            id="vision"
+            class="adm-textarea"
+            formControlName="vision"
+            rows="3"
+            placeholder="¿Hacia dónde se dirige la organización en los próximos años?"
+            [class.is-invalid]="!!fieldError(identidadForm, 'vision')">
+          </textarea>
+          <small class="adm-field-error" *ngIf="fieldError(identidadForm, 'vision')">
+            {{ fieldError(identidadForm, 'vision') }}
+          </small>
+        </div>
+
+        <!-- Objetivos -->
+        <div class="adm-field adm-field--full">
+          <label class="adm-label" for="objetivos">Objetivos estratégicos</label>
+          <textarea
+            id="objetivos"
+            class="adm-textarea"
+            formControlName="objetivos"
+            rows="3"
+            placeholder="Lista los principales objetivos de tu organización..."
+            [class.is-invalid]="!!fieldError(identidadForm, 'objetivos')">
+          </textarea>
+        </div>
+
+        <!-- ── Zonas de carga de archivos ─────────────────────────────── -->
+        <div class="adm-uploaders">
+
+          <!-- Logo -->
+          <div class="adm-uploader-card">
+            <div class="adm-uploader-preview adm-uploader-preview--logo">
+              <img *ngIf="logoPreview" [src]="logoPreview" alt="Logo de la organización" class="adm-preview-img" />
+              <mat-icon *ngIf="!logoPreview" class="adm-preview-placeholder-icon">business</mat-icon>
+            </div>
+            <div class="adm-uploader-info">
+              <span class="adm-uploader-label">Logo / Avatar</span>
+              <span class="adm-uploader-hint">JPEG, PNG, WEBP · Máx. 5 MB · Recomendado 400×400 px</span>
+            </div>
+            <label class="adm-uploader-btn" [class.is-loading]="uploadingLogo">
+              <mat-icon *ngIf="!uploadingLogo">upload</mat-icon>
+              <mat-spinner *ngIf="uploadingLogo" diameter="18"></mat-spinner>
+              <span>{{ uploadingLogo ? 'Subiendo...' : 'Cambiar logo' }}</span>
+              <input type="file" accept="image/jpeg,image/png,image/webp" (change)="onLogoSelected($event)" hidden [disabled]="uploadingLogo" />
+            </label>
+          </div>
+
+          <!-- Banner -->
+          <div class="adm-uploader-card">
+            <div class="adm-uploader-preview adm-uploader-preview--banner">
+              <img *ngIf="bannerPreview" [src]="bannerPreview" alt="Banner de la organización" class="adm-preview-img" />
+              <mat-icon *ngIf="!bannerPreview" class="adm-preview-placeholder-icon">panorama</mat-icon>
+            </div>
+            <div class="adm-uploader-info">
+              <span class="adm-uploader-label">Banner</span>
+              <span class="adm-uploader-hint">JPEG, PNG, WEBP · Máx. 5 MB · Recomendado 1200×400 px</span>
+            </div>
+            <label class="adm-uploader-btn" [class.is-loading]="uploadingBanner">
+              <mat-icon *ngIf="!uploadingBanner">upload</mat-icon>
+              <mat-spinner *ngIf="uploadingBanner" diameter="18"></mat-spinner>
+              <span>{{ uploadingBanner ? 'Subiendo...' : 'Cambiar banner' }}</span>
+              <input type="file" accept="image/jpeg,image/png,image/webp" (change)="onBannerSelected($event)" hidden [disabled]="uploadingBanner" />
+            </label>
+          </div>
+
+          <!-- Video institucional -->
+          <div class="adm-uploader-card">
+            <div class="adm-uploader-preview adm-uploader-preview--video">
+              <video
+                *ngIf="videoFile && videoObjectUrl"
+                class="adm-preview-video"
+                controls
+                [src]="videoObjectUrl">
+              </video>
+              <div *ngIf="!videoFile" class="adm-video-placeholder">
+                <mat-icon>play_circle</mat-icon>
+                <span>Sin video</span>
+              </div>
+            </div>
+            <div class="adm-uploader-info">
+              <span class="adm-uploader-label">Video institucional</span>
+              <span class="adm-uploader-hint">MP4, WEBM, OGG · Máx. 50 MB · Duración sugerida: ≤ 3 min</span>
+              <span class="adm-uploader-hint" *ngIf="videoFile">
+                Archivo seleccionado: <strong>{{ videoFile.name }}</strong>
+              </span>
+            </div>
+            <label class="adm-uploader-btn">
+              <mat-icon>videocam</mat-icon>
+              <span>{{ videoFile ? 'Cambiar video' : 'Subir video' }}</span>
+              <input type="file" accept="video/mp4,video/webm,video/ogg" (change)="onVideoSelected($event)" hidden />
+            </label>
+          </div>
+
+        </div><!-- /adm-uploaders -->
+
+        <small class="adm-upload-error" *ngIf="uploadError" role="alert">
+          <mat-icon>warning</mat-icon>
+          {{ uploadError }}
+        </small>
+
+        <!-- Guardar -->
+        <footer class="adm-form-footer">
+          <button type="submit" class="adm-btn adm-btn--primary" [disabled]="identidadForm.invalid || savingIdentidad">
+            <mat-spinner *ngIf="savingIdentidad" diameter="16"></mat-spinner>
+            <mat-icon *ngIf="!savingIdentidad">save</mat-icon>
+            {{ savingIdentidad ? 'Guardando...' : 'Guardar identidad' }}
+          </button>
+        </footer>
+
+      </form>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         TAB 1 — Información Operativa y Financiera
+    ═══════════════════════════════════════════════════════════ -->
+    <section
+      *ngIf="activeTab === 1"
+      id="tabpanel-1"
+      role="tabpanel"
+      aria-labelledby="tab-1"
+      class="adm-tabpanel">
+
+      <h2 class="section-title">Información Operativa y Financiera</h2>
+
+      <form [formGroup]="operativaForm" (ngSubmit)="saveOperativa()" class="adm-form" novalidate>
+
+        <!-- ── Dirección (estructura territorial Chile) ─────────────── -->
+        <fieldset class="adm-fieldset">
+          <legend class="adm-legend">
+            <mat-icon>location_on</mat-icon>
+            Dirección tributaria
+          </legend>
+
+          <div class="adm-grid adm-grid--2">
+
+            <div class="adm-field adm-field--full">
+              <label class="adm-label" for="calle">Calle / Av.</label>
+              <input
+                id="calle"
+                class="adm-input"
+                type="text"
+                formControlName="calle"
+                placeholder="Ej: Av. Providencia"
+                [class.is-invalid]="!!fieldError(operativaForm, 'calle')"
+                autocomplete="address-line1" />
+              <small class="adm-field-error" *ngIf="fieldError(operativaForm, 'calle')">
+                {{ fieldError(operativaForm, 'calle') }}
+              </small>
+            </div>
+
+            <div class="adm-field">
+              <label class="adm-label" for="numero">Número</label>
+              <input
+                id="numero"
+                class="adm-input"
+                type="text"
+                formControlName="numero"
+                placeholder="Ej: 1234"
+                autocomplete="address-line2" />
+            </div>
+
+            <div class="adm-field">
+              <label class="adm-label" for="comuna">Comuna</label>
+              <input
+                id="comuna"
+                class="adm-input"
+                type="text"
+                formControlName="comuna"
+                placeholder="Ej: Providencia"
+                [class.is-invalid]="!!fieldError(operativaForm, 'comuna')" />
+              <small class="adm-field-error" *ngIf="fieldError(operativaForm, 'comuna')">
+                {{ fieldError(operativaForm, 'comuna') }}
+              </small>
+            </div>
+
+            <div class="adm-field">
+              <label class="adm-label" for="region">Región</label>
+              <select
+                id="region"
+                class="adm-select"
+                formControlName="region"
+                [class.is-invalid]="!!fieldError(operativaForm, 'region')">
+                <option value="" disabled>Selecciona una región</option>
+                <option *ngFor="let r of regiones" [value]="r">{{ r }}</option>
+              </select>
+              <small class="adm-field-error" *ngIf="fieldError(operativaForm, 'region')">
+                {{ fieldError(operativaForm, 'region') }}
+              </small>
+            </div>
+
+          </div>
+        </fieldset>
+
+        <!-- ── Cuenta bancaria ──────────────────────────────────────── -->
+        <fieldset class="adm-fieldset">
+          <legend class="adm-legend">
+            <mat-icon>account_balance</mat-icon>
+            Cuenta bancaria
+          </legend>
+
+          <div class="adm-grid adm-grid--2">
+
+            <div class="adm-field">
+              <label class="adm-label" for="rutEmpresa">RUT de la empresa</label>
+              <input
+                id="rutEmpresa"
+                class="adm-input"
+                type="text"
+                formControlName="rutEmpresa"
+                placeholder="Ej: 76.543.210-K"
+                (input)="onRutInput($event)"
+                [class.is-invalid]="!!fieldError(operativaForm, 'rutEmpresa')"
+                autocomplete="off" />
+              <small class="adm-field-error" *ngIf="fieldError(operativaForm, 'rutEmpresa')">
+                {{ fieldError(operativaForm, 'rutEmpresa') }}
+              </small>
+            </div>
+
+            <div class="adm-field">
+              <label class="adm-label" for="banco">Banco</label>
+              <select id="banco" class="adm-select" formControlName="banco">
+                <option value="">Selecciona un banco</option>
+                <option *ngFor="let b of bancos" [value]="b">{{ b }}</option>
+              </select>
+            </div>
+
+            <div class="adm-field">
+              <label class="adm-label">Tipo de cuenta</label>
+              <div class="adm-radio-group">
+                <label class="adm-radio-label">
+                  <input type="radio" formControlName="tipoCuenta" value="CORRIENTE" />
+                  <span>Corriente</span>
+                </label>
+                <label class="adm-radio-label">
+                  <input type="radio" formControlName="tipoCuenta" value="VISTA" />
+                  <span>Vista</span>
+                </label>
+                <label class="adm-radio-label">
+                  <input type="radio" formControlName="tipoCuenta" value="AHORRO" />
+                  <span>Ahorro</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="adm-field">
+              <label class="adm-label" for="numeroCuenta">Número de cuenta</label>
+              <input
+                id="numeroCuenta"
+                class="adm-input"
+                type="text"
+                inputmode="numeric"
+                formControlName="numeroCuenta"
+                placeholder="Solo dígitos"
+                [class.is-invalid]="!!fieldError(operativaForm, 'numeroCuenta')"
+                autocomplete="off" />
+              <small class="adm-field-error" *ngIf="fieldError(operativaForm, 'numeroCuenta')">
+                {{ fieldError(operativaForm, 'numeroCuenta') }}
+              </small>
+            </div>
+
+          </div>
+        </fieldset>
+
+        <footer class="adm-form-footer">
+          <button type="submit" class="adm-btn adm-btn--primary" [disabled]="operativaForm.invalid || savingOperativa">
+            <mat-spinner *ngIf="savingOperativa" diameter="16"></mat-spinner>
+            <mat-icon *ngIf="!savingOperativa">save</mat-icon>
+            {{ savingOperativa ? 'Guardando...' : 'Guardar datos operativos' }}
+          </button>
+        </footer>
+
+      </form>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         TAB 2 — Privacidad y Cumplimiento (Ley N° 19.628 / proyecto de Ley Marco)
+    ═══════════════════════════════════════════════════════════ -->
+    <section
+      *ngIf="activeTab === 2"
+      id="tabpanel-2"
+      role="tabpanel"
+      aria-labelledby="tab-2"
+      class="adm-tabpanel">
+
+      <h2 class="section-title">Privacidad y Cumplimiento Regulatorio</h2>
+      <p class="section-hint">
+        Conforme a la <strong>Ley N° 19.628</strong> sobre protección de la vida privada (Chile) y
+        al proyecto de Ley Marco de Ciberseguridad. Los consentimientos marcados son obligatorios
+        para operar dentro de la plataforma.
+      </p>
+
+      <form [formGroup]="privacidadForm" (ngSubmit)="savePrivacidad()" class="adm-form" novalidate>
+
+        <!-- ── Centro de Notificaciones ──────────────────────────────── -->
+        <fieldset class="adm-fieldset">
+          <legend class="adm-legend">
+            <mat-icon>notifications</mat-icon>
+            Centro de notificaciones
+          </legend>
+          <p class="adm-fieldset-desc">
+            Activa o desactiva alertas por canal. Puedes modificar estas preferencias en cualquier momento.
+          </p>
+
+          <div class="adm-toggle-list">
+
+            <label class="adm-toggle-row" for="notifEmail">
+              <div class="adm-toggle-info">
+                <mat-icon>email</mat-icon>
+                <div>
+                  <span class="adm-toggle-label">Email</span>
+                  <span class="adm-toggle-desc">Notificaciones de facturas, solicitudes y cambios de estado.</span>
+                </div>
+              </div>
+              <mat-slide-toggle id="notifEmail" formControlName="notifEmail" color="primary"></mat-slide-toggle>
+            </label>
+
+            <label class="adm-toggle-row" for="notifSms">
+              <div class="adm-toggle-info">
+                <mat-icon>sms</mat-icon>
+                <div>
+                  <span class="adm-toggle-label">SMS</span>
+                  <span class="adm-toggle-desc">Alertas críticas y confirmaciones de operaciones de alto valor.</span>
+                </div>
+              </div>
+              <mat-slide-toggle id="notifSms" formControlName="notifSms" color="primary"></mat-slide-toggle>
+            </label>
+
+            <label class="adm-toggle-row" for="notifPush">
+              <div class="adm-toggle-info">
+                <mat-icon>notifications_active</mat-icon>
+                <div>
+                  <span class="adm-toggle-label">Notificaciones Push</span>
+                  <span class="adm-toggle-desc">Actualizaciones en tiempo real dentro de la plataforma.</span>
+                </div>
+              </div>
+              <mat-slide-toggle id="notifPush" formControlName="notifPush" color="primary"></mat-slide-toggle>
+            </label>
+
+          </div>
+        </fieldset>
+
+        <!-- ── Políticas de Retención ────────────────────────────────── -->
+        <fieldset class="adm-fieldset">
+          <legend class="adm-legend">
+            <mat-icon>schedule</mat-icon>
+            Políticas de retención de datos
+          </legend>
+
+          <div class="adm-retention-list">
+            <div class="adm-retention-item">
+              <mat-icon class="adm-retention-icon">folder</mat-icon>
+              <div>
+                <span class="adm-retention-cat">Datos de facturación</span>
+                <span class="adm-retention-desc">Conservados <strong>7 años</strong> desde la fecha de emisión, según exigencia del SII y normativa tributaria chilena.</span>
+              </div>
+            </div>
+            <div class="adm-retention-item">
+              <mat-icon class="adm-retention-icon">group</mat-icon>
+              <div>
+                <span class="adm-retention-cat">Datos de colaboradores</span>
+                <span class="adm-retention-desc">Conservados durante la vigencia de la membresía + <strong>1 año</strong> tras la desvinculación, salvo solicitud de cancelación (Derecho ARCO).</span>
+              </div>
+            </div>
+            <div class="adm-retention-item">
+              <mat-icon class="adm-retention-icon">analytics</mat-icon>
+              <div>
+                <span class="adm-retention-cat">Datos de uso y logs</span>
+                <span class="adm-retention-desc">Conservados <strong>12 meses</strong> para fines de auditoría y seguridad de la información.</span>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- ── Consentimientos activos (Opt-in explícito) ─────────────── -->
+        <fieldset class="adm-fieldset">
+          <legend class="adm-legend">
+            <mat-icon>gavel</mat-icon>
+            Consentimientos activos — Opt-in obligatorio
+          </legend>
+          <p class="adm-fieldset-desc">
+            Los siguientes consentimientos son <strong>requisito legal</strong> para operar en la plataforma.
+            Están desmarcados por defecto (Opt-in explícito conforme a Ley N° 19.628, Art. 4).
+          </p>
+
+          <div class="adm-checkbox-list">
+
+            <label class="adm-checkbox-row" [class.has-error]="!!fieldError(privacidadForm, 'consentimientoDatos')">
+              <input
+                type="checkbox"
+                formControlName="consentimientoDatos"
+                class="adm-checkbox"
+                id="consDatos" />
+              <div class="adm-checkbox-content">
+                <span class="adm-checkbox-label">Tratamiento de datos de colaboradores</span>
+                <span class="adm-checkbox-desc">
+                  Autorizo el tratamiento de datos personales de los colaboradores de esta organización dentro de la plataforma,
+                  conforme a los fines descritos en los Términos y Condiciones y la Política de Privacidad vigentes.
+                  (Art. 4, Ley N° 19.628)
+                </span>
+              </div>
+            </label>
+            <small class="adm-field-error" *ngIf="fieldError(privacidadForm, 'consentimientoDatos')">
+              {{ fieldError(privacidadForm, 'consentimientoDatos') }}
+            </small>
+
+            <label class="adm-checkbox-row" [class.has-error]="!!fieldError(privacidadForm, 'consentimientoFacturacion')">
+              <input
+                type="checkbox"
+                formControlName="consentimientoFacturacion"
+                class="adm-checkbox"
+                id="consFacturacion" />
+              <div class="adm-checkbox-content">
+                <span class="adm-checkbox-label">Flujo de datos del proceso de facturación</span>
+                <span class="adm-checkbox-desc">
+                  Autorizo el procesamiento de datos financieros y documentos tributarios de mi organización para
+                  la operación de los flujos de cesión y oferta de facturas dentro de la plataforma,
+                  incluyendo la consulta al SII para validación de RUT y actividad económica.
+                </span>
+              </div>
+            </label>
+            <small class="adm-field-error" *ngIf="fieldError(privacidadForm, 'consentimientoFacturacion')">
+              {{ fieldError(privacidadForm, 'consentimientoFacturacion') }}
+            </small>
+
+          </div>
+        </fieldset>
+
+        <!-- ── Derechos ARCO ──────────────────────────────────────────── -->
+        <fieldset class="adm-fieldset adm-fieldset--arco">
+          <legend class="adm-legend">
+            <mat-icon>download</mat-icon>
+            Gestión de Derechos ARCO
+          </legend>
+          <p class="adm-fieldset-desc">
+            De acuerdo con la <strong>Ley N° 19.628</strong>, Art. 9 al 12, tienes derecho a solicitar
+            acceso, rectificación, cancelación y oposición al tratamiento de tus datos personales.
+          </p>
+          <div class="adm-arco-actions">
+            <button
+              type="button"
+              class="adm-btn adm-btn--outlined"
+              (click)="solicitarExportacion()">
+              <mat-icon>download</mat-icon>
+              Solicitar exportación de mis datos (Acceso / Portabilidad)
+            </button>
+            <p class="adm-arco-note">
+              Recibirás el archivo en tu correo registrado en un plazo de hasta 72 horas hábiles.
+              La solicitud queda registrada conforme al Art. 16 bis de la Ley.
+            </p>
+          </div>
+        </fieldset>
+
+        <footer class="adm-form-footer">
+          <button type="submit" class="adm-btn adm-btn--primary" [disabled]="savingPrivacidad">
+            <mat-spinner *ngIf="savingPrivacidad" diameter="16"></mat-spinner>
+            <mat-icon *ngIf="!savingPrivacidad">save</mat-icon>
+            {{ savingPrivacidad ? 'Guardando...' : 'Guardar preferencias de privacidad' }}
+          </button>
+        </footer>
+
+      </form>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         TAB 3 — Configuración de Cuenta (Danger Zone)
+    ═══════════════════════════════════════════════════════════ -->
+    <section
+      *ngIf="activeTab === 3"
+      id="tabpanel-3"
+      role="tabpanel"
+      aria-labelledby="tab-3"
+      class="adm-tabpanel">
+
+      <h2 class="section-title">Configuración de Cuenta</h2>
+
+      <!-- ── Danger Zone ─────────────────────────────────────────────── -->
+      <div class="danger-zone">
+
+        <header class="danger-zone__header">
+          <mat-icon class="danger-zone__icon">warning</mat-icon>
+          <div>
+            <h3 class="danger-zone__title">Zona de peligro</h3>
+            <p class="danger-zone__subtitle">Las acciones de esta sección son permanentes e irreversibles.</p>
+          </div>
+        </header>
+
+        <!-- Estado idle — botón de activación -->
+        <div class="danger-action" *ngIf="bajaStep === 'idle'">
+          <div class="danger-action__info">
+            <span class="danger-action__label">Dar de baja la empresa</span>
+            <span class="danger-action__desc">
+              Elimina permanentemente la organización, sus datos y revoca todos los consentimientos activos.
+              Esta acción <strong>no se puede deshacer</strong>.
+            </span>
+          </div>
+          <button type="button" class="adm-btn adm-btn--danger-outlined" (click)="openBajaFlow()">
+            <mat-icon>delete_forever</mat-icon>
+            Dar de baja
+          </button>
+        </div>
+
+        <!-- Paso 1 — Confirmación por palabra clave (Double-confirmation) -->
+        <div class="danger-confirm" *ngIf="bajaStep === 'confirm-word'" role="alertdialog" aria-modal="true"
+          aria-labelledby="baja-title">
+
+          <mat-icon class="danger-confirm__icon">report_problem</mat-icon>
+
+          <h4 id="baja-title" class="danger-confirm__title">
+            Confirmar eliminación de la organización
+          </h4>
+
+          <div class="danger-confirm__legal">
+            <p>
+              <strong>Importante — Ley N° 19.628, Art. 6 (Derecho de Cancelación):</strong>
+              Al confirmar esta acción:
+            </p>
+            <ul>
+              <li>Se eliminarán de forma <strong>definitiva e irreversible</strong> todos los datos de la organización.</li>
+              <li>Se <strong>revocarán automáticamente</strong> todos los consentimientos activos otorgados.</li>
+              <li>Los datos de facturación retenidos por obligación legal (7 años, SII) serán <strong>disociados</strong> de tu cuenta y mantenidos solo por el período tributario exigido.</li>
+              <li>No podrás recuperar miembros, grupos, ni historial de facturas.</li>
+            </ul>
+          </div>
+
+          <div class="danger-confirm__input-wrap">
+            <label class="danger-confirm__input-label" for="bajaWord">
+              Para continuar, escribe <strong>{{ BAJA_CONFIRMATION_WORD }}</strong> en el campo:
+            </label>
+            <input
+              id="bajaWord"
+              class="adm-input danger-confirm__input"
+              type="text"
+              [(ngModel)]="bajaWord"
+              [name]="'bajaWordCtrl'"
+              autocomplete="off"
+              placeholder="{{ BAJA_CONFIRMATION_WORD }}"
+              (input)="bajaError = null" />
+            <small class="adm-field-error" *ngIf="bajaError">{{ bajaError }}</small>
+          </div>
+
+          <div class="danger-confirm__actions">
+            <button type="button" class="adm-btn adm-btn--ghost" (click)="cancelBaja()">
+              Cancelar
+            </button>
+            <button
+              type="button"
+              class="adm-btn adm-btn--danger"
+              [disabled]="!bajaWordMatch"
+              (click)="confirmarBaja()">
+              <mat-icon>delete_forever</mat-icon>
+              Confirmar eliminación definitiva
+            </button>
+          </div>
+        </div>
+
+        <!-- Submitting -->
+        <div class="danger-status" *ngIf="bajaStep === 'submitting'">
+          <mat-spinner diameter="32"></mat-spinner>
+          <p>Procesando solicitud de baja...</p>
+        </div>
+
+        <!-- Done -->
+        <div class="danger-status danger-status--success" *ngIf="bajaStep === 'done'" role="status">
+          <mat-icon>check_circle</mat-icon>
+          <p>La organización ha sido dada de baja exitosamente. Los datos serán eliminados conforme a la política de retención legal.</p>
+        </div>
+
+        <!-- Error -->
+        <div class="danger-status danger-status--error" *ngIf="bajaStep === 'error'" role="alert">
+          <mat-icon>error</mat-icon>
+          <p>{{ bajaError }}</p>
+          <button type="button" class="adm-btn adm-btn--ghost" (click)="cancelBaja()">Cerrar</button>
+        </div>
+
+      </div><!-- /danger-zone -->
+    </section>
+
+  </ng-container>
+
+</div>

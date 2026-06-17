@@ -78,10 +78,10 @@ export class OrgGestorComponent implements OnInit {
   generalError: string | null = null;
 
   readonly navItems = [
-    { path: 'miembros',      label: 'Miembros',     icon: 'group'     },
-    { path: 'solicitudes',   label: 'Solicitudes',  icon: 'person_add' },
-    { path: 'grupos',        label: 'Grupos',       icon: 'workspaces' },
-    { path: 'configuracion', label: 'Config',       icon: 'settings'  },
+    { path: 'miembros',      label: 'Miembros',      icon: 'group'        },
+    { path: 'solicitudes',   label: 'Solicitudes',   icon: 'person_add'   },
+    { path: 'grupos',        label: 'Grupos',        icon: 'workspaces'   },
+    { path: 'organizacion',  label: 'Organización',  icon: 'settings'     },
   ] as const;
 
   constructor(

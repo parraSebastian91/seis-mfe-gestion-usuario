@@ -1,0 +1,874 @@
+@import '../admin-shared';
+
+// =============================================================================
+// adm-organizacion — Tabs Layout
+// Sistema de diseño: tema oscuro (dark), tokens de admin-shared.scss
+// WCAG AA garantizado en todos los textos interactivos.
+// =============================================================================
+
+// ── Wrapper ───────────────────────────────────────────────────────────────────
+.adm-org-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-width: 860px;
+}
+
+// =============================================================================
+// TABS HEADER
+// =============================================================================
+
+.adm-tabs-header {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid $border;
+  margin-bottom: 24px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+.adm-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 16px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: $text-muted;
+  font-size: .83rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  border-radius: 6px 6px 0 0;
+  transition:
+    color         160ms ease,
+    border-color  160ms ease,
+    background    160ms ease;
+
+  .adm-tab-icon {
+    font-size: 17px;
+    width: 17px;
+    height: 17px;
+    line-height: 17px;
+  }
+
+  &:hover:not(.is-active) {
+    background: rgba(255, 255, 255, .04);
+    color: $text;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $brand;
+    outline-offset: -2px;
+    border-radius: 6px;
+  }
+
+  &.is-active {
+    color: $brand;
+    border-bottom-color: $brand;
+    background: rgba(0, 191, 165, .06);
+  }
+
+  // Tab de peligro (Danger Zone)
+  &.is-danger {
+    &:hover:not(.is-active) { color: $danger; }
+    &.is-active {
+      color: $danger;
+      border-bottom-color: $danger;
+      background: rgba(239, 68, 68, .06);
+    }
+  }
+}
+
+// =============================================================================
+// FEEDBACK GLOBAL
+// =============================================================================
+
+.adm-feedback {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: $radius-md;
+  font-size: .875rem;
+  font-weight: 500;
+  margin-bottom: 16px;
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; flex-shrink: 0; }
+
+  &--success {
+    background: rgba(34, 197, 94, .10);
+    border: 1px solid rgba(34, 197, 94, .25);
+    color: #4ade80;
+  }
+
+  &--error {
+    background: rgba(239, 68, 68, .10);
+    border: 1px solid rgba(239, 68, 68, .25);
+    color: #f87171;
+  }
+}
+
+// =============================================================================
+// TAB PANEL
+// =============================================================================
+
+.adm-tabpanel {
+  animation: tabFadeIn .18s ease-out;
+}
+
+@keyframes tabFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.section-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: $text;
+  margin: 0 0 6px;
+}
+
+.section-hint {
+  font-size: .84rem;
+  color: $text-muted;
+  margin: 0 0 20px;
+  line-height: 1.55;
+}
+
+// =============================================================================
+// FORM COMPONENTS
+// =============================================================================
+
+.adm-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.adm-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  &--full { grid-column: 1 / -1; }
+}
+
+.adm-label {
+  font-size: .78rem;
+  font-weight: 700;
+  color: $text;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.adm-char-count {
+  font-size: .72rem;
+  font-weight: 400;
+  color: $text-muted;
+  font-variant-numeric: tabular-nums;
+}
+
+// Textarea
+.adm-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  background: $bg-base;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  padding: 10px 12px;
+  color: $text;
+  font-size: .875rem;
+  font-family: inherit;
+  line-height: 1.6;
+  resize: vertical;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+
+  &::placeholder { color: $text-muted; }
+
+  &:focus {
+    outline: none;
+    border-color: $brand;
+    box-shadow: 0 0 0 3px rgba(0, 191, 165, .12);
+  }
+
+  &.is-invalid {
+    border-color: $danger;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, .10);
+  }
+}
+
+// Input
+.adm-input {
+  width: 100%;
+  box-sizing: border-box;
+  height: 40px;
+  background: $bg-base;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  padding: 0 12px;
+  color: $text;
+  font-size: .875rem;
+  font-family: inherit;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+
+  &::placeholder { color: $text-muted; }
+
+  &:focus {
+    outline: none;
+    border-color: $brand;
+    box-shadow: 0 0 0 3px rgba(0, 191, 165, .12);
+  }
+
+  &.is-invalid {
+    border-color: $danger;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, .10);
+  }
+
+  &:disabled { opacity: .45; cursor: not-allowed; }
+}
+
+// Select
+.adm-select {
+  width: 100%;
+  box-sizing: border-box;
+  height: 40px;
+  background: $bg-base;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  padding: 0 12px;
+  color: $text;
+  font-size: .875rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+
+  &:focus {
+    outline: none;
+    border-color: $brand;
+    box-shadow: 0 0 0 3px rgba(0, 191, 165, .12);
+  }
+
+  &.is-invalid { border-color: $danger; }
+}
+
+// Error inline
+.adm-field-error {
+  font-size: .75rem;
+  color: $danger;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+// Grid 2 cols
+.adm-grid {
+  display: grid;
+  gap: 14px;
+
+  &--2 { grid-template-columns: 1fr 1fr; }
+}
+
+// Radio group
+.adm-radio-group {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-top: 6px;
+}
+
+.adm-radio-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .875rem;
+  color: $text;
+  cursor: pointer;
+
+  input[type="radio"] {
+    accent-color: $brand;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+  }
+}
+
+// Fieldset agrupador
+.adm-fieldset {
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  padding: 16px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.adm-legend {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: .8rem;
+  font-weight: 700;
+  color: $brand;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  padding: 0 6px;
+
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+}
+
+.adm-fieldset-desc {
+  font-size: .83rem;
+  color: $text-muted;
+  margin: 0;
+  line-height: 1.55;
+}
+
+// Form footer
+.adm-form-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 4px;
+}
+
+// =============================================================================
+// BUTTONS
+// =============================================================================
+
+.adm-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: $radius-md;
+  padding: 9px 18px;
+  font-size: .875rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: background 140ms ease, box-shadow 140ms ease, color 140ms ease, border-color 140ms ease;
+
+  mat-icon { font-size: 17px; width: 17px; height: 17px; line-height: 17px; }
+
+  &:focus-visible { outline: 2px solid $brand; outline-offset: 2px; }
+
+  &:disabled { opacity: .45; cursor: not-allowed; }
+
+  &--primary {
+    background: $brand;
+    color: $brand-on;
+    &:hover:not(:disabled) { background: $brand-dim; box-shadow: 0 3px 10px rgba(0, 191, 165, .30); }
+  }
+
+  &--outlined {
+    background: transparent;
+    border: 1.5px solid $brand;
+    color: $brand;
+    &:hover:not(:disabled) { background: rgba(0, 191, 165, .08); }
+  }
+
+  &--ghost {
+    background: transparent;
+    border: 1px solid $border;
+    color: $text-muted;
+    &:hover:not(:disabled) { background: rgba(255, 255, 255, .05); color: $text; }
+  }
+
+  &--danger {
+    background: $danger;
+    color: #ffffff;
+    &:hover:not(:disabled) { background: #dc2626; box-shadow: 0 3px 10px rgba(239, 68, 68, .35); }
+    &:focus-visible { outline-color: $danger; }
+  }
+
+  &--danger-outlined {
+    background: transparent;
+    border: 1.5px solid $danger;
+    color: $danger;
+    &:hover:not(:disabled) { background: rgba(239, 68, 68, .08); }
+    &:focus-visible { outline-color: $danger; }
+  }
+}
+
+// =============================================================================
+// UPLOADERS — Tab 0
+// =============================================================================
+
+.adm-uploaders {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.adm-uploader-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  padding: 14px;
+  background: $bg-elevated;
+  transition: border-color 160ms ease;
+
+  &:hover { border-color: rgba(0, 191, 165, .35); }
+}
+
+.adm-uploader-preview {
+  border-radius: $radius-md;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $bg-base;
+  border: 1px dashed $border;
+
+  &--logo   { height: 80px; }
+  &--banner { height: 60px; }
+  &--video  { height: 90px; }
+}
+
+.adm-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.adm-preview-placeholder-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: $text-muted;
+  opacity: .4;
+}
+
+.adm-preview-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: $radius-md;
+}
+
+.adm-video-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: $text-muted;
+
+  mat-icon { font-size: 28px; width: 28px; height: 28px; opacity: .35; }
+  span { font-size: .72rem; }
+}
+
+.adm-uploader-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.adm-uploader-label {
+  font-size: .8rem;
+  font-weight: 700;
+  color: $text;
+}
+
+.adm-uploader-hint {
+  font-size: .72rem;
+  color: $text-muted;
+  line-height: 1.4;
+}
+
+.adm-uploader-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 12px;
+  border-radius: $radius-md;
+  border: 1px solid $border;
+  background: $bg-base;
+  color: $text;
+  font-size: .78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 140ms ease, border-color 140ms ease;
+
+  mat-icon { font-size: 15px; width: 15px; height: 15px; }
+
+  &:hover { background: rgba(255, 255, 255, .05); border-color: $brand; color: $brand; }
+
+  &.is-loading {
+    opacity: .65;
+    pointer-events: none;
+  }
+}
+
+.adm-upload-error {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: .78rem;
+  color: $danger;
+
+  mat-icon { font-size: 15px; width: 15px; height: 15px; }
+}
+
+// =============================================================================
+// TOGGLES — Tab 2
+// =============================================================================
+
+.adm-toggle-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  overflow: hidden;
+}
+
+.adm-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid $border;
+  cursor: pointer;
+  transition: background 140ms ease;
+
+  &:last-child { border-bottom: none; }
+  &:hover { background: rgba(255, 255, 255, .03); }
+}
+
+.adm-toggle-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  mat-icon { color: $text-muted; font-size: 20px; width: 20px; height: 20px; }
+}
+
+.adm-toggle-label {
+  display: block;
+  font-size: .875rem;
+  font-weight: 600;
+  color: $text;
+}
+
+.adm-toggle-desc {
+  display: block;
+  font-size: .78rem;
+  color: $text-muted;
+  line-height: 1.45;
+  margin-top: 2px;
+}
+
+// =============================================================================
+// RETENCIÓN DE DATOS — Tab 2
+// =============================================================================
+
+.adm-retention-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.adm-retention-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  background: $bg-base;
+  border-radius: $radius-md;
+  border: 1px solid $border;
+}
+
+.adm-retention-icon {
+  color: $brand;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.adm-retention-cat {
+  display: block;
+  font-size: .83rem;
+  font-weight: 700;
+  color: $text;
+  margin-bottom: 3px;
+}
+
+.adm-retention-desc {
+  font-size: .8rem;
+  color: $text-muted;
+  line-height: 1.55;
+
+  strong { color: $text; }
+}
+
+// =============================================================================
+// CHECKBOXES — Tab 2
+// =============================================================================
+
+.adm-checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.adm-checkbox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: background 140ms ease, border-color 140ms ease;
+
+  &:hover { background: rgba(255, 255, 255, .03); }
+
+  &.has-error { border-color: rgba(239, 68, 68, .45); }
+}
+
+.adm-checkbox {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: $brand;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.adm-checkbox-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.adm-checkbox-label {
+  font-size: .875rem;
+  font-weight: 700;
+  color: $text;
+  line-height: 1.3;
+}
+
+.adm-checkbox-desc {
+  font-size: .78rem;
+  color: $text-muted;
+  line-height: 1.55;
+}
+
+// =============================================================================
+// ARCO — Tab 2
+// =============================================================================
+
+.adm-fieldset--arco {
+  border-color: rgba(59, 130, 246, .25);
+}
+
+.adm-arco-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.adm-arco-note {
+  font-size: .75rem;
+  color: $text-muted;
+  margin: 0;
+  line-height: 1.5;
+}
+
+// =============================================================================
+// DANGER ZONE — Tab 3
+// =============================================================================
+
+.danger-zone {
+  border: 1px solid rgba(239, 68, 68, .30);
+  border-radius: $radius-lg;
+  overflow: hidden;
+}
+
+.danger-zone__header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  background: rgba(239, 68, 68, .07);
+  border-bottom: 1px solid rgba(239, 68, 68, .20);
+}
+
+.danger-zone__icon {
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+  color: $danger;
+  flex-shrink: 0;
+}
+
+.danger-zone__title {
+  margin: 0 0 2px;
+  font-size: .95rem;
+  font-weight: 700;
+  color: $danger;
+}
+
+.danger-zone__subtitle {
+  margin: 0;
+  font-size: .8rem;
+  color: $text-muted;
+}
+
+// Acción de baja (estado idle)
+.danger-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  flex-wrap: wrap;
+}
+
+.danger-action__info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.danger-action__label {
+  font-size: .9rem;
+  font-weight: 700;
+  color: $text;
+}
+
+.danger-action__desc {
+  font-size: .8rem;
+  color: $text-muted;
+  line-height: 1.5;
+
+  strong { color: $text; }
+}
+
+// Confirmación (Double-confirmation)
+.danger-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  animation: tabFadeIn .18s ease-out;
+}
+
+.danger-confirm__icon {
+  font-size: 36px;
+  width: 36px;
+  height: 36px;
+  color: $danger;
+  align-self: center;
+}
+
+.danger-confirm__title {
+  margin: 0;
+  font-size: .95rem;
+  font-weight: 700;
+  color: $danger;
+  text-align: center;
+}
+
+.danger-confirm__legal {
+  background: rgba(239, 68, 68, .07);
+  border: 1px solid rgba(239, 68, 68, .20);
+  border-radius: $radius-md;
+  padding: 14px 16px;
+  font-size: .8rem;
+  color: $text-muted;
+  line-height: 1.6;
+
+  p { margin: 0 0 8px; strong { color: $text; } }
+
+  ul {
+    margin: 0;
+    padding: 0 0 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+}
+
+.danger-confirm__input-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.danger-confirm__input-label {
+  font-size: .83rem;
+  color: $text;
+  line-height: 1.45;
+
+  strong { color: $danger; }
+}
+
+.danger-confirm__input {
+  border-color: rgba(239, 68, 68, .45);
+  &:focus { border-color: $danger; box-shadow: 0 0 0 3px rgba(239, 68, 68, .15); }
+}
+
+.danger-confirm__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+// Feedback estados (submitting / done / error)
+.danger-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 24px;
+  text-align: center;
+  font-size: .875rem;
+  color: $text-muted;
+
+  mat-icon { font-size: 32px; width: 32px; height: 32px; }
+
+  &--success {
+    color: #4ade80;
+    mat-icon { color: #4ade80; }
+  }
+
+  &--error {
+    color: $danger;
+    mat-icon { color: $danger; }
+  }
+}
+
+// =============================================================================
+// RESPONSIVE
+// =============================================================================
+
+@media (max-width: 640px) {
+  .adm-tabs-header { gap: 0; }
+
+  .adm-tab-btn {
+    padding: 10px 10px;
+    .adm-tab-label { display: none; }
+    .adm-tab-icon  { margin: 0; }
+  }
+
+  .adm-grid--2 { grid-template-columns: 1fr; }
+
+  .adm-uploaders { grid-template-columns: 1fr; }
+
+  .danger-action { flex-direction: column; align-items: flex-start; }
+
+  .danger-confirm__actions { flex-direction: column; }
+}
