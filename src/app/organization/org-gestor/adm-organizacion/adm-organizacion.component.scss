@@ -7,11 +7,14 @@
 // =============================================================================
 
 // ── Wrapper ───────────────────────────────────────────────────────────────────
+// El scroll vertical vive en .shell-content (padre flex con overflow-y: auto).
+// .adm-org-wrapper no restringe altura — crece con el contenido y el padre scrollea.
 .adm-org-wrapper {
   display: flex;
   flex-direction: column;
   gap: 0;
   max-width: 860px;
+  padding-bottom: 24px; // respira al final del scroll
 }
 
 // =============================================================================

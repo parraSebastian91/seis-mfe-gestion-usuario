@@ -97,6 +97,7 @@
 
 // ── Body ──────────────────────────────────────────────────────────────────────
 .shell-body {
+  overflow-y: auto;  
   display: flex;
   flex: 1;
 }
@@ -110,8 +111,19 @@
 .shell-content {
   flex: 1;
   min-width: 0;
+  min-height: 0;  // necesario en Firefox para que overflow-y funcione en hijo flex
   padding: 16px;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, .12) transparent;
+
+  &::-webkit-scrollbar { width: 5px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, .12);
+    border-radius: 4px;
+    &:hover { background: rgba(255, 255, 255, .22); }
+  }
 }
 
 // ── Bottom nav (mobile) ───────────────────────────────────────────────────────
