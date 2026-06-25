@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, effect, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
@@ -40,10 +40,17 @@ export class AdminSolicitudesComponent implements OnInit {
     private readonly route: ActivatedRoute,
     private readonly http: HttpClient,
     private readonly userStateService: UserStateService,
-  ) { }
+  ) {
+    effect(() => {
+      const selectedOrgId = this.userStateService.orgSelected();
+      if (!selectedOrgId || selectedOrgId === this.orgId) return;
+      this.orgId = selectedOrgId;
+      this.load();
+    });
+  }
 
   async ngOnInit(): Promise<void> {
-    this.orgId    = this.route.parent?.snapshot.params['id'] as string ?? '';
+    this.orgId = this.route.parent?.snapshot.params['id'] as string || this.userStateService.orgSelected() || '';
     this.adminUuid = this.userStateService.state().id;
     await this.load();
   }

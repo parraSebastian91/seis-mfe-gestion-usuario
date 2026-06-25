@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, effect, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { UserStateService } from 'shared-utils';
 
 // ── Shared types re-exported so child components can import from here ──────────
 
@@ -81,22 +82,31 @@ export class OrgGestorComponent implements OnInit {
     { path: 'miembros',      label: 'Miembros',      icon: 'group'        },
     { path: 'solicitudes',   label: 'Solicitudes',   icon: 'person_add'   },
     { path: 'grupos',        label: 'Grupos',        icon: 'workspaces'   },
-    { path: 'organizacion',  label: 'Organización',  icon: 'settings'     },
+    { path: 'configuracion',  label: 'Configuración',  icon: 'settings'     },
   ] as const;
 
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly http: HttpClient,
-  ) { }
+    private readonly userState: UserStateService,
+  ) {
+    effect(() => {
+      const selectedOrgId = this.userState.orgSelected();
+      if (!selectedOrgId || selectedOrgId === this.orgId) return;
+      this.orgId = selectedOrgId;
+      this.verifyAdminAccess();
+    });
+  }
 
   async ngOnInit(): Promise<void> {
-    this.orgId = this.route.snapshot.params['id'] as string ?? '';
+    this.orgId = this.route.snapshot.params['id'] as string || this.userState.orgSelected() || '';
     await this.verifyAdminAccess();
   }
 
   private async verifyAdminAccess(): Promise<void> {
     try {
+      this.loading = true;
       const response = await firstValueFrom(
         this.http.get<any>(`/api/bff/organizacion/${this.orgId}/mi-rol`, {
           withCredentials: true,

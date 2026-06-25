@@ -1,9 +1,9 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, effect, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { firstValueFrom, Subject } from 'rxjs';
-import { ObjectUploadService, SearchableCardItem, SessionService, UserRole } from 'shared-utils';
+import { ObjectUploadService, SearchableCardItem, SessionService, UserRole, UserStateService } from 'shared-utils';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -168,10 +168,19 @@ export class OrgProfileComponent implements OnInit, OnDestroy {
     private readonly fb: FormBuilder,
     readonly session: SessionService,
     private readonly uploadService: ObjectUploadService,
-  ) { }
+    private readonly userState: UserStateService,
+  ) {
+    effect(() => {
+      const selectedOrgId = this.userState.orgSelected();
+      if (!selectedOrgId || selectedOrgId === this.orgId) return;
+      this.orgId = selectedOrgId;
+      this.loadOrg();
+      this.loadGroups();
+    });
+  }
 
   ngOnInit(): void {
-    this.orgId = this.route.snapshot.params['id'] ?? '';
+    this.orgId = this.route.snapshot.params['id'] || this.userState.orgSelected() || '';
     this.buildLinkForm();
     this.loadOrg();
     this.loadGroups();

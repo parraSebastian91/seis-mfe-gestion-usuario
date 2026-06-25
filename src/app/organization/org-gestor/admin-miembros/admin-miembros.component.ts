@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, effect } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { OrgMiembro, OrgAdminRol } from '../org-gestor.component';
+import { UserStateService } from 'shared-utils';
 
 const ROL_OPTS: { codigo: OrgAdminRol; label: string }[] = [
   { codigo: 'ADMIN',       label: 'Administrador' },
@@ -40,11 +41,18 @@ export class AdminMiembrosComponent implements OnInit {
   constructor(
     private readonly route: ActivatedRoute,
     private readonly http: HttpClient,
-  ) { }
+    private readonly userState: UserStateService,
+  ) {
+    effect(() => {
+      const selectedOrgId = this.userState.orgSelected();
+      if (!selectedOrgId || selectedOrgId === this.orgId) return;
+      this.orgId = selectedOrgId;
+      this.load();
+    });
+  }
 
   async ngOnInit(): Promise<void> {
-    // orgId is in parent's :id segment — navigate up to snapshot parent
-    this.orgId = this.route.parent?.snapshot.params['id'] as string ?? '';
+    this.orgId = this.route.parent?.snapshot.params['id'] as string || this.userState.orgSelected() || '';
     await this.load();
   }
 

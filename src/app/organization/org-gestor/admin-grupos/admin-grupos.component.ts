@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, effect } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { GrupoTrabajo, OrgMiembro } from '../org-gestor.component';
+import { UserStateService } from 'shared-utils';
 
 @Component({
   selector: 'app-admin-grupos',
@@ -12,7 +13,6 @@ import { GrupoTrabajo, OrgMiembro } from '../org-gestor.component';
   standalone: false,
 })
 export class AdminGruposComponent implements OnInit {
-
   orgId = '';
   grupos: GrupoTrabajo[] = [];
   miembrosOrg: OrgMiembro[] = [];
@@ -36,16 +36,26 @@ export class AdminGruposComponent implements OnInit {
     private readonly router: Router,
     private readonly http: HttpClient,
     private readonly fb: FormBuilder,
+    private readonly userState: UserStateService,
   ) {
     this.grupoForm = this.fb.group({
-      nombre:      ['', [Validators.required, Validators.maxLength(100)]],
+      nombre: ['', [Validators.required, Validators.maxLength(100)]],
       descripcion: [''],
-      liderUuid:   ['', Validators.required],
+      liderUuid: ['', Validators.required],
+    });
+    effect(async () => {
+      const selectedOrgId = this.userState.orgSelected();
+      if (!selectedOrgId || selectedOrgId === this.orgId) return;
+      this.orgId = selectedOrgId;
+      await Promise.all([this.load(), this.loadMiembros()]);
     });
   }
 
   async ngOnInit(): Promise<void> {
-    this.orgId = this.route.parent?.snapshot.params['id'] as string ?? '';
+    this.orgId =
+      (this.route.parent?.snapshot.params['id'] as string) ||
+      this.userState.orgSelected() ||
+      '';
     await Promise.all([this.load(), this.loadMiembros()]);
   }
 
@@ -76,7 +86,9 @@ export class AdminGruposComponent implements OnInit {
         ),
       );
       this.miembrosOrg = res.data ?? [];
-    } catch { /* silent */ }
+    } catch {
+      /* silent */
+    }
   }
 
   // ── Create / Edit ─────────────────────────────────────────────────────────
@@ -113,13 +125,22 @@ export class AdminGruposComponent implements OnInit {
             { withCredentials: true },
           ),
         );
-        const g = this.grupos.find(x => x.grupoId === this.editingGrupo!.grupoId);
-        if (g) { g.nombre = val.nombre; g.descripcion = val.descripcion; }
+        const g = this.grupos.find(
+          (x) => x.grupoId === this.editingGrupo!.grupoId,
+        );
+        if (g) {
+          g.nombre = val.nombre;
+          g.descripcion = val.descripcion;
+        }
       } else {
         const res = await firstValueFrom(
           this.http.post<{ data: GrupoTrabajo }>(
             `/api/bff/organizacion/${this.orgId}/grupos`,
-            { nombre: val.nombre, descripcion: val.descripcion, liderUuid: val.liderUuid },
+            {
+              nombre: val.nombre,
+              descripcion: val.descripcion,
+              liderUuid: val.liderUuid,
+            },
             { withCredentials: true },
           ),
         );
@@ -151,7 +172,9 @@ export class AdminGruposComponent implements OnInit {
           { withCredentials: true },
         ),
       );
-      this.grupos = this.grupos.filter(g => g.grupoId !== this.deletingGrupo!.grupoId);
+      this.grupos = this.grupos.filter(
+        (g) => g.grupoId !== this.deletingGrupo!.grupoId,
+      );
       this.deletingGrupo = null;
     } catch {
       this.deleteError = 'No se pudo eliminar el grupo.';
@@ -167,7 +190,7 @@ export class AdminGruposComponent implements OnInit {
   }
 
   miembroLabel(uuid: string): string {
-    const m = this.miembrosOrg.find(x => x.usuarioUuid === uuid);
+    const m = this.miembrosOrg.find((x) => x.usuarioUuid === uuid);
     return m ? `${m.nombre} ${m.apellido}` : uuid;
   }
 }

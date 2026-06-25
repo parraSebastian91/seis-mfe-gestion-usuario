@@ -1,9 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, effect } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { GrupoTrabajo, GrupoMiembro, OrgMiembro } from '../org-gestor.component';
+import {
+  GrupoTrabajo,
+  GrupoMiembro,
+  OrgMiembro,
+} from '../org-gestor.component';
 import { SearchableCardItem } from 'shared-utils';
+import { UserStateService } from 'shared-utils';
 
 @Component({
   selector: 'app-admin-grupo-detalle',
@@ -12,7 +17,6 @@ import { SearchableCardItem } from 'shared-utils';
   standalone: false,
 })
 export class AdminGrupoDetalleComponent implements OnInit {
-
   orgId = '';
   grupoId = '';
   grupo: GrupoTrabajo | null = null;
@@ -36,12 +40,23 @@ export class AdminGrupoDetalleComponent implements OnInit {
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly http: HttpClient,
-  ) { }
+    private readonly userState: UserStateService,
+  ) {
+    effect(async () => {
+      const selectedOrgId = this.userState.orgSelected();
+      if (!selectedOrgId || selectedOrgId === this.orgId) return;
+      this.orgId = selectedOrgId;
+      await Promise.all([this.loadGrupo(), this.loadMiembrosOrg()]);
+    });
+  }
 
   async ngOnInit(): Promise<void> {
     // Parent route (:id/gestor) has :id, current (grupos/:grupoId) has :grupoId
-    this.orgId   = this.route.parent?.snapshot.params['id'] as string ?? '';
-    this.grupoId = this.route.snapshot.params['grupoId'] as string ?? '';
+    this.orgId =
+      (this.route.snapshot.params['id'] as string) ||
+      this.userState.orgSelected() ||
+      '';
+    this.grupoId = (this.route.snapshot.params['grupoId'] as string) ?? '';
     await Promise.all([this.loadGrupo(), this.loadMiembrosOrg()]);
   }
 
@@ -55,7 +70,8 @@ export class AdminGrupoDetalleComponent implements OnInit {
           { withCredentials: true },
         ),
       );
-      this.grupo = (res.data ?? []).find(g => g.grupoId === this.grupoId) ?? null;
+      this.grupo =
+        (res.data ?? []).find((g) => g.grupoId === this.grupoId) ?? null;
       if (!this.grupo) this.error = 'Grupo no encontrado.';
     } catch {
       this.error = 'No se pudo cargar el grupo.';
@@ -73,17 +89,19 @@ export class AdminGrupoDetalleComponent implements OnInit {
         ),
       );
       this.miembrosOrg = res.data ?? [];
-    } catch { /* silent */ }
+    } catch {
+      /* silent */
+    }
   }
 
   get availableMiembros(): OrgMiembro[] {
     if (!this.grupo) return this.miembrosOrg;
-    const inGroup = new Set(this.grupo.miembros.map(m => m.usuarioUuid));
-    return this.miembrosOrg.filter(m => !inGroup.has(m.usuarioUuid));
+    const inGroup = new Set(this.grupo.miembros.map((m) => m.usuarioUuid));
+    return this.miembrosOrg.filter((m) => !inGroup.has(m.usuarioUuid));
   }
 
   get availableMiembrosAsItems(): SearchableCardItem[] {
-    return this.availableMiembros.map(m => ({
+    return this.availableMiembros.map((m) => ({
       id: m.usuarioUuid,
       name: `${m.nombre} ${m.apellido}`,
       meta: m.rolNombre ?? undefined,
@@ -105,11 +123,16 @@ export class AdminGrupoDetalleComponent implements OnInit {
       await firstValueFrom(
         this.http.post(
           `/api/bff/organizacion/grupos/${this.grupoId}/miembros`,
-          { usuarioUuid: this.selectedUuid, cargoEnGrupo: this.cargo || undefined },
+          {
+            usuarioUuid: this.selectedUuid,
+            cargoEnGrupo: this.cargo || undefined,
+          },
           { withCredentials: true },
         ),
       );
-      const org = this.miembrosOrg.find(m => m.usuarioUuid === this.selectedUuid);
+      const org = this.miembrosOrg.find(
+        (m) => m.usuarioUuid === this.selectedUuid,
+      );
       if (org && this.grupo) {
         this.grupo.miembros.push({
           miembroId: '',
@@ -149,7 +172,7 @@ export class AdminGrupoDetalleComponent implements OnInit {
         ),
       );
       this.grupo.miembros = this.grupo.miembros.filter(
-        m => m.usuarioUuid !== this.removingMiembro!.usuarioUuid,
+        (m) => m.usuarioUuid !== this.removingMiembro!.usuarioUuid,
       );
       this.removingMiembro = null;
     } catch {

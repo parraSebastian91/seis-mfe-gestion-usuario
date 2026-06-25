@@ -1,8 +1,5 @@
-import {
-  Component,
-  OnInit,
-  OnDestroy,
-} from '@angular/core';
+import { UserStateService } from 'shared-utils';
+import { Component, OnInit, OnDestroy, effect } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -20,14 +17,16 @@ import { SessionService } from 'shared-utils';
 function isRutDvValid(rut: string): boolean {
   const clean = rut.replace(/[.\- ]/g, '');
   if (clean.length < 2) return false;
-  const dv  = clean.slice(-1).toUpperCase();
+  const dv = clean.slice(-1).toUpperCase();
   const num = Number.parseInt(clean.slice(0, -1), 10);
   if (Number.isNaN(num)) return false;
-  let sum = 0, mul = 2, tmp = num;
+  let sum = 0,
+    mul = 2,
+    tmp = num;
   while (tmp > 0) {
     sum += (tmp % 10) * mul;
-    tmp  = Math.floor(tmp / 10);
-    mul  = mul === 7 ? 2 : mul + 1;
+    tmp = Math.floor(tmp / 10);
+    mul = mul === 7 ? 2 : mul + 1;
   }
   const exp = 11 - (sum % 11);
   const expDv = exp === 11 ? '0' : exp === 10 ? 'K' : String(exp);
@@ -37,12 +36,14 @@ function isRutDvValid(rut: string): boolean {
 function formatRutValue(value: string): string {
   const raw = value.replace(/[^0-9kK]/g, '');
   if (raw.length < 2) return raw;
-  const dv      = raw.slice(-1).toUpperCase();
+  const dv = raw.slice(-1).toUpperCase();
   const numPart = raw.slice(0, -1).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
   return `${numPart}-${dv}`;
 }
 
-const rutDvValidator: ValidatorFn = (ctrl: AbstractControl): ValidationErrors | null =>
+const rutDvValidator: ValidatorFn = (
+  ctrl: AbstractControl,
+): ValidationErrors | null =>
   isRutDvValid(ctrl.value ?? '') ? null : { invalidRut: true };
 
 // ── Tabs ───────────────────────────────────────────────────────────────────────
@@ -96,14 +97,27 @@ const BANCOS_CL = [
 ] as const;
 
 const REGIONES_CL = [
-  'Arica y Parinacota', 'Tarapacá', 'Antofagasta', 'Atacama', 'Coquimbo',
-  'Valparaíso', 'Metropolitana de Santiago', "O'Higgins", 'Maule', 'Ñuble',
-  'Biobío', 'La Araucanía', 'Los Ríos', 'Los Lagos', 'Aysén', 'Magallanes',
+  'Arica y Parinacota',
+  'Tarapacá',
+  'Antofagasta',
+  'Atacama',
+  'Coquimbo',
+  'Valparaíso',
+  'Metropolitana de Santiago',
+  "O'Higgins",
+  'Maule',
+  'Ñuble',
+  'Biobío',
+  'La Araucanía',
+  'Los Ríos',
+  'Los Lagos',
+  'Aysén',
+  'Magallanes',
 ] as const;
 
 const ALLOWED_IMG_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 const ALLOWED_VIDEO_TYPES = new Set(['video/mp4', 'video/webm', 'video/ogg']);
-const MAX_IMG_SIZE  = 5  * 1024 * 1024;  // 5 MB
+const MAX_IMG_SIZE = 5 * 1024 * 1024; // 5 MB
 const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50 MB
 
 @Component({
@@ -123,14 +137,14 @@ export class AdmOrganizacionComponent implements OnInit, OnDestroy {
   activeTab: AdmOrgTab = 0;
 
   readonly tabDefs = [
-    { label: 'Identidad y Presentación',         icon: 'badge'    },
-    { label: 'Operativa y Financiera',            icon: 'business' },
-    { label: 'Privacidad y Cumplimiento',         icon: 'shield'   },
-    { label: 'Configuración de Cuenta',           icon: 'settings' },
+    { label: 'Identidad y Presentación', icon: 'badge' },
+    { label: 'Operativa y Financiera', icon: 'business' },
+    { label: 'Privacidad y Cumplimiento', icon: 'shield' },
+    { label: 'Configuración de Cuenta', icon: 'settings' },
   ] as const;
 
-  readonly bancos    = BANCOS_CL;
-  readonly regiones  = REGIONES_CL;
+  readonly bancos = BANCOS_CL;
+  readonly regiones = REGIONES_CL;
 
   // ── Formularios ───────────────────────────────────────────────────────────────
 
@@ -144,18 +158,18 @@ export class AdmOrganizacionComponent implements OnInit, OnDestroy {
   privacidadForm!: FormGroup;
 
   // ── Estado de guardado ────────────────────────────────────────────────────────
-  savingIdentidad  = false;
-  savingOperativa  = false;
+  savingIdentidad = false;
+  savingOperativa = false;
   savingPrivacidad = false;
   saveError: string | null = null;
   saveSuccess: string | null = null;
 
   // ── Uploaders — Tab 0 ─────────────────────────────────────────────────────────
-  uploadingLogo   = false;
+  uploadingLogo = false;
   uploadingBanner = false;
-  uploadingVideo  = false;
+  uploadingVideo = false;
   uploadError: string | null = null;
-  logoPreview:   string | null = null;
+  logoPreview: string | null = null;
   bannerPreview: string | null = null;
   videoFile: File | null = null;
   videoObjectUrl: string | null = null;
@@ -171,10 +185,19 @@ export class AdmOrganizacionComponent implements OnInit, OnDestroy {
     private readonly http: HttpClient,
     private readonly fb: FormBuilder,
     private readonly session: SessionService,
-  ) {}
+    private readonly userState: UserStateService,
+  ) {
+    effect(() => {
+      const selectedOrgId = this.userState.orgSelected();
+      if (!selectedOrgId || selectedOrgId === this.orgId) return;
+      this.orgId = selectedOrgId;
+      this.buildForms();
+      this.loadOrg();
+    });
+  }
 
   ngOnInit(): void {
-    this.orgId = this.route.parent?.snapshot.params['id'] as string ?? '';
+    this.orgId = this.route.parent?.snapshot.params['id'] as string || this.userState.orgSelected() || '';
     this.buildForms();
     this.loadOrg();
   }
@@ -190,27 +213,27 @@ export class AdmOrganizacionComponent implements OnInit, OnDestroy {
   private buildForms(): void {
     this.identidadForm = this.fb.group({
       descripcion: ['', Validators.maxLength(1500)],
-      vision:      ['', Validators.maxLength(1000)],
-      objetivos:   ['', Validators.maxLength(1000)],
+      vision: ['', Validators.maxLength(1000)],
+      objetivos: ['', Validators.maxLength(1000)],
     });
 
     this.operativaForm = this.fb.group({
-      calle:        ['', Validators.required],
-      numero:       [''],
-      comuna:       ['', Validators.required],
-      region:       ['', Validators.required],
-      banco:        [''],
-      tipoCuenta:   ['CORRIENTE'],
+      calle: ['', Validators.required],
+      numero: [''],
+      comuna: ['', Validators.required],
+      region: ['', Validators.required],
+      banco: [''],
+      tipoCuenta: ['CORRIENTE'],
       numeroCuenta: ['', [Validators.pattern(/^\d{6,20}$/)]],
-      rutEmpresa:   ['', [rutDvValidator]],
+      rutEmpresa: ['', [rutDvValidator]],
     });
 
     this.privacidadForm = this.fb.group({
-      notifEmail:               [true],
-      notifSms:                 [false],
-      notifPush:                [false],
-      consentimientoDatos:      [false, Validators.requiredTrue],
-      consentimientoFacturacion:[false, Validators.requiredTrue],
+      notifEmail: [true],
+      notifSms: [false],
+      notifPush: [false],
+      consentimientoDatos: [false, Validators.requiredTrue],
+      consentimientoFacturacion: [false, Validators.requiredTrue],
     });
   }
 
@@ -218,7 +241,7 @@ export class AdmOrganizacionComponent implements OnInit, OnDestroy {
 
   async loadOrg(): Promise<void> {
     this.loading = true;
-    this.error   = null;
+    this.error = null;
     try {
       const res = await firstValueFrom(
         this.http.get<{ data: OrgAdmData }>(
@@ -226,7 +249,7 @@ export class AdmOrganizacionComponent implements OnInit, OnDestroy {
           { withCredentials: true },
         ),
       );
-      this.org = res?.data ?? res as unknown as OrgAdmData;
+      this.org = res?.data ?? (res as unknown as OrgAdmData);
       this.patchForms(this.org);
     } catch {
       // Endpoint aún no existe en el backend — pre-popular con vacíos
@@ -239,43 +262,43 @@ export class AdmOrganizacionComponent implements OnInit, OnDestroy {
   private patchForms(org: OrgAdmData): void {
     this.identidadForm.patchValue({
       descripcion: org.descripcion ?? '',
-      vision:      org.vision      ?? '',
-      objetivos:   org.objetivos   ?? '',
+      vision: org.vision ?? '',
+      objetivos: org.objetivos ?? '',
     });
 
     this.operativaForm.patchValue({
-      calle:        org.calle        ?? '',
-      numero:       org.numero       ?? '',
-      comuna:       org.comuna       ?? '',
-      region:       org.region       ?? '',
-      banco:        org.banco        ?? '',
-      tipoCuenta:   org.tipoCuenta   ?? 'CORRIENTE',
+      calle: org.calle ?? '',
+      numero: org.numero ?? '',
+      comuna: org.comuna ?? '',
+      region: org.region ?? '',
+      banco: org.banco ?? '',
+      tipoCuenta: org.tipoCuenta ?? 'CORRIENTE',
       numeroCuenta: org.numeroCuenta ?? '',
-      rutEmpresa:   org.rutEmpresa   ?? '',
+      rutEmpresa: org.rutEmpresa ?? '',
     });
 
     this.privacidadForm.patchValue({
-      notifEmail:                org.notifEmail               ?? true,
-      notifSms:                  org.notifSms                 ?? false,
-      notifPush:                 org.notifPush                ?? false,
-      consentimientoDatos:       org.consentimientoDatos      ?? false,
+      notifEmail: org.notifEmail ?? true,
+      notifSms: org.notifSms ?? false,
+      notifPush: org.notifPush ?? false,
+      consentimientoDatos: org.consentimientoDatos ?? false,
       consentimientoFacturacion: org.consentimientoFacturacion ?? false,
     });
 
-    this.logoPreview   = org.logoUrl   ?? null;
+    this.logoPreview = org.logoUrl ?? null;
     this.bannerPreview = org.bannerUrl ?? null;
   }
 
   // ── Tab helpers ───────────────────────────────────────────────────────────────
 
   setTab(tab: AdmOrgTab): void {
-    this.activeTab  = tab;
-    this.saveError  = null;
+    this.activeTab = tab;
+    this.saveError = null;
     this.saveSuccess = null;
   }
 
   private clearStatus(): void {
-    this.saveError   = null;
+    this.saveError = null;
     this.saveSuccess = null;
   }
 
@@ -295,7 +318,8 @@ export class AdmOrganizacionComponent implements OnInit, OnDestroy {
       );
       this.saveSuccess = 'Identidad actualizada correctamente.';
     } catch (err: any) {
-      this.saveError = err?.error?.message ?? 'No se pudo guardar. Intenta nuevamente.';
+      this.saveError =
+        err?.error?.message ?? 'No se pudo guardar. Intenta nuevamente.';
     } finally {
       this.savingIdentidad = false;
     }
@@ -307,7 +331,7 @@ export class AdmOrganizacionComponent implements OnInit, OnDestroy {
     const file = this.extractFile(event, ALLOWED_IMG_TYPES, MAX_IMG_SIZE);
     if (!file) return;
     this.uploadingLogo = true;
-    this.uploadError   = null;
+    this.uploadError = null;
     try {
       const formData = new FormData();
       formData.append('file', file);
@@ -331,7 +355,7 @@ export class AdmOrganizacionComponent implements OnInit, OnDestroy {
     const file = this.extractFile(event, ALLOWED_IMG_TYPES, MAX_IMG_SIZE);
     if (!file) return;
     this.uploadingBanner = true;
-    this.uploadError     = null;
+    this.uploadError = null;
     try {
       const formData = new FormData();
       formData.append('file', file);
@@ -355,13 +379,17 @@ export class AdmOrganizacionComponent implements OnInit, OnDestroy {
     const file = this.extractFile(event, ALLOWED_VIDEO_TYPES, MAX_VIDEO_SIZE);
     if (!file) return;
     if (this.videoObjectUrl) URL.revokeObjectURL(this.videoObjectUrl);
-    this.videoFile      = file;
+    this.videoFile = file;
     this.videoObjectUrl = URL.createObjectURL(file);
   }
 
-  private extractFile(event: Event, allowed: Set<string>, maxSize: number): File | null {
+  private extractFile(
+    event: Event,
+    allowed: Set<string>,
+    maxSize: number,
+  ): File | null {
     const input = event.target as HTMLInputElement;
-    const file  = input?.files?.[0] ?? null;
+    const file = input?.files?.[0] ?? null;
     if (input) input.value = '';
     if (!file) return null;
     if (!allowed.has(file.type)) {
@@ -380,7 +408,10 @@ export class AdmOrganizacionComponent implements OnInit, OnDestroy {
   onRutInput(event: Event): void {
     const input = event.target as HTMLInputElement;
     const formatted = formatRutValue(input.value);
-    this.operativaForm.patchValue({ rutEmpresa: formatted }, { emitEvent: false });
+    this.operativaForm.patchValue(
+      { rutEmpresa: formatted },
+      { emitEvent: false },
+    );
     input.value = formatted;
   }
 
@@ -437,7 +468,8 @@ export class AdmOrganizacionComponent implements OnInit, OnDestroy {
           { withCredentials: true },
         ),
       );
-      this.saveSuccess = 'Solicitud de exportación enviada. Recibirás un correo en las próximas 72 horas (Ley N° 19.628).';
+      this.saveSuccess =
+        'Solicitud de exportación enviada. Recibirás un correo en las próximas 72 horas (Ley N° 19.628).';
     } catch {
       this.saveError = 'No se pudo enviar la solicitud. Intenta más tarde.';
     }
@@ -446,14 +478,14 @@ export class AdmOrganizacionComponent implements OnInit, OnDestroy {
   // ── Tab 3: Danger Zone ────────────────────────────────────────────────────────
 
   openBajaFlow(): void {
-    this.bajaStep  = 'confirm-word';
-    this.bajaWord  = '';
+    this.bajaStep = 'confirm-word';
+    this.bajaWord = '';
     this.bajaError = null;
   }
 
   cancelBaja(): void {
-    this.bajaStep  = 'idle';
-    this.bajaWord  = '';
+    this.bajaStep = 'idle';
+    this.bajaWord = '';
     this.bajaError = null;
   }
 
@@ -466,36 +498,39 @@ export class AdmOrganizacionComponent implements OnInit, OnDestroy {
       this.bajaError = `Debes escribir exactamente "${this.BAJA_CONFIRMATION_WORD}" para continuar.`;
       return;
     }
-    this.bajaStep  = 'submitting';
+    this.bajaStep = 'submitting';
     this.bajaError = null;
     try {
       await firstValueFrom(
-        this.http.delete(
-          `/api/bff/organizacion/${this.orgId}`,
-          { withCredentials: true },
-        ),
+        this.http.delete(`/api/bff/organizacion/${this.orgId}`, {
+          withCredentials: true,
+        }),
       );
       this.bajaStep = 'done';
     } catch (err: any) {
-      this.bajaStep  = 'error';
-      this.bajaError = err?.error?.message ?? 'No se pudo procesar la solicitud de baja.';
+      this.bajaStep = 'error';
+      this.bajaError =
+        err?.error?.message ?? 'No se pudo procesar la solicitud de baja.';
     }
   }
 
   // ── Helpers de UI ─────────────────────────────────────────────────────────────
 
   get identidadDescLen(): number {
-    return (this.identidadForm.get('descripcion')?.value as string ?? '').length;
+    return ((this.identidadForm.get('descripcion')?.value as string) ?? '')
+      .length;
   }
 
   fieldError(form: FormGroup, field: string): string | null {
     const ctrl = form.get(field);
     if (!ctrl || !ctrl.touched || ctrl.valid) return null;
-    if (ctrl.hasError('required'))    return 'Este campo es requerido.';
-    if (ctrl.hasError('maxlength'))   return `Máximo ${ctrl.errors?.['maxlength']?.requiredLength} caracteres.`;
-    if (ctrl.hasError('pattern'))     return 'Formato inválido.';
-    if (ctrl.hasError('invalidRut'))  return 'El RUT ingresado no es válido.';
-    if (ctrl.hasError('requiredTrue'))return 'Debes aceptar este consentimiento para continuar.';
+    if (ctrl.hasError('required')) return 'Este campo es requerido.';
+    if (ctrl.hasError('maxlength'))
+      return `Máximo ${ctrl.errors?.['maxlength']?.requiredLength} caracteres.`;
+    if (ctrl.hasError('pattern')) return 'Formato inválido.';
+    if (ctrl.hasError('invalidRut')) return 'El RUT ingresado no es válido.';
+    if (ctrl.hasError('requiredTrue'))
+      return 'Debes aceptar este consentimiento para continuar.';
     return null;
   }
 }
