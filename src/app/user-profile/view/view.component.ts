@@ -1,5 +1,11 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, ValidatorFn, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormGroup,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
@@ -12,6 +18,7 @@ import {
   UserProfileService,
   UserStateService,
 } from 'shared-utils';
+import { environment } from '../../../../../seis-portal/src/environments/environment.development';
 
 const PATH_TYPES = {
   USER_AVATAR: 'user-avatar',
@@ -38,19 +45,20 @@ const passwordMatchValidator: ValidatorFn = (group: AbstractControl) => {
   return np === cp ? null : { mismatch: true };
 };
 
-const DEFAULT_AVATAR_IMAGE = 'data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 256 256%22%3E%3Cdefs%3E%3ClinearGradient id=%22g%22 x1=%220%22 y1=%220%22 x2=%221%22 y2=%221%22%3E%3Cstop offset=%220%25%22 stop-color=%22%23eaf2ff%22/%3E%3Cstop offset=%22100%25%22 stop-color=%22%23cfddf7%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width=%22256%22 height=%22256%22 fill=%22url(%23g)%22/%3E%3Ccircle cx=%22128%22 cy=%2294%22 r=%2248%22 fill=%22%23ffffff%22 fill-opacity=%220.82%22/%3E%3Crect x=%2260%22 y=%22154%22 width=%22136%22 height=%2264%22 rx=%2232%22 fill=%22%23ffffff%22 fill-opacity=%220.82%22/%3E%3C/svg%3E';
-const DEFAULT_BANNER_IMAGE = 'data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1200 400%22%3E%3Cdefs%3E%3ClinearGradient id=%22bg%22 x1=%220%22 y1=%220%22 x2=%221%22 y2=%220%22%3E%3Cstop offset=%220%25%22 stop-color=%22%23dbe8ff%22/%3E%3Cstop offset=%2250%25%22 stop-color=%22%23bfd8ff%22/%3E%3Cstop offset=%22100%25%22 stop-color=%22%23a4c4f6%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width=%221200%22 height=%22400%22 fill=%22url(%23bg)%22/%3E%3Ccircle cx=%22980%22 cy=%22-30%22 r=%22280%22 fill=%22%23ffffff%22 fill-opacity=%220.33%22/%3E%3Ccircle cx=%22180%22 cy=%22440%22 r=%22310%22 fill=%22%23ffffff%22 fill-opacity=%220.24%22/%3E%3C/svg%3E';
+const DEFAULT_AVATAR_IMAGE =
+  'data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 256 256%22%3E%3Cdefs%3E%3ClinearGradient id=%22g%22 x1=%220%22 y1=%220%22 x2=%221%22 y2=%221%22%3E%3Cstop offset=%220%25%22 stop-color=%22%23eaf2ff%22/%3E%3Cstop offset=%22100%25%22 stop-color=%22%23cfddf7%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width=%22256%22 height=%22256%22 fill=%22url(%23g)%22/%3E%3Ccircle cx=%22128%22 cy=%2294%22 r=%2248%22 fill=%22%23ffffff%22 fill-opacity=%220.82%22/%3E%3Crect x=%2260%22 y=%22154%22 width=%22136%22 height=%2264%22 rx=%2232%22 fill=%22%23ffffff%22 fill-opacity=%220.82%22/%3E%3C/svg%3E';
+const DEFAULT_BANNER_IMAGE =
+  'data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1200 400%22%3E%3Cdefs%3E%3ClinearGradient id=%22bg%22 x1=%220%22 y1=%220%22 x2=%221%22 y2=%220%22%3E%3Cstop offset=%220%25%22 stop-color=%22%23dbe8ff%22/%3E%3Cstop offset=%2250%25%22 stop-color=%22%23bfd8ff%22/%3E%3Cstop offset=%22100%25%22 stop-color=%22%23a4c4f6%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width=%221200%22 height=%22400%22 fill=%22url(%23bg)%22/%3E%3Ccircle cx=%22980%22 cy=%22-30%22 r=%22280%22 fill=%22%23ffffff%22 fill-opacity=%220.33%22/%3E%3Ccircle cx=%22180%22 cy=%22440%22 r=%22310%22 fill=%22%23ffffff%22 fill-opacity=%220.24%22/%3E%3C/svg%3E';
 
 @Component({
   selector: 'app-view',
   standalone: false,
   templateUrl: './view.component.html',
-  styleUrl: './view.component.scss'
+  styleUrl: './view.component.scss',
 })
 export class ViewComponent implements OnInit {
-
   private readonly maxFileSizeBytes = 5 * 1024 * 1024;
-  private readonly apiBase = 'http://localhost:8000';
+  private readonly apiBase = environment.getBaseUrl();
 
   readonly defaultAvatarImage = DEFAULT_AVATAR_IMAGE;
   readonly defaultBannerImage = DEFAULT_BANNER_IMAGE;
@@ -89,17 +97,41 @@ export class ViewComponent implements OnInit {
   showConfirmPw = false;
   strengthLevel: StrengthLevel = 0;
   readonly STRENGTH_CLASSES: Record<number, string> = {
-    1: 'danger', 2: 'warning', 3: 'good', 4: 'strong',
+    1: 'danger',
+    2: 'warning',
+    3: 'good',
+    4: 'strong',
   };
   readonly STRENGTH_LABELS: Record<number, string> = {
-    1: 'Muy débil', 2: 'Débil', 3: 'Buena', 4: 'Fuerte',
+    1: 'Muy débil',
+    2: 'Débil',
+    3: 'Buena',
+    4: 'Fuerte',
   };
   passwordForm!: FormGroup;
 
   defaultAsset = {
-    sm: { format: 'png', headers: '', height: 50, width: 50, path: DEFAULT_AVATAR_IMAGE },
-    md: { format: 'png', headers: '', height: 100, width: 100, path: DEFAULT_AVATAR_IMAGE },
-    lg: { format: 'png', headers: '', height: 200, width: 200, path: DEFAULT_AVATAR_IMAGE },
+    sm: {
+      format: 'png',
+      headers: '',
+      height: 50,
+      width: 50,
+      path: DEFAULT_AVATAR_IMAGE,
+    },
+    md: {
+      format: 'png',
+      headers: '',
+      height: 100,
+      width: 100,
+      path: DEFAULT_AVATAR_IMAGE,
+    },
+    lg: {
+      format: 'png',
+      headers: '',
+      height: 200,
+      width: 200,
+      path: DEFAULT_AVATAR_IMAGE,
+    },
   };
 
   userProfile: UserProfile = {
@@ -118,19 +150,53 @@ export class ViewComponent implements OnInit {
       ubicacion: 'Ubicación',
       documento: { tipo: '', numero: '' },
     },
-    rrss: [
-      { tipo: 'LinkedIn', enlace: 'https://www.linkedin.com/in/usuario' },
-    ],
+    rrss: [{ tipo: 'LinkedIn', enlace: 'https://www.linkedin.com/in/usuario' }],
     assets: {
       avatar: {
-        sm: { format: 'png', headers: '', height: 50, width: 50, path: DEFAULT_AVATAR_IMAGE },
-        md: { format: 'png', headers: '', height: 100, width: 100, path: DEFAULT_AVATAR_IMAGE },
-        lg: { format: 'png', headers: '', height: 200, width: 200, path: DEFAULT_AVATAR_IMAGE },
+        sm: {
+          format: 'png',
+          headers: '',
+          height: 50,
+          width: 50,
+          path: DEFAULT_AVATAR_IMAGE,
+        },
+        md: {
+          format: 'png',
+          headers: '',
+          height: 100,
+          width: 100,
+          path: DEFAULT_AVATAR_IMAGE,
+        },
+        lg: {
+          format: 'png',
+          headers: '',
+          height: 200,
+          width: 200,
+          path: DEFAULT_AVATAR_IMAGE,
+        },
       },
       banner: {
-        sm: { format: 'png', headers: '', height: 100, width: 300, path: DEFAULT_BANNER_IMAGE },
-        md: { format: 'png', headers: '', height: 200, width: 600, path: DEFAULT_BANNER_IMAGE },
-        lg: { format: 'png', headers: '', height: 400, width: 1200, path: DEFAULT_BANNER_IMAGE },
+        sm: {
+          format: 'png',
+          headers: '',
+          height: 100,
+          width: 300,
+          path: DEFAULT_BANNER_IMAGE,
+        },
+        md: {
+          format: 'png',
+          headers: '',
+          height: 200,
+          width: 600,
+          path: DEFAULT_BANNER_IMAGE,
+        },
+        lg: {
+          format: 'png',
+          headers: '',
+          height: 400,
+          width: 1200,
+          path: DEFAULT_BANNER_IMAGE,
+        },
       },
     },
     cargo: 'Cargo en la Empresa',
@@ -171,17 +237,20 @@ export class ViewComponent implements OnInit {
     this.passwordForm = this.fb.group(
       {
         currentPassword: ['', Validators.required],
-        newPassword: ['', [
-          Validators.required,
-          Validators.minLength(8),
-          Validators.pattern(/^(?=.*[A-Z])(?=.*\d).+$/),
-        ]],
+        newPassword: [
+          '',
+          [
+            Validators.required,
+            Validators.minLength(8),
+            Validators.pattern(/^(?=.*[A-Z])(?=.*\d).+$/),
+          ],
+        ],
         confirmPassword: ['', Validators.required],
       },
       { validators: passwordMatchValidator },
     );
 
-    this.passwordForm.get('newPassword')!.valueChanges.subscribe(val => {
+    this.passwordForm.get('newPassword')!.valueChanges.subscribe((val) => {
       this.strengthLevel = calcStrength(val ?? '');
     });
   }
@@ -202,7 +271,8 @@ export class ViewComponent implements OnInit {
   private loadOwnProfile(): void {
     this.userStateService.patch({ status: 'LOADING' });
 
-    this.userProfileService.getUserProfile()
+    this.userProfileService
+      .getUserProfile()
       .then((profile: UserProfile) => {
         this.applyProfile(profile);
         this.userStateService.patch({
@@ -214,7 +284,8 @@ export class ViewComponent implements OnInit {
       })
       .catch(() => this.userStateService.setStatus('ERROR'));
 
-    this.userProfileService.getUserImage(this.apiBase)
+    this.userProfileService
+      .getUserImage()
       .then((imageUrl: UserImageProfile) => {
         this.applyImages(imageUrl, true);
         this.userStateService.setStatus('READY');
@@ -232,10 +303,14 @@ export class ViewComponent implements OnInit {
     try {
       const [profileRes, imgRes] = await Promise.allSettled([
         firstValueFrom(
-          this.http.get<any>(`/api/bff/usuario/profile/${uuid}`, { withCredentials: true }),
+          this.http.get<any>(`/api/bff/usuario/profile/${uuid}`, {
+            withCredentials: true,
+          }),
         ),
         firstValueFrom(
-          this.http.get<any>(`/api/bff/usuario/profile/${uuid}/img`, { withCredentials: true }),
+          this.http.get<any>(`/api/bff/usuario/profile/${uuid}/img`, {
+            withCredentials: true,
+          }),
         ),
       ]);
 
@@ -245,9 +320,23 @@ export class ViewComponent implements OnInit {
         const mapped: Partial<UserProfile> = {
           username: raw.username ?? uuid,
           usuarioUUID: raw.usuarioUUID ?? uuid,
-          nombreCompleto: raw.nombreCompleto ?? [raw.nombre?.nombres, raw.nombre?.apellidoPaterno].filter(Boolean).join(' '),
-          nombre: raw.nombre ?? { nombres: '', apellidoPaterno: '', apellidoMaterno: '' },
-          datosContacto: raw.datosContacto ?? { tipoContacto: '', correo: '', telefono: '', ubicacion: '', documento: { tipo: '', numero: '' } },
+          nombreCompleto:
+            raw.nombreCompleto ??
+            [raw.nombre?.nombres, raw.nombre?.apellidoPaterno]
+              .filter(Boolean)
+              .join(' '),
+          nombre: raw.nombre ?? {
+            nombres: '',
+            apellidoPaterno: '',
+            apellidoMaterno: '',
+          },
+          datosContacto: raw.datosContacto ?? {
+            tipoContacto: '',
+            correo: '',
+            telefono: '',
+            ubicacion: '',
+            documento: { tipo: '', numero: '' },
+          },
           rrss: raw.rrss ?? [],
           cargo: raw.cargo ?? '',
           telefono: raw.telefono ?? '',
@@ -301,7 +390,11 @@ export class ViewComponent implements OnInit {
     }
 
     if (imageUrl.banner?.sm) {
-      this.setBannerImage(imageUrl.banner.lg?.path || imageUrl.banner.md?.path || imageUrl.banner.sm.path);
+      this.setBannerImage(
+        imageUrl.banner.lg?.path ||
+          imageUrl.banner.md?.path ||
+          imageUrl.banner.sm.path,
+      );
       if (updateState) {
         this.userStateService.setBanner({
           small: imageUrl.banner.sm.path,
@@ -315,8 +408,10 @@ export class ViewComponent implements OnInit {
   // ── CA-02 · Logout ────────────────────────────────────────────────────────
   async logout(): Promise<void> {
     try {
-      await firstValueFrom(this.http.get('/api/auth/security/logout'));
-    } catch { /* silent */ }
+      await firstValueFrom(this.http.get(environment.getEndpoint('api/auth/security/logout'), { withCredentials: true }));
+    } catch {
+      /* silent */
+    }
     this.session.clearSession();
     globalThis.location.href = this.loginAppUrl;
   }
@@ -350,15 +445,23 @@ export class ViewComponent implements OnInit {
       formValue.nombres,
       formValue.apellidoPaterno,
       formValue.apellidoMaterno,
-    ].filter(Boolean).join(' ');
+    ]
+      .filter(Boolean)
+      .join(' ');
 
-    this.userProfileService.updateUserProfile(this.apiBase, this.userProfile)
+    this.userProfileService
+      .updateUserProfile(this.userProfile)
       .then(() => {
         // EB-01: sync SessionService so navbar/sidebar update reactively
         const currentUser = this.session.user();
         if (currentUser) {
           this.session.setSession(
-            { ...currentUser, nombre: formValue.nombres, apellido: formValue.apellidoPaterno, correo: formValue.correo },
+            {
+              ...currentUser,
+              nombre: formValue.nombres,
+              apellido: formValue.apellidoPaterno,
+              correo: formValue.correo,
+            },
             this.session.activeOrg(),
           );
         }
@@ -368,7 +471,9 @@ export class ViewComponent implements OnInit {
           email: this.userProfile.datosContacto?.correo ?? '',
         });
       })
-      .catch(() => { /* toast in future */ });
+      .catch(() => {
+        /* toast in future */
+      });
 
     this.showEditGeneralInfoForm = false;
   }
@@ -414,8 +519,11 @@ export class ViewComponent implements OnInit {
   }
 
   private persistRrss(): void {
-    this.userProfileService.updateUserProfile(this.apiBase, this.userProfile)
-      .catch(() => { /* toast in future */ });
+    this.userProfileService
+      .updateUserProfile(this.userProfile)
+      .catch(() => {
+        /* toast in future */
+      });
   }
 
   // ── CA-09 · Cambio de contraseña ──────────────────────────────────────────
@@ -443,7 +551,10 @@ export class ViewComponent implements OnInit {
     const { currentPassword, newPassword } = this.passwordForm.value;
     try {
       await firstValueFrom(
-        this.http.post('/api/auth/security/password-reset/change', { currentPassword, newPassword }),
+        this.http.post('/api/auth/security/password-reset/change', {
+          currentPassword,
+          newPassword,
+        }),
       );
       this.passwordSuccessMsg = 'Contraseña actualizada correctamente.';
       this.passwordForm.reset();
@@ -451,9 +562,10 @@ export class ViewComponent implements OnInit {
       setTimeout(() => this.cancelPasswordChange(), 2500);
     } catch (err: unknown) {
       const httpErr = err as { status?: number };
-      this.passwordErrorMsg = httpErr?.status === 401 || httpErr?.status === 403
-        ? 'Contraseña actual incorrecta.'
-        : 'No se pudo actualizar la contraseña. Intenta nuevamente.';
+      this.passwordErrorMsg =
+        httpErr?.status === 401 || httpErr?.status === 403
+          ? 'Contraseña actual incorrecta.'
+          : 'No se pudo actualizar la contraseña. Intenta nuevamente.';
     } finally {
       this.passwordSaving = false;
     }
@@ -467,13 +579,26 @@ export class ViewComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
-    if (!ALLOWED_IMAGE_TYPES.has(file.type)) { input.value = ''; return; }
-    if (file.size > this.maxFileSizeBytes) { input.value = ''; return; }
+    if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+      input.value = '';
+      return;
+    }
+    if (file.size > this.maxFileSizeBytes) {
+      input.value = '';
+      return;
+    }
 
     this.previewBanner(file);
     try {
-      await this.objectUploadService.uploadFileUsingPresignedUrl(this.apiBase, PATH_TYPES.USER_BANNER, file, this.userProfile.username);
-    } catch { /* toast in future */ } finally {
+      await this.objectUploadService.uploadFileUsingPresignedUrl(
+        this.apiBase,
+        PATH_TYPES.USER_BANNER,
+        file,
+        this.userProfile.username,
+      );
+    } catch {
+      /* toast in future */
+    } finally {
       input.value = '';
     }
   }
@@ -482,13 +607,26 @@ export class ViewComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
-    if (!ALLOWED_IMAGE_TYPES.has(file.type)) { input.value = ''; return; }
-    if (file.size > this.maxFileSizeBytes) { input.value = ''; return; }
+    if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+      input.value = '';
+      return;
+    }
+    if (file.size > this.maxFileSizeBytes) {
+      input.value = '';
+      return;
+    }
 
     this.previewAvatar(file);
     try {
-      await this.objectUploadService.uploadFileUsingPresignedUrl(this.apiBase, PATH_TYPES.USER_AVATAR, file, this.userProfile.username);
-    } catch { /* toast in future */ } finally {
+      await this.objectUploadService.uploadFileUsingPresignedUrl(
+        this.apiBase,
+        PATH_TYPES.USER_AVATAR,
+        file,
+        this.userProfile.username,
+      );
+    } catch {
+      /* toast in future */
+    } finally {
       input.value = '';
     }
   }
@@ -496,13 +634,19 @@ export class ViewComponent implements OnInit {
   private previewAvatar(file: File): void {
     const reader = new FileReader();
     reader.onload = () => {
-      const imageDataUrl = typeof reader.result === 'string' ? reader.result : '';
+      const imageDataUrl =
+        typeof reader.result === 'string' ? reader.result : '';
       if (!imageDataUrl) return;
-      if (!this.userProfile.assets.avatar.sm) this.userProfile.assets.avatar = this.defaultAsset;
+      if (!this.userProfile.assets.avatar.sm)
+        this.userProfile.assets.avatar = this.defaultAsset;
       this.userProfile.assets.avatar.sm.path = imageDataUrl;
       this.userProfile.assets.avatar.md.path = imageDataUrl;
       this.setAvatarImage(imageDataUrl);
-      this.userStateService.setAvatar({ small: imageDataUrl, medium: imageDataUrl, large: imageDataUrl });
+      this.userStateService.setAvatar({
+        small: imageDataUrl,
+        medium: imageDataUrl,
+        large: imageDataUrl,
+      });
     };
     reader.readAsDataURL(file);
   }
@@ -510,14 +654,19 @@ export class ViewComponent implements OnInit {
   private previewBanner(file: File) {
     const reader = new FileReader();
     reader.onload = () => {
-      const imageDataUrl = typeof reader.result === 'string' ? reader.result : '';
+      const imageDataUrl =
+        typeof reader.result === 'string' ? reader.result : '';
       if (!imageDataUrl) {
         return;
       }
 
       this.userProfile.assets.banner.lg.path = imageDataUrl;
       this.setBannerImage(imageDataUrl);
-      this.userStateService.setBanner({ small: imageDataUrl, medium: imageDataUrl, large: imageDataUrl });
+      this.userStateService.setBanner({
+        small: imageDataUrl,
+        medium: imageDataUrl,
+        large: imageDataUrl,
+      });
     };
     reader.readAsDataURL(file);
   }
@@ -569,5 +718,4 @@ export class ViewComponent implements OnInit {
       ubicacion: this.userProfile.ubicacion,
     });
   }
-
 }
