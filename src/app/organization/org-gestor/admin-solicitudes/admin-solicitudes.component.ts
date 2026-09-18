@@ -150,13 +150,14 @@ export class AdminSolicitudesComponent implements OnInit {
     }
   }
 
-  estadoClass(s: SolicitudAcceso): string {
-    if (s.estaExpirada) return 'badge badge--expired';
+  /** Migrado a app-badge (Fase 2 del refactor de design system). */
+  estadoVariant(s: SolicitudAcceso): 'success' | 'warning' | 'error' | 'neutral' {
+    if (s.estaExpirada) return 'neutral';
     switch (s.estado) {
-      case 'PENDIENTE':  return 'badge badge--pending';
-      case 'APROBADA':   return 'badge badge--approved';
-      case 'RECHAZADA':  return 'badge badge--rejected';
-      default:           return 'badge badge--default';
+      case 'PENDIENTE':  return 'warning';
+      case 'APROBADA':   return 'success';
+      case 'RECHAZADA':  return 'error';
+      default:           return 'neutral';
     }
   }
 

@@ -238,11 +238,7 @@
       <label class="field-label">Referencia</label>
       <textarea class="field-input field-textarea" formControlName="referencia" rows="2" placeholder="Opcional"></textarea>
     </div>
-    <label class="checkbox-row">
-      <input type="checkbox" formControlName="esPrincipal" class="checkbox-input">
-      <span class="checkbox-box"></span>
-      <span class="checkbox-label">Marcar como direccion principal</span>
-    </label>
+    <app-checkbox formControlName="esPrincipal">Marcar como direccion principal</app-checkbox>
     <p class="info-hint"><mat-icon>info_outline</mat-icon>Podras agregar mas direcciones desde el perfil de tu organizacion.</p>
     <p class="save-error" *ngIf="saveError" role="alert">{{ saveError }}</p>
     <div class="step-actions">
@@ -305,13 +301,7 @@
   <form *ngIf="currentStep === 2 && esFinancieraBroker" [formGroup]="step3Cobertura" class="step-form">
     <h2 class="step-title"><span class="step-num">3</span>Cobertura geografica</h2>
     <p class="step-subtitle">Indica las regiones donde opera tu organizacion.</p>
-    <div class="toggle-row">
-      <label class="toggle-switch">
-        <input type="checkbox" formControlName="operaOtrasRegiones" class="toggle-input">
-        <span class="toggle-track"><span class="toggle-thumb"></span></span>
-      </label>
-      <span class="toggle-label">Opera en otras regiones sin oficina fisica?</span>
-    </div>
+    <app-slide-toggle formControlName="operaOtrasRegiones">Opera en otras regiones sin oficina fisica?</app-slide-toggle>
     <div *ngIf="step3Cobertura.get('operaOtrasRegiones')?.value" class="zonas-container">
       <div *ngFor="let zona of zonasCobertura.controls; let i = index" [formGroup]="$any(zona)" class="zona-row">
         <div class="field-group field-grow">
@@ -328,10 +318,7 @@
             <span *ngIf="loadingRegionesCobertura" class="spinner sm field-spinner"></span>
           </div>
         </div>
-        <label class="checkbox-row zona-check">
-          <input type="checkbox" formControlName="esPrincipal" class="checkbox-input">
-          <span class="checkbox-box"></span><span class="checkbox-label">Principal</span>
-        </label>
+        <app-checkbox class="zona-check" formControlName="esPrincipal">Principal</app-checkbox>
         <button type="button" class="btn btn--icon btn--danger" (click)="removeZonaCobertura(i)" aria-label="Eliminar zona">
           <mat-icon>delete_outline</mat-icon>
         </button>
@@ -385,13 +372,7 @@
       </div>
     </div>
     <p class="section-label">Firma de contratos</p>
-    <div class="toggle-row">
-      <label class="toggle-switch">
-        <input type="checkbox" formControlName="firmaDigital" class="toggle-input">
-        <span class="toggle-track"><span class="toggle-thumb"></span></span>
-      </label>
-      <span class="toggle-label">Firma contratos digitalmente?</span>
-    </div>
+    <app-slide-toggle formControlName="firmaDigital">Firma contratos digitalmente?</app-slide-toggle>
     <div *ngIf="step4Perfil.get('firmaDigital')?.value" class="field-group full-width">
       <label class="field-label">Plataforma de firma</label>
       <select class="field-select" formControlName="plataformaFirma" [class.has-error]="step4Perfil.get('plataformaFirma')?.invalid && step4Perfil.get('plataformaFirma')?.touched">
@@ -403,10 +384,10 @@
     <p class="section-label">Productos que maneja</p>
     <div class="productos-grid">
       <span *ngIf="loadingProductos" class="spinner md"></span>
-      <label *ngFor="let prod of productosFinancieros" class="checkbox-row">
-        <input type="checkbox" class="checkbox-input" [checked]="isProductoSelected(prod.id)" (change)="toggleProducto(prod.id)">
-        <span class="checkbox-box"></span><span class="checkbox-label">{{ prod.nombre }}</span>
-      </label>
+      <app-checkbox *ngFor="let prod of productosFinancieros"
+        [checked]="isProductoSelected(prod.id)" (checkedChange)="toggleProducto(prod.id)">
+        {{ prod.nombre }}
+      </app-checkbox>
     </div>
     <p class="save-error" *ngIf="saveError" role="alert">{{ saveError }}</p>
     <div class="step-actions">
@@ -463,16 +444,16 @@
     <p class="step-subtitle">Elige como quieres recibir alertas de la plataforma.</p>
     <p class="section-label">Canales</p>
     <div class="notif-list">
-      <div class="notif-row"><span>Email</span><label class="toggle-switch"><input type="checkbox" formControlName="notifEmail" class="toggle-input"><span class="toggle-track"><span class="toggle-thumb"></span></span></label></div>
-      <div class="notif-row"><span>WhatsApp</span><label class="toggle-switch"><input type="checkbox" formControlName="notifWhatsapp" class="toggle-input"><span class="toggle-track"><span class="toggle-thumb"></span></span></label></div>
-      <div class="notif-row"><span>Notificaciones in-app</span><label class="toggle-switch"><input type="checkbox" formControlName="notifInApp" class="toggle-input"><span class="toggle-track"><span class="toggle-thumb"></span></span></label></div>
+      <div class="notif-row"><span>Email</span><app-slide-toggle formControlName="notifEmail" /></div>
+      <div class="notif-row"><span>WhatsApp</span><app-slide-toggle formControlName="notifWhatsapp" /></div>
+      <div class="notif-row"><span>Notificaciones in-app</span><app-slide-toggle formControlName="notifInApp" /></div>
     </div>
     <p class="section-label">Eventos</p>
     <div class="notif-list">
-      <div class="notif-row"><span>Nuevas ofertas en el marketplace</span><label class="toggle-switch"><input type="checkbox" formControlName="notifNuevasOfertas" class="toggle-input"><span class="toggle-track"><span class="toggle-thumb"></span></span></label></div>
-      <div class="notif-row"><span>Cambio de estado de facturas</span><label class="toggle-switch"><input type="checkbox" formControlName="notifEstadoFacturas" class="toggle-input"><span class="toggle-track"><span class="toggle-thumb"></span></span></label></div>
-      <div class="notif-row"><span>Alertas de liquidacion y pago</span><label class="toggle-switch"><input type="checkbox" formControlName="notifLiquidacion" class="toggle-input"><span class="toggle-track"><span class="toggle-thumb"></span></span></label></div>
-      <div class="notif-row"><span>Vencimiento de documentos</span><label class="toggle-switch"><input type="checkbox" formControlName="notifVencimientos" class="toggle-input"><span class="toggle-track"><span class="toggle-thumb"></span></span></label></div>
+      <div class="notif-row"><span>Nuevas ofertas en el marketplace</span><app-slide-toggle formControlName="notifNuevasOfertas" /></div>
+      <div class="notif-row"><span>Cambio de estado de facturas</span><app-slide-toggle formControlName="notifEstadoFacturas" /></div>
+      <div class="notif-row"><span>Alertas de liquidacion y pago</span><app-slide-toggle formControlName="notifLiquidacion" /></div>
+      <div class="notif-row"><span>Vencimiento de documentos</span><app-slide-toggle formControlName="notifVencimientos" /></div>
     </div>
     <p class="save-error" *ngIf="saveError" role="alert">{{ saveError }}</p>
     <div class="step-actions">

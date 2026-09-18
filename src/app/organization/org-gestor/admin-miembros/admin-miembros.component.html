@@ -36,7 +36,7 @@
         <p class="miembro-name">{{ m.nombre }} {{ m.apellido }}</p>
         <p class="miembro-email">{{ m.email }}</p>
       </div>
-      <span [class]="rolClass(m.rolCodigo)">{{ m.rolNombre }}</span>
+      <app-badge [variant]="rolBadgeVariant(m.rolCodigo)" [color]="rolBadgeColor(m.rolCodigo)">{{ m.rolNombre }}</app-badge>
       <div class="miembro-actions">
         <button mat-icon-button [matMenuTriggerFor]="menuMiembro" aria-label="Opciones">
           <mat-icon>more_vert</mat-icon>

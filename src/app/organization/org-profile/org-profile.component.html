@@ -123,7 +123,7 @@
           [class.description-read--admin]="isAdmin">
           <mat-icon class="desc-quote-icon" aria-hidden="true">format_quote</mat-icon>
           <p>{{ org.descripcion }}</p>
-          <button *ngIf="isAdmin" mat-icon-button class="edit-btn" matTooltip="Editar descripción"
+          <button *ngIf="isAdmin" mat-icon-button class="edit-btn" appTooltip="Editar descripción"
             aria-label="Editar descripción" (click)="openEditDescription()">
             <mat-icon>edit</mat-icon>
           </button>
@@ -181,7 +181,7 @@
                 <span class="data-label">Dirección</span>
                 <div *ngIf="editingContactField !== 'direccion'" class="data-value-row">
                   <span class="data-value">{{ formatAddress(org.direccionTributaria) }}</span>
-                  <button *ngIf="isAdmin" mat-icon-button class="field-edit-btn" matTooltip="Editar dirección"
+                  <button *ngIf="isAdmin" mat-icon-button class="field-edit-btn" appTooltip="Editar dirección"
                     aria-label="Editar dirección" (click)="openEditContact('direccion')">
                     <mat-icon>edit</mat-icon>
                   </button>
@@ -212,7 +212,7 @@
                   <span class="data-value" [class.data-value--placeholder]="!org.telefono">
                     {{ org.telefono || (isAdmin ? 'Agregar teléfono' : 'No registrado') }}
                   </span>
-                  <button *ngIf="isAdmin" mat-icon-button class="field-edit-btn" matTooltip="Editar teléfono"
+                  <button *ngIf="isAdmin" mat-icon-button class="field-edit-btn" appTooltip="Editar teléfono"
                     aria-label="Editar teléfono" (click)="openEditContact('telefono')">
                     <mat-icon>edit</mat-icon>
                   </button>
@@ -243,7 +243,7 @@
                   <span class="data-value" [class.data-value--placeholder]="!org.correoContacto">
                     {{ org.correoContacto || (isAdmin ? 'Agregar correo' : 'No registrado') }}
                   </span>
-                  <button *ngIf="isAdmin" mat-icon-button class="field-edit-btn" matTooltip="Editar correo"
+                  <button *ngIf="isAdmin" mat-icon-button class="field-edit-btn" appTooltip="Editar correo"
                     aria-label="Editar correo de contacto" (click)="openEditContact('correoContacto')">
                     <mat-icon>edit</mat-icon>
                   </button>
@@ -284,7 +284,7 @@
             <mat-icon>language</mat-icon>
             <h3>Ecosistema Digital</h3>
           </div>
-          <button *ngIf="isAdmin && !showAddLinkForm" mat-icon-button matTooltip="Agregar enlace"
+          <button *ngIf="isAdmin && !showAddLinkForm" mat-icon-button appTooltip="Agregar enlace"
             aria-label="Agregar enlace" (click)="openAddLink()">
             <mat-icon>add</mat-icon>
           </button>
@@ -358,7 +358,7 @@
             <mat-icon>people</mat-icon>
             <h3>Colaboradores</h3>
           </div>
-          <button *ngIf="isAdmin" mat-icon-button matTooltip="Gestionar colaboradores"
+          <button *ngIf="isAdmin" mat-icon-button appTooltip="Gestionar colaboradores"
             aria-label="Gestionar colaboradores" (click)="goToGestor()">
             <mat-icon>manage_accounts</mat-icon>
           </button>
@@ -411,7 +411,7 @@
                 </button>
                 <button *ngIf="isAdmin && group.changingLeader"
                         mat-icon-button (click)="cancelChangeLeader(group)"
-                        matTooltip="Cancelar" aria-label="Cancelar cambio de líder">
+                        appTooltip="Cancelar" aria-label="Cancelar cambio de líder">
                   <mat-icon>close</mat-icon>
                 </button>
               </div>

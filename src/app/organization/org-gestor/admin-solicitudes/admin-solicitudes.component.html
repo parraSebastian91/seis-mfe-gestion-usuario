@@ -46,9 +46,9 @@
           </p>
           <p class="solicitud-msg" *ngIf="s.mensaje">"{{ s.mensaje }}"</p>
         </div>
-        <span [class]="estadoClass(s)">
+        <app-badge [variant]="estadoVariant(s)">
           {{ s.estaExpirada ? 'Expirada' : s.estado }}
-        </span>
+        </app-badge>
       </div>
       <div class="solicitud-actions" *ngIf="s.estado === 'PENDIENTE' && !s.estaExpirada">
         <button mat-stroked-button color="warn" (click)="openResolve(s, 'RECHAZADA')">
@@ -117,7 +117,7 @@
     <!-- Generated token display -->
     <div class="token-display" *ngIf="generatedToken">
       <code class="token-code">{{ generatedToken }}</code>
-      <button mat-icon-button (click)="copyToken()" matTooltip="Copiar token">
+      <button mat-icon-button (click)="copyToken()" appTooltip="Copiar token">
         <mat-icon>content_copy</mat-icon>
       </button>
     </div>

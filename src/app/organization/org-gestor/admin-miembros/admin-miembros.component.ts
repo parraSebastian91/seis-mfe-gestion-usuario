@@ -131,7 +131,23 @@ export class AdminMiembrosComponent implements OnInit {
     }
   }
 
-  rolClass(rol: OrgAdminRol): string {
-    return `rol-chip rol-chip--${rol.toLowerCase()}`;
+  /**
+   * Migrado a app-badge (Fase 2 del refactor de design system). ADMIN/
+   * OPERADOR/COLABORADOR mapean 1:1 a los tokens de estado; AUDITOR usaba
+   * violeta (#A78BFA) sin token de estado propio — es un color de rol, no de
+   * status — así que va por el escape hatch `color` en vez de inventar un
+   * token semántico nuevo.
+   */
+  rolBadgeVariant(rol: OrgAdminRol): 'warning' | 'info' | 'brand' | 'neutral' {
+    switch (rol) {
+      case 'ADMIN':       return 'warning';
+      case 'OPERADOR':    return 'info';
+      case 'COLABORADOR': return 'brand';
+      default:            return 'neutral';
+    }
+  }
+
+  rolBadgeColor(rol: OrgAdminRol): string | null {
+    return rol === 'AUDITOR' ? '#A78BFA' : null;
   }
 }

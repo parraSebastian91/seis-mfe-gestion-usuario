@@ -2,7 +2,7 @@
 
   <!-- Loading -->
   <div class="section-loading" *ngIf="loading">
-    <mat-spinner diameter="36"></mat-spinner>
+    <app-loader [size]="36" />
   </div>
 
   <!-- Error -->
@@ -105,28 +105,26 @@
     <button mat-flat-button color="primary"
             [disabled]="adding || !selectedUuid || availableMiembros.length === 0"
             (click)="addMiembro()">
-      <mat-spinner *ngIf="adding" diameter="18" class="btn-spinner"></mat-spinner>
+      <app-loader *ngIf="adding" [size]="18" class="btn-spinner" />
       <span *ngIf="!adding">Agregar</span>
     </button>
   </div>
 </div>
 
 <!-- ── Remove confirm ────────────────────────────────────────────────────── -->
-<div class="modal-backdrop" *ngIf="removingMiembro" (click)="removingMiembro = null">
-  <div class="modal-panel" (click)="$event.stopPropagation()">
-    <h3 class="modal-title">¿Remover del grupo?</h3>
-    <p class="modal-body">
-      Se removerá a
-      <strong>{{ removingMiembro.nombre }} {{ removingMiembro.apellido }}</strong>
-      del grupo. El miembro seguirá en la organización.
-    </p>
-    <p class="modal-error" *ngIf="removeError">{{ removeError }}</p>
-    <div class="modal-actions">
-      <button mat-button [disabled]="removing" (click)="removingMiembro = null">Cancelar</button>
-      <button mat-flat-button color="warn" [disabled]="removing" (click)="confirmRemove()">
-        <mat-spinner *ngIf="removing" diameter="18"></mat-spinner>
-        <span *ngIf="!removing">Remover</span>
-      </button>
-    </div>
+<app-modal [open]="!!removingMiembro" (closed)="removingMiembro = null">
+  <div modal-title>¿Remover del grupo?</div>
+  <p *ngIf="removingMiembro">
+    Se removerá a
+    <strong>{{ removingMiembro.nombre }} {{ removingMiembro.apellido }}</strong>
+    del grupo. El miembro seguirá en la organización.
+  </p>
+  <p class="modal-error" *ngIf="removeError">{{ removeError }}</p>
+  <div modal-actions>
+    <button mat-button [disabled]="removing" (click)="removingMiembro = null">Cancelar</button>
+    <button mat-flat-button color="warn" [disabled]="removing" (click)="confirmRemove()">
+      <app-loader *ngIf="removing" [size]="18" />
+      <span *ngIf="!removing">Remover</span>
+    </button>
   </div>
-</div>
+</app-modal>

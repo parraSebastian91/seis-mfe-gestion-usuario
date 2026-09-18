@@ -26,11 +26,11 @@ $warning: var(--color-warning, #F59E0B);
 $danger:  var(--color-error,   #EF4444);
 $info:    var(--color-info,    #3B82F6);
 
-// ── Escala ────────────────────────────────────────────────────────────────────
-$radius-lg: 12px;
-$radius-md: 8px;
-$shadow-sm: 0 1px 4px rgba(0,0,0,.25);
-$shadow-md: 0 4px 20px rgba(0,0,0,.40);
+// ── Escala (CA-10/11/12, promovida a shared-utils/_tokens.scss) ───────────────
+$radius-lg: var(--radius-md, 12px); // nombres no calzan 1:1 con la escala global
+$radius-md: var(--radius-sm, 8px);  // a propósito: se mantienen para no romper
+$shadow-sm: var(--shadow-sm, 0 1px 4px rgba(0,0,0,.25));
+$shadow-md: var(--shadow-md, 0 4px 20px rgba(0,0,0,.40));
 
 // =============================================================================
 // Layout helpers — admin section
