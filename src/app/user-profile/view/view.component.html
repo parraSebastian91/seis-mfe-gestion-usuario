@@ -87,31 +87,39 @@
           </button>
         </div>
         <div card-content>
-          <mat-list>
-            <mat-list-item *ngIf="isOwnProfile">
-              <mat-icon matListItemIcon>email</mat-icon>
-              <div matListItemTitle>Email</div>
-              <div matListItemLine>{{ userProfile.datosContacto.correo }}</div>
-            </mat-list-item>
-            <mat-divider *ngIf="isOwnProfile"></mat-divider>
-            <mat-list-item *ngIf="isOwnProfile">
-              <mat-icon matListItemIcon>place</mat-icon>
-              <div matListItemTitle>Ubicación</div>
-              <div matListItemLine>{{ userProfile.ubicacion }}</div>
-            </mat-list-item>
-            <mat-divider *ngIf="isOwnProfile"></mat-divider>
-            <mat-list-item *ngIf="isOwnProfile">
-              <mat-icon matListItemIcon>call</mat-icon>
-              <div matListItemTitle>Teléfono</div>
-              <div matListItemLine>{{ userProfile.telefono }}</div>
-            </mat-list-item>
-            <mat-divider></mat-divider>
-            <mat-list-item>
-              <mat-icon matListItemIcon>work</mat-icon>
-              <div matListItemTitle>Cargo</div>
-              <div matListItemLine>{{ userProfile.cargo }}</div>
-            </mat-list-item>
-          </mat-list>
+          <ul class="info-list">
+            <li class="info-row" *ngIf="isOwnProfile">
+              <app-icon name="email" />
+              <div>
+                <div class="info-row-title">Email</div>
+                <div class="info-row-value">{{ userProfile.datosContacto.correo }}</div>
+              </div>
+            </li>
+            <hr class="info-divider" *ngIf="isOwnProfile" />
+            <li class="info-row" *ngIf="isOwnProfile">
+              <app-icon name="place" />
+              <div>
+                <div class="info-row-title">Ubicación</div>
+                <div class="info-row-value">{{ userProfile.ubicacion }}</div>
+              </div>
+            </li>
+            <hr class="info-divider" *ngIf="isOwnProfile" />
+            <li class="info-row" *ngIf="isOwnProfile">
+              <app-icon name="call" />
+              <div>
+                <div class="info-row-title">Teléfono</div>
+                <div class="info-row-value">{{ userProfile.telefono }}</div>
+              </div>
+            </li>
+            <hr class="info-divider" />
+            <li class="info-row">
+              <app-icon name="work" />
+              <div>
+                <div class="info-row-title">Cargo</div>
+                <div class="info-row-value">{{ userProfile.cargo }}</div>
+              </div>
+            </li>
+          </ul>
         </div>
       </app-card>
 
@@ -170,7 +178,7 @@
         </div>
         <div card-content>
           <div class="empty-state">
-            <mat-icon>history_edu</mat-icon>
+            <app-icon name="history_edu" size="48" />
             <p>No hay publicaciones recientes en el ecosistema.</p>
           </div>
         </div>
