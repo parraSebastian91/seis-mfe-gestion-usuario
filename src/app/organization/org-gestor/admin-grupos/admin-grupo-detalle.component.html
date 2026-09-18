@@ -7,35 +7,35 @@
 
   <!-- Error -->
   <div class="section-error" *ngIf="!loading && error">
-    <mat-icon>error_outline</mat-icon>
+    <app-icon name="error_outline" />
     <span>{{ error }}</span>
-    <button mat-button (click)="goBack()">Volver</button>
+    <button app-button variant="light" (click)="goBack()">Volver</button>
   </div>
 
   <ng-container *ngIf="!loading && !error && grupo">
 
     <header class="section-header">
-      <button mat-icon-button (click)="goBack()">
-        <mat-icon>arrow_back</mat-icon>
+      <button app-icon-button size="md" (click)="goBack()">
+        <app-icon name="arrow_back" />
       </button>
       <h2 class="section-title">{{ grupo.nombre }}</h2>
       <span class="section-count">{{ grupo.miembros.length }} miembros</span>
       <div class="section-header-actions">
-        <button mat-flat-button color="primary" (click)="showAddPanel = true">
-          <mat-icon>person_add</mat-icon> Agregar
+        <button app-button variant="primary" (click)="showAddPanel = true">
+          <app-icon name="person_add" size="18" /> Agregar
         </button>
       </div>
     </header>
 
     <p class="grupo-desc" *ngIf="grupo.descripcion">{{ grupo.descripcion }}</p>
     <p class="grupo-lider-label">
-      <mat-icon>star</mat-icon>
+      <app-icon name="star" size="16" />
       Líder: <strong>{{ grupo.liderNombre }} {{ grupo.liderApellido }}</strong>
     </p>
 
     <!-- Empty group -->
     <div class="section-empty" *ngIf="grupo.miembros.length === 0">
-      <mat-icon>group_off</mat-icon>
+      <app-icon name="group_off" size="48" />
       <p>Este grupo no tiene miembros. Agrega el primero.</p>
     </div>
 
@@ -56,12 +56,13 @@
           <p class="miembro-cargo" *ngIf="m.cargoEnGrupo">{{ m.cargoEnGrupo }}</p>
         </div>
         <button
-          mat-icon-button
+          app-icon-button
+          size="sm"
           *ngIf="!isLider(m)"
           (click)="openRemove(m)"
           aria-label="Remover del grupo"
           class="remove-btn">
-          <mat-icon>person_remove</mat-icon>
+          <app-icon name="person_remove" />
         </button>
       </li>
     </ul>
@@ -72,7 +73,7 @@
 <!-- ── Add member panel (inline, no modal) ──────────────────────────────── -->
 <div class="add-panel" *ngIf="showAddPanel">
   <h3 class="add-panel__title">
-    <mat-icon>person_add</mat-icon>
+    <app-icon name="person_add" />
     Agregar miembro al grupo
   </h3>
 
@@ -90,19 +91,18 @@
       (selectionChange)="onMiembroSelected($event)">
     </app-searchable-card-select>
 
-    <mat-form-field appearance="outline" class="full-width cargo-field">
-      <mat-label>Cargo en el grupo (opcional)</mat-label>
-      <input matInput [(ngModel)]="cargo" placeholder="Ej: Ejecutivo contable" />
-    </mat-form-field>
+    <app-form-field label="Cargo en el grupo (opcional)" class="full-width cargo-field">
+      <app-input [(ngModel)]="cargo" placeholder="Ej: Ejecutivo contable" />
+    </app-form-field>
   </ng-container>
 
   <p class="add-panel__error" *ngIf="addError" role="alert">{{ addError }}</p>
 
   <div class="add-panel__actions">
-    <button mat-button [disabled]="adding" (click)="showAddPanel = false; selectedUuid = ''; cargo = ''">
+    <button app-button variant="light" [disabled]="adding" (click)="showAddPanel = false; selectedUuid = ''; cargo = ''">
       Cancelar
     </button>
-    <button mat-flat-button color="primary"
+    <button app-button variant="primary"
             [disabled]="adding || !selectedUuid || availableMiembros.length === 0"
             (click)="addMiembro()">
       <app-loader *ngIf="adding" [size]="18" class="btn-spinner" />
@@ -121,8 +121,8 @@
   </p>
   <p class="modal-error" *ngIf="removeError">{{ removeError }}</p>
   <div modal-actions>
-    <button mat-button [disabled]="removing" (click)="removingMiembro = null">Cancelar</button>
-    <button mat-flat-button color="warn" [disabled]="removing" (click)="confirmRemove()">
+    <button app-button variant="light" [disabled]="removing" (click)="removingMiembro = null">Cancelar</button>
+    <button app-button variant="danger" [disabled]="removing" (click)="confirmRemove()">
       <app-loader *ngIf="removing" [size]="18" />
       <span *ngIf="!removing">Remover</span>
     </button>

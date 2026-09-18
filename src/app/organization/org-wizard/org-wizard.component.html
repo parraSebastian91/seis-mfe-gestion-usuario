@@ -14,7 +14,7 @@
            [class.is-done]="currentStep > i"
            [attr.aria-current]="currentStep === i ? 'step' : null">
         <span class="wiz-step__bubble">
-          <mat-icon *ngIf="currentStep > i" class="wiz-step__check">check</mat-icon>
+          <app-icon *ngIf="currentStep > i" class="wiz-step__check" name="check" size="16" />
           <span *ngIf="currentStep <= i">{{ i + 1 }}</span>
         </span>
         <span class="wiz-step__label">{{ label }}</span>
@@ -52,10 +52,10 @@
         <input class="field-input" formControlName="rut" placeholder="12.345.678-9" maxlength="12" autocomplete="off" (blur)="onRutBlur()" [class.has-error]="step1.get('rut')?.invalid && step1.get('rut')?.touched">
         <span class="field-suffix">
           <span *ngIf="siiStatus === 'loading'" class="spinner sm"></span>
-          <mat-icon *ngIf="siiStatus === 'success'" class="sii-icon sii-success">check_circle</mat-icon>
-          <mat-icon *ngIf="siiStatus === 'warning'" class="sii-icon sii-warning">warning</mat-icon>
-          <mat-icon *ngIf="siiStatus === 'blocked'" class="sii-icon sii-error">cancel</mat-icon>
-          <mat-icon *ngIf="siiStatus === 'info'" class="sii-icon sii-info">info</mat-icon>
+          <app-icon *ngIf="siiStatus === 'success'" class="sii-icon sii-success" name="check_circle" size="18" />
+          <app-icon *ngIf="siiStatus === 'warning'" class="sii-icon sii-warning" name="warning" size="18" />
+          <app-icon *ngIf="siiStatus === 'blocked'" class="sii-icon sii-error" name="cancel" size="18" />
+          <app-icon *ngIf="siiStatus === 'info'" class="sii-icon sii-info" name="info" size="18" />
         </span>
       </div>
       <p class="field-error" *ngIf="step1.get('rut')?.errors?.['required'] && step1.get('rut')?.touched">El RUT es requerido.</p>
@@ -66,13 +66,13 @@
          [class.sii-result--success]="siiStatus === 'success'" [class.sii-result--warning]="siiStatus === 'warning'"
          [class.sii-result--error]="siiStatus === 'blocked'" [class.sii-result--info]="siiStatus === 'info'"
          role="status" aria-live="polite">
-      <mat-icon>{{ siiStatus === 'success' ? 'check_circle' : siiStatus === 'warning' ? 'warning' : siiStatus === 'info' ? 'info' : 'cancel' }}</mat-icon>
+      <app-icon [name]="siiStatus === 'success' ? 'check_circle' : siiStatus === 'warning' ? 'warning' : siiStatus === 'info' ? 'info' : 'cancel'" size="18" />
       <span>{{ siiMessage }}</span>
     </div>
 
     <!-- EB-01: RUT ya registrado en la plataforma -->
     <div *ngIf="rutYaRegistrado" class="rut-registrado-banner" role="alert">
-      <mat-icon>domain</mat-icon>
+      <app-icon name="domain" size="22" />
       <div class="rut-registrado-banner__text">
         <strong>Este RUT ya está registrado</strong>
         <span>La organización <em>{{ rutYaRegistrado.razonSocial }}</em> ya existe en la plataforma.</span>
@@ -88,7 +88,7 @@
     </div>
 
     <div *ngIf="siiRazonSocialHint" class="sii-razon-social-hint">
-      <mat-icon>lightbulb_outline</mat-icon>
+      <app-icon name="lightbulb_outline" size="18" />
       <span>El SII registra: <strong>{{ siiRazonSocialHint }}</strong></span>
       <button class="btn btn--ghost btn--sm" type="button" (click)="acceptSiiRazonSocial()">Aceptar</button>
     </div>
@@ -100,7 +100,7 @@
 
       <div class="giros-list" *ngIf="girosArray.length > 0">
         <div class="giros-origen-badge" *ngIf="girosOrigen">
-          <mat-icon>{{ girosOrigen === 'sii' ? 'cloud_download' : girosOrigen === 'bd' ? 'storage' : 'edit' }}</mat-icon>
+          <app-icon [name]="girosOrigen === 'sii' ? 'cloud_download' : girosOrigen === 'bd' ? 'storage' : 'edit'" />
           <span *ngIf="girosOrigen === 'sii'">Cargados desde el SII</span>
           <span *ngIf="girosOrigen === 'bd'">Cargados desde la plataforma</span>
           <span *ngIf="girosOrigen === 'manual'">Ingresados manualmente</span>
@@ -118,19 +118,19 @@
                 Cat. {{ g.value.categoriaTributaria === '1' ? '1ª Categoria' : g.value.categoriaTributaria === '2' ? '2ª Categoria' : g.value.categoriaTributaria }}
               </span>
               <span class="giro-card__fecha" *ngIf="g.value.fechaInicio">
-                <mat-icon>calendar_today</mat-icon> Desde {{ g.value.fechaInicio }}
+                <app-icon name="calendar_today" size="13" /> Desde {{ g.value.fechaInicio }}
               </span>
             </div>
           </div>
           <button *ngIf="girosOrigen === 'manual'" type="button" class="btn btn--icon btn--sm btn--danger" (click)="removeGiro(i)" aria-label="Eliminar giro">
-            <mat-icon>close</mat-icon>
+            <app-icon name="close" size="18" />
           </button>
         </div>
       </div>
 
       <div *ngIf="!showAddGiro" class="giro-add-trigger">
         <button type="button" class="btn btn--outlined btn--sm" (click)="showAddGiro = true">
-          <mat-icon>add</mat-icon> Agregar giro manualmente
+          <app-icon name="add" size="18" /> Agregar giro manualmente
         </button>
       </div>
 
@@ -239,7 +239,7 @@
       <textarea class="field-input field-textarea" formControlName="referencia" rows="2" placeholder="Opcional"></textarea>
     </div>
     <app-checkbox formControlName="esPrincipal">Marcar como direccion principal</app-checkbox>
-    <p class="info-hint"><mat-icon>info_outline</mat-icon>Podras agregar mas direcciones desde el perfil de tu organizacion.</p>
+    <p class="info-hint"><app-icon name="info_outline" size="16" />Podras agregar mas direcciones desde el perfil de tu organizacion.</p>
     <p class="save-error" *ngIf="saveError" role="alert">{{ saveError }}</p>
     <div class="step-actions">
       <button type="button" class="btn btn--ghost" (click)="goBack()">Anterior</button>
@@ -320,11 +320,11 @@
         </div>
         <app-checkbox class="zona-check" formControlName="esPrincipal">Principal</app-checkbox>
         <button type="button" class="btn btn--icon btn--danger" (click)="removeZonaCobertura(i)" aria-label="Eliminar zona">
-          <mat-icon>delete_outline</mat-icon>
+          <app-icon name="delete_outline" size="18" />
         </button>
       </div>
       <button type="button" class="btn btn--outlined btn--sm" (click)="addZonaCobertura()">
-        <mat-icon>add</mat-icon>Agregar region
+        <app-icon name="add" size="18" />Agregar region
       </button>
     </div>
     <p class="save-error" *ngIf="saveError" role="alert">{{ saveError }}</p>
@@ -409,7 +409,7 @@
     <div class="upload-zone" (click)="logoInput.click()" role="button" tabindex="0" (keydown.enter)="logoInput.click()" (keydown.space)="logoInput.click()" aria-label="Seleccionar logo">
       <img *ngIf="logoPreview" [src]="logoPreview" alt="Vista previa del logo" class="upload-preview logo-preview">
       <div *ngIf="!logoPreview" class="upload-placeholder">
-        <mat-icon>add_photo_alternate</mat-icon>
+        <app-icon name="add_photo_alternate" size="32" />
         <span>Seleccionar logo</span>
         <small>JPG, PNG o WebP - max. 5 MB</small>
       </div>
@@ -419,7 +419,7 @@
     <div class="upload-zone banner-zone" (click)="bannerInput.click()" role="button" tabindex="0" (keydown.enter)="bannerInput.click()" (keydown.space)="bannerInput.click()" aria-label="Seleccionar banner">
       <img *ngIf="bannerPreview" [src]="bannerPreview" alt="Vista previa del banner" class="upload-preview banner-preview">
       <div *ngIf="!bannerPreview" class="upload-placeholder">
-        <mat-icon>panorama</mat-icon>
+        <app-icon name="panorama" size="32" />
         <span>Seleccionar banner</span>
         <small>JPG, PNG o WebP - max. 5 MB</small>
       </div>
@@ -471,7 +471,7 @@
       <div class="modal-header">
         <span class="modal-title" id="join-modal-title">Solicitar ingreso a la organización</span>
         <button type="button" class="btn btn--icon" aria-label="Cerrar" (click)="closeJoinModal()">
-          <mat-icon>close</mat-icon>
+          <app-icon name="close" size="18" />
         </button>
       </div>
 
@@ -498,7 +498,7 @@
 
       <ng-container *ngIf="joinSuccess">
         <div class="modal-body modal-body--success">
-          <mat-icon class="modal-success-icon">check_circle</mat-icon>
+          <app-icon class="modal-success-icon" name="check_circle" size="48" />
           <p class="modal-desc">Tu solicitud fue enviada correctamente. El administrador de la organización será notificado.</p>
         </div>
         <div class="modal-footer">

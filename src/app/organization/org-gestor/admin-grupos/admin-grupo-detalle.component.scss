@@ -14,7 +14,7 @@
   color: $text-muted;
   margin: 0 0 16px;
 
-  mat-icon { font-size: 16px; color: $warning; }
+  app-icon { color: $warning; }
 }
 
 .miembros-list {
@@ -113,7 +113,7 @@
     color: $text;
     margin: 0 0 16px;
 
-    mat-icon { font-size: 20px; width: 20px; height: 20px; color: $brand; }
+    app-icon { color: $brand; }
   }
 
   &__error {

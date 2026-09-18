@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { GrupoTrabajo, OrgMiembro } from '../org-gestor.component';
-import { UserStateService } from 'shared-utils';
+import { UserStateService, MenuItem } from 'shared-utils';
 
 @Component({
   selector: 'app-admin-grupos',
@@ -192,5 +192,14 @@ export class AdminGruposComponent implements OnInit {
   miembroLabel(uuid: string): string {
     const m = this.miembrosOrg.find((x) => x.usuarioUuid === uuid);
     return m ? `${m.nombre} ${m.apellido}` : uuid;
+  }
+
+  /** Migrado a app-menu (Fase 2) — reemplaza mat-menu+matMenuTriggerFor. */
+  grupoMenuItems(g: GrupoTrabajo): MenuItem[] {
+    return [
+      { label: 'Editar', icon: 'edit', action: () => this.openEdit(g) },
+      { label: 'Ver miembros', icon: 'people', action: () => this.goToDetalle(g) },
+      { label: 'Eliminar', icon: 'delete_outline', danger: true, dividerBefore: true, action: () => this.openDelete(g) },
+    ];
   }
 }

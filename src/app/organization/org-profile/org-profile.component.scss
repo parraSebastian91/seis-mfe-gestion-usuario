@@ -19,13 +19,6 @@
   padding: 80px 16px;
   text-align: center;
   color: var(--color-text-secondary);
-
-  &--error mat-icon {
-    font-size: 48px;
-    width: 48px;
-    height: 48px;
-    color: var(--color-error);
-  }
 }
 
 // ── Container ─────────────────────────────────────────────────────────────────
@@ -115,9 +108,8 @@
     background: rgba(0, 191, 165, 0.2) !important;
   }
 
-  mat-icon {
+  app-icon {
     color: var(--color-text-primary);
-    font-size: 25px;
   }
 }
 
@@ -227,19 +219,14 @@
     background: var(--color-brand-primary) !important;
     border-color: var(--color-brand-primary) !important;
 
-    mat-icon {
+    app-icon {
       color: var(--color-brand-on-primary);
     }
   }
 
-  mat-icon {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-    line-height: 16px;
+  app-icon {
     color: var(--color-text-primary);
     transition: color var(--transition-base);
-    top: 1px;
   }
 }
 
@@ -308,11 +295,6 @@
   font-size: 0.875rem;
   color: var(--color-text-secondary);
 
-  mat-icon {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-  }
 }
 
 .org-stats {
@@ -342,10 +324,7 @@
     color: var(--color-brand-primary);
   }
 
-  mat-icon {
-    font-size: 14px;
-    width: 14px;
-    height: 14px;
+  app-icon {
     color: var(--color-brand-primary);
   }
 }
@@ -410,11 +389,8 @@
     align-items: center;
     gap: 8px;
 
-    mat-icon {
+    app-icon {
       color: var(--color-brand-primary);
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
     }
   }
 }
@@ -545,7 +521,7 @@
       .data-icon-wrap {
         background: var(--color-brand-primary);
 
-        mat-icon {
+        app-icon {
           color: var(--color-brand-on-primary);
         }
       }
@@ -571,10 +547,7 @@
   margin-top: 2px;
   transition: background var(--transition-base), border-color var(--transition-base);
 
-  mat-icon {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
+  app-icon {
     color: var(--color-brand-primary);
     transition: color var(--transition-base);
   }
@@ -630,10 +603,7 @@
     flex-shrink: 0;
     transition: opacity var(--transition-base);
 
-    mat-icon {
-      font-size: 15px;
-      width: 15px;
-      height: 15px;
+    app-icon {
       color: var(--color-text-secondary);
     }
   }
@@ -690,7 +660,7 @@
     .link-icon-wrap {
       background: var(--color-brand-primary);
 
-      mat-icon {
+      app-icon {
         color: var(--color-brand-on-primary);
       }
     }
@@ -720,10 +690,7 @@
     flex-shrink: 0;
     transition: background var(--transition-base), border-color var(--transition-base);
 
-    mat-icon {
-      font-size: 16px;
-      width: 16px;
-      height: 16px;
+    app-icon {
       color: var(--color-brand-primary);
       transition: color var(--transition-base);
     }
@@ -752,9 +719,6 @@
       line-height: 30px;
     }
 
-    mat-icon {
-      font-size: 16px;
-    }
   }
 
   &--admin:hover .link-actions {
@@ -888,10 +852,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
 
-  mat-icon {
-    font-size: 12px;
-    width: 12px;
-    height: 12px;
+  app-icon {
     flex-shrink: 0;
   }
 }
@@ -1008,10 +969,7 @@
     color: var(--org-primary);
     font-weight: 500;
 
-    mat-icon {
-      font-size: 12px;
-      width: 12px;
-      height: 12px;
+    app-icon {
       flex-shrink: 0;
     }
   }
@@ -1045,10 +1003,7 @@
   justify-content: center;
   flex-shrink: 0;
 
-  mat-icon {
-    font-size: 28px;
-    width: 28px;
-    height: 28px;
+  app-icon {
     color: var(--color-brand-primary);
   }
 }
@@ -1088,10 +1043,7 @@
   text-align: center;
   color: var(--color-text-secondary);
 
-  mat-icon {
-    font-size: 40px;
-    width: 40px;
-    height: 40px;
+  app-icon {
     opacity: 0.2;
   }
 

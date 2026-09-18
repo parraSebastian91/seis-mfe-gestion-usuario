@@ -2,14 +2,14 @@
 
   <!-- ── Loading ─────────────────────────────────────────────────────────── -->
   <div class="shell-loading" *ngIf="loading">
-    <mat-spinner diameter="44"></mat-spinner>
+    <app-loader [size]="44" />
   </div>
 
   <!-- ── Error ────────────────────────────────────────────────────────────── -->
   <div class="shell-error" *ngIf="!loading && generalError">
-    <mat-icon>error_outline</mat-icon>
+    <app-icon name="error_outline" size="40" />
     <p>{{ generalError }}</p>
-    <button mat-button (click)="goBack()">Volver</button>
+    <button app-button variant="light" (click)="goBack()">Volver</button>
   </div>
 
   <ng-container *ngIf="!loading && !generalError">
@@ -18,8 +18,8 @@
 
       <!-- ── Header ─────────────────────────────────────────────────────────── -->
       <header class="shell-header">
-        <button mat-icon-button class="back-btn" (click)="goBack()" aria-label="Volver">
-          <mat-icon>arrow_back</mat-icon>
+        <button app-icon-button size="md" class="back-btn" (click)="goBack()" aria-label="Volver">
+          <app-icon name="arrow_back" />
         </button>
         <div class="shell-header__info">
           <span class="shell-header__label">Gestión de organización</span>
@@ -37,7 +37,7 @@
             class="sidenav-item"
             [class.is-active]="isNavActive(item.path)"
             [routerLink]="item.path">
-            <mat-icon class="sidenav-item__icon">{{ item.icon }}</mat-icon>
+            <app-icon class="sidenav-item__icon" [name]="item.icon" />
             <span class="sidenav-item__label">{{ item.label }}</span>
           </a>
         </nav>
@@ -58,7 +58,7 @@
         class="bottom-nav-item"
         [class.is-active]="isNavActive(item.path)"
         [routerLink]="item.path">
-        <mat-icon>{{ item.icon }}</mat-icon>
+        <app-icon [name]="item.icon" size="22" />
         <span>{{ item.label }}</span>
       </a>
     </nav>

@@ -6,39 +6,39 @@
       <h1 class="org-list-title">Mis Organizaciones</h1>
       <p class="org-list-subtitle">Gestiona las organizaciones a las que perteneces.</p>
     </div>
-    <button mat-flat-button color="primary" (click)="goToWizard()">
-      <mat-icon>add</mat-icon>
+    <button app-button variant="primary" (click)="goToWizard()">
+      <app-icon name="add" size="18" />
       Nueva organización
     </button>
   </div>
 
   <!-- ── Loading ──────────────────────────────────────────────── -->
   <div *ngIf="loading" class="state-container" aria-live="polite" aria-busy="true">
-    <mat-spinner diameter="48"></mat-spinner>
+    <app-loader [size]="48" />
     <p>Cargando organizaciones…</p>
   </div>
 
   <!-- ── Error ────────────────────────────────────────────────── -->
   <div *ngIf="!loading && error" class="state-container error-state" role="alert">
-    <mat-icon color="warn">error_outline</mat-icon>
+    <app-icon name="error_outline" size="48" />
     <p>{{ error }}</p>
-    <button mat-stroked-button (click)="loadOrganizations()">Reintentar</button>
+    <button app-button variant="light" (click)="loadOrganizations()">Reintentar</button>
   </div>
 
   <!-- ── Empty state ──────────────────────────────────────────── -->
   <div *ngIf="!loading && !error && organizations.length === 0" class="state-container empty-state">
-    <mat-icon class="empty-icon">business</mat-icon>
+    <app-icon class="empty-icon" name="business" size="64" />
     <h2>Aún no tienes organizaciones</h2>
     <p>Crea tu primera organización para comenzar a operar en la plataforma.</p>
-    <button mat-flat-button color="primary" (click)="goToWizard()">
-      <mat-icon>add</mat-icon>
+    <button app-button variant="primary" (click)="goToWizard()">
+      <app-icon name="add" size="18" />
       Crear organización
     </button>
   </div>
 
   <!-- ── Org grid ─────────────────────────────────────────────── -->
   <div *ngIf="!loading && !error && organizations.length > 0" class="orgs-grid">
-    <mat-card
+    <app-card
       *ngFor="let org of organizations"
       class="org-card"
       role="button"
@@ -49,51 +49,51 @@
       [attr.aria-label]="org.nombre">
 
       <!-- Card header with logo -->
-      <mat-card-header>
+      <div card-title class="org-card-header">
         <img
-          mat-card-avatar
           [src]="org.logoUrl || 'assets/icons/org-placeholder.svg'"
           [alt]="org.nombre + ' logo'"
           class="org-avatar">
-        <mat-card-title>{{ org.nombre }}</mat-card-title>
-        <mat-card-subtitle>{{ org.rut }}</mat-card-subtitle>
-      </mat-card-header>
-
-      <mat-card-content>
-        <div class="chip-row">
-          <span *ngIf="org.tipo" class="tipo-chip" [class]="'tipo-chip--' + org.tipo.toLowerCase()">
-            {{ org.tipo }}
-          </span>
-          <span
-            *ngIf="org.estado === 'ONBOARDING_INCOMPLETO'"
-            class="estado-chip estado-chip--incomplete">
-            <mat-icon>pending</mat-icon>
-            Registro incompleto
-          </span>
+        <div>
+          <h3 class="org-card-title">{{ org.nombre }}</h3>
+          <p class="org-card-subtitle">{{ org.rut }}</p>
         </div>
-      </mat-card-content>
+      </div>
 
-      <mat-card-actions>
+      <div class="chip-row">
+        <span *ngIf="org.tipo" class="tipo-chip" [class]="'tipo-chip--' + org.tipo.toLowerCase()">
+          {{ org.tipo }}
+        </span>
+        <span
+          *ngIf="org.estado === 'ONBOARDING_INCOMPLETO'"
+          class="estado-chip estado-chip--incomplete">
+          <app-icon name="pending" size="14" />
+          Registro incompleto
+        </span>
+      </div>
+
+      <div card-footer>
         <button
-          mat-button
-          color="primary"
+          app-button
+          variant="light"
           *ngIf="org.estado === 'ONBOARDING_INCOMPLETO'"
           (click)="resumeWizard(); $event.stopPropagation()"
           (keydown.enter)="$event.stopPropagation()"
           (keydown.space)="$event.stopPropagation()">
-          <mat-icon>play_arrow</mat-icon>
+          <app-icon name="play_arrow" size="18" />
           Continuar registro
         </button>
         <button
-          mat-button
+          app-button
+          variant="light"
           (click)="goToOrg(org.id); $event.stopPropagation()"
           (keydown.enter)="$event.stopPropagation()"
           (keydown.space)="$event.stopPropagation()">
-          <mat-icon>arrow_forward</mat-icon>
+          <app-icon name="arrow_forward" size="18" />
           Ver perfil
         </button>
-      </mat-card-actions>
-    </mat-card>
+      </div>
+    </app-card>
   </div>
 
 </div>

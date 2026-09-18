@@ -42,12 +42,6 @@
   text-align: center;
   color: $danger;
 
-  mat-icon {
-    font-size: 40px;
-    width: 40px;
-    height: 40px;
-  }
-
   p {
     color: $text-muted;
     font-size: .9rem;
@@ -155,16 +149,10 @@
   transition: color .15s, background .15s;
   padding: 4px 0;
 
-  mat-icon {
-    font-size: 22px;
-    width: 22px;
-    height: 22px;
-  }
-
   &.is-active {
     color: $brand;
 
-    mat-icon {
+    app-icon {
       color: $brand;
     }
   }

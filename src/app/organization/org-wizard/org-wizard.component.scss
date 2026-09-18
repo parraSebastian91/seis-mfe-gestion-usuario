@@ -462,8 +462,6 @@ $input-h:       44px;
   }
 
   &--sm { height: 32px; padding: 0 14px; font-size: 0.8rem; }
-
-  mat-icon { font-size: 18px; width: 18px; height: 18px; }
 }
 
 // ── Spinner ───────────────────────────────────────────────────
@@ -561,12 +559,6 @@ $input-h:       44px;
   display: inline-flex;
   align-items: center;
   gap: 3px;
-
-  mat-icon {
-    font-size: 13px !important;
-    width: 13px !important;
-    height: 13px !important;
-  }
 }
 
 .giro-badge {
@@ -630,12 +622,12 @@ $input-h:       44px;
   font-size: 0.875rem;
   margin-bottom: 16px;
 
-  mat-icon { font-size: 18px; width: 18px; height: 18px; flex-shrink: 0; }
+  app-icon { flex-shrink: 0; }
 
-  &--success { background: rgba(46,125,50,0.18);  color: #a5d6a7; mat-icon { color: #66bb6a; } }
-  &--warning { background: rgba(230,81,0,0.18);   color: #ffcc80; mat-icon { color: #ffa726; } }
-  &--error   { background: rgba(198,40,40,0.18);  color: #ef9a9a; mat-icon { color: #ef5350; } }
-  &--info    { background: rgba(13,71,161,0.25);  color: #90caf9; mat-icon { color: #42a5f5; } }
+  &--success { background: rgba(46,125,50,0.18);  color: #a5d6a7; app-icon { color: #66bb6a; } }
+  &--warning { background: rgba(230,81,0,0.18);   color: #ffcc80; app-icon { color: #ffa726; } }
+  &--error   { background: rgba(198,40,40,0.18);  color: #ef9a9a; app-icon { color: #ef5350; } }
+  &--info    { background: rgba(13,71,161,0.25);  color: #90caf9; app-icon { color: #42a5f5; } }
 }
 
 .sii-icon {
@@ -658,7 +650,7 @@ $input-h:       44px;
   color: #90caf9;
   margin-bottom: 12px;
 
-  mat-icon { font-size: 18px; width: 18px; height: 18px; flex-shrink: 0; }
+  app-icon { flex-shrink: 0; }
   span { flex: 1; }
 }
 
@@ -670,7 +662,6 @@ $input-h:       44px;
   color: $text-muted;
   font-size: 0.85rem;
   margin: 4px 0 16px;
-  mat-icon { font-size: 16px; width: 16px; height: 16px; }
 }
 
 .save-error {
@@ -742,7 +733,7 @@ $input-h:       44px;
   text-align: center;
   padding: 12px;
 
-  mat-icon { font-size: 32px; width: 32px; height: 32px; opacity: 0.5; }
+  app-icon { opacity: 0.5; }
   span { font-size: 0.8rem; font-weight: 500; }
   small { font-size: 0.7rem; opacity: 0.8; }
 }
@@ -808,10 +799,7 @@ $input-h:       44px;
   border: 1px solid rgba(255, 167, 38, 0.35);
   margin-bottom: 16px;
 
-  > mat-icon {
-    font-size: 22px;
-    width: 22px;
-    height: 22px;
+  > app-icon {
     color: #ffa726;
     flex-shrink: 0;
   }

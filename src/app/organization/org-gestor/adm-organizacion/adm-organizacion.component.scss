@@ -99,7 +99,7 @@
   font-weight: 500;
   margin-bottom: 16px;
 
-  mat-icon { font-size: 18px; width: 18px; height: 18px; flex-shrink: 0; }
+  app-icon { flex-shrink: 0; }
 
   &--success {
     background: rgba(34, 197, 94, .10);
@@ -320,8 +320,6 @@
   text-transform: uppercase;
   letter-spacing: .05em;
   padding: 0 6px;
-
-  mat-icon { font-size: 16px; width: 16px; height: 16px; }
 }
 
 .adm-fieldset-desc {
@@ -353,8 +351,6 @@
   cursor: pointer;
   border: none;
   transition: background 140ms ease, box-shadow 140ms ease, color 140ms ease, border-color 140ms ease;
-
-  mat-icon { font-size: 17px; width: 17px; height: 17px; line-height: 17px; }
 
   &:focus-visible { outline: 2px solid $brand; outline-offset: 2px; }
 
@@ -461,7 +457,7 @@
   gap: 4px;
   color: $text-muted;
 
-  mat-icon { font-size: 28px; width: 28px; height: 28px; opacity: .35; }
+  app-icon { opacity: .35; }
   span { font-size: .72rem; }
 }
 
@@ -498,8 +494,6 @@
   cursor: pointer;
   transition: background 140ms ease, border-color 140ms ease;
 
-  mat-icon { font-size: 15px; width: 15px; height: 15px; }
-
   &:hover { background: rgba(255, 255, 255, .05); border-color: $brand; color: $brand; }
 
   &.is-loading {
@@ -514,8 +508,6 @@
   gap: 5px;
   font-size: .78rem;
   color: $danger;
-
-  mat-icon { font-size: 15px; width: 15px; height: 15px; }
 }
 
 // =============================================================================
@@ -550,7 +542,7 @@
   align-items: center;
   gap: 12px;
 
-  mat-icon { color: $text-muted; font-size: 20px; width: 20px; height: 20px; }
+  app-icon { color: $text-muted; }
 }
 
 .adm-toggle-label {
@@ -841,16 +833,14 @@
   font-size: .875rem;
   color: $text-muted;
 
-  mat-icon { font-size: 32px; width: 32px; height: 32px; }
-
   &--success {
     color: #4ade80;
-    mat-icon { color: #4ade80; }
+    app-icon { color: #4ade80; }
   }
 
   &--error {
     color: $danger;
-    mat-icon { color: $danger; }
+    app-icon { color: $danger; }
   }
 }
 

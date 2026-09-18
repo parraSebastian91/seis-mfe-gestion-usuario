@@ -2,7 +2,7 @@
 
   <!-- ── Loading ─────────────────────────────────────────────────────────── -->
   <div class="section-loading" *ngIf="loading">
-    <mat-spinner diameter="40"></mat-spinner>
+    <app-loader [size]="40" />
   </div>
 
   <ng-container *ngIf="!loading">
@@ -23,7 +23,7 @@
         [attr.aria-controls]="'tabpanel-' + i"
         [id]="'tab-' + i"
         (click)="setTab($any(i))">
-        <mat-icon class="adm-tab-icon">{{ tab.icon }}</mat-icon>
+        <app-icon class="adm-tab-icon" [name]="tab.icon" size="17" />
         <span class="adm-tab-label">{{ tab.label }}</span>
       </button>
 
@@ -31,11 +31,11 @@
 
     <!-- Feedback global -->
     <div class="adm-feedback adm-feedback--success" *ngIf="saveSuccess" role="alert">
-      <mat-icon>check_circle</mat-icon>
+      <app-icon name="check_circle" size="18" />
       {{ saveSuccess }}
     </div>
     <div class="adm-feedback adm-feedback--error" *ngIf="saveError" role="alert">
-      <mat-icon>error_outline</mat-icon>
+      <app-icon name="error_outline" size="18" />
       {{ saveError }}
     </div>
 
@@ -111,15 +111,15 @@
           <div class="adm-uploader-card">
             <div class="adm-uploader-preview adm-uploader-preview--logo">
               <img *ngIf="logoPreview" [src]="logoPreview" alt="Logo de la organización" class="adm-preview-img" />
-              <mat-icon *ngIf="!logoPreview" class="adm-preview-placeholder-icon">business</mat-icon>
+              <app-icon *ngIf="!logoPreview" class="adm-preview-placeholder-icon" name="business" size="32" />
             </div>
             <div class="adm-uploader-info">
               <span class="adm-uploader-label">Logo / Avatar</span>
               <span class="adm-uploader-hint">JPEG, PNG, WEBP · Máx. 5 MB · Recomendado 400×400 px</span>
             </div>
             <label class="adm-uploader-btn" [class.is-loading]="uploadingLogo">
-              <mat-icon *ngIf="!uploadingLogo">upload</mat-icon>
-              <mat-spinner *ngIf="uploadingLogo" diameter="18"></mat-spinner>
+              <app-icon *ngIf="!uploadingLogo" name="upload" size="15" />
+              <app-loader [size]="18" *ngIf="uploadingLogo" />
               <span>{{ uploadingLogo ? 'Subiendo...' : 'Cambiar logo' }}</span>
               <input type="file" accept="image/jpeg,image/png,image/webp" (change)="onLogoSelected($event)" hidden [disabled]="uploadingLogo" />
             </label>
@@ -129,15 +129,15 @@
           <div class="adm-uploader-card">
             <div class="adm-uploader-preview adm-uploader-preview--banner">
               <img *ngIf="bannerPreview" [src]="bannerPreview" alt="Banner de la organización" class="adm-preview-img" />
-              <mat-icon *ngIf="!bannerPreview" class="adm-preview-placeholder-icon">panorama</mat-icon>
+              <app-icon *ngIf="!bannerPreview" class="adm-preview-placeholder-icon" name="panorama" size="32" />
             </div>
             <div class="adm-uploader-info">
               <span class="adm-uploader-label">Banner</span>
               <span class="adm-uploader-hint">JPEG, PNG, WEBP · Máx. 5 MB · Recomendado 1200×400 px</span>
             </div>
             <label class="adm-uploader-btn" [class.is-loading]="uploadingBanner">
-              <mat-icon *ngIf="!uploadingBanner">upload</mat-icon>
-              <mat-spinner *ngIf="uploadingBanner" diameter="18"></mat-spinner>
+              <app-icon *ngIf="!uploadingBanner" name="upload" size="15" />
+              <app-loader [size]="18" *ngIf="uploadingBanner" />
               <span>{{ uploadingBanner ? 'Subiendo...' : 'Cambiar banner' }}</span>
               <input type="file" accept="image/jpeg,image/png,image/webp" (change)="onBannerSelected($event)" hidden [disabled]="uploadingBanner" />
             </label>
@@ -153,7 +153,7 @@
                 [src]="videoObjectUrl">
               </video>
               <div *ngIf="!videoFile" class="adm-video-placeholder">
-                <mat-icon>play_circle</mat-icon>
+                <app-icon name="play_circle" size="28" />
                 <span>Sin video</span>
               </div>
             </div>
@@ -165,7 +165,7 @@
               </span>
             </div>
             <label class="adm-uploader-btn">
-              <mat-icon>videocam</mat-icon>
+              <app-icon name="videocam" size="15" />
               <span>{{ videoFile ? 'Cambiar video' : 'Subir video' }}</span>
               <input type="file" accept="video/mp4,video/webm,video/ogg" (change)="onVideoSelected($event)" hidden />
             </label>
@@ -174,15 +174,15 @@
         </div><!-- /adm-uploaders -->
 
         <small class="adm-upload-error" *ngIf="uploadError" role="alert">
-          <mat-icon>warning</mat-icon>
+          <app-icon name="warning" size="15" />
           {{ uploadError }}
         </small>
 
         <!-- Guardar -->
         <footer class="adm-form-footer">
           <button type="submit" class="adm-btn adm-btn--primary" [disabled]="identidadForm.invalid || savingIdentidad">
-            <mat-spinner *ngIf="savingIdentidad" diameter="16"></mat-spinner>
-            <mat-icon *ngIf="!savingIdentidad">save</mat-icon>
+            <app-loader [size]="16" *ngIf="savingIdentidad" />
+            <app-icon *ngIf="!savingIdentidad" name="save" size="17" />
             {{ savingIdentidad ? 'Guardando...' : 'Guardar identidad' }}
           </button>
         </footer>
@@ -207,7 +207,7 @@
         <!-- ── Dirección (estructura territorial Chile) ─────────────── -->
         <fieldset class="adm-fieldset">
           <legend class="adm-legend">
-            <mat-icon>location_on</mat-icon>
+            <app-icon name="location_on" size="16" />
             Dirección tributaria
           </legend>
 
@@ -274,7 +274,7 @@
         <!-- ── Cuenta bancaria ──────────────────────────────────────── -->
         <fieldset class="adm-fieldset">
           <legend class="adm-legend">
-            <mat-icon>account_balance</mat-icon>
+            <app-icon name="account_balance" size="16" />
             Cuenta bancaria
           </legend>
 
@@ -343,8 +343,8 @@
 
         <footer class="adm-form-footer">
           <button type="submit" class="adm-btn adm-btn--primary" [disabled]="operativaForm.invalid || savingOperativa">
-            <mat-spinner *ngIf="savingOperativa" diameter="16"></mat-spinner>
-            <mat-icon *ngIf="!savingOperativa">save</mat-icon>
+            <app-loader [size]="16" *ngIf="savingOperativa" />
+            <app-icon *ngIf="!savingOperativa" name="save" size="17" />
             {{ savingOperativa ? 'Guardando...' : 'Guardar datos operativos' }}
           </button>
         </footer>
@@ -374,7 +374,7 @@
         <!-- ── Centro de Notificaciones ──────────────────────────────── -->
         <fieldset class="adm-fieldset">
           <legend class="adm-legend">
-            <mat-icon>notifications</mat-icon>
+            <app-icon name="notifications" size="16" />
             Centro de notificaciones
           </legend>
           <p class="adm-fieldset-desc">
@@ -385,7 +385,7 @@
 
             <label class="adm-toggle-row" for="notifEmail">
               <div class="adm-toggle-info">
-                <mat-icon>email</mat-icon>
+                <app-icon name="email" />
                 <div>
                   <span class="adm-toggle-label">Email</span>
                   <span class="adm-toggle-desc">Notificaciones de facturas, solicitudes y cambios de estado.</span>
@@ -396,7 +396,7 @@
 
             <label class="adm-toggle-row" for="notifSms">
               <div class="adm-toggle-info">
-                <mat-icon>sms</mat-icon>
+                <app-icon name="sms" />
                 <div>
                   <span class="adm-toggle-label">SMS</span>
                   <span class="adm-toggle-desc">Alertas críticas y confirmaciones de operaciones de alto valor.</span>
@@ -407,7 +407,7 @@
 
             <label class="adm-toggle-row" for="notifPush">
               <div class="adm-toggle-info">
-                <mat-icon>notifications_active</mat-icon>
+                <app-icon name="notifications_active" />
                 <div>
                   <span class="adm-toggle-label">Notificaciones Push</span>
                   <span class="adm-toggle-desc">Actualizaciones en tiempo real dentro de la plataforma.</span>
@@ -422,27 +422,27 @@
         <!-- ── Políticas de Retención ────────────────────────────────── -->
         <fieldset class="adm-fieldset">
           <legend class="adm-legend">
-            <mat-icon>schedule</mat-icon>
+            <app-icon name="schedule" size="16" />
             Políticas de retención de datos
           </legend>
 
           <div class="adm-retention-list">
             <div class="adm-retention-item">
-              <mat-icon class="adm-retention-icon">folder</mat-icon>
+              <app-icon class="adm-retention-icon" name="folder" />
               <div>
                 <span class="adm-retention-cat">Datos de facturación</span>
                 <span class="adm-retention-desc">Conservados <strong>7 años</strong> desde la fecha de emisión, según exigencia del SII y normativa tributaria chilena.</span>
               </div>
             </div>
             <div class="adm-retention-item">
-              <mat-icon class="adm-retention-icon">group</mat-icon>
+              <app-icon class="adm-retention-icon" name="group" />
               <div>
                 <span class="adm-retention-cat">Datos de colaboradores</span>
                 <span class="adm-retention-desc">Conservados durante la vigencia de la membresía + <strong>1 año</strong> tras la desvinculación, salvo solicitud de cancelación (Derecho ARCO).</span>
               </div>
             </div>
             <div class="adm-retention-item">
-              <mat-icon class="adm-retention-icon">analytics</mat-icon>
+              <app-icon class="adm-retention-icon" name="analytics" />
               <div>
                 <span class="adm-retention-cat">Datos de uso y logs</span>
                 <span class="adm-retention-desc">Conservados <strong>12 meses</strong> para fines de auditoría y seguridad de la información.</span>
@@ -454,7 +454,7 @@
         <!-- ── Consentimientos activos (Opt-in explícito) ─────────────── -->
         <fieldset class="adm-fieldset">
           <legend class="adm-legend">
-            <mat-icon>gavel</mat-icon>
+            <app-icon name="gavel" size="16" />
             Consentimientos activos — Opt-in obligatorio
           </legend>
           <p class="adm-fieldset-desc">
@@ -508,7 +508,7 @@
         <!-- ── Derechos ARCO ──────────────────────────────────────────── -->
         <fieldset class="adm-fieldset adm-fieldset--arco">
           <legend class="adm-legend">
-            <mat-icon>download</mat-icon>
+            <app-icon name="download" size="16" />
             Gestión de Derechos ARCO
           </legend>
           <p class="adm-fieldset-desc">
@@ -520,7 +520,7 @@
               type="button"
               class="adm-btn adm-btn--outlined"
               (click)="solicitarExportacion()">
-              <mat-icon>download</mat-icon>
+              <app-icon name="download" size="17" />
               Solicitar exportación de mis datos (Acceso / Portabilidad)
             </button>
             <p class="adm-arco-note">
@@ -532,8 +532,8 @@
 
         <footer class="adm-form-footer">
           <button type="submit" class="adm-btn adm-btn--primary" [disabled]="savingPrivacidad">
-            <mat-spinner *ngIf="savingPrivacidad" diameter="16"></mat-spinner>
-            <mat-icon *ngIf="!savingPrivacidad">save</mat-icon>
+            <app-loader [size]="16" *ngIf="savingPrivacidad" />
+            <app-icon *ngIf="!savingPrivacidad" name="save" size="17" />
             {{ savingPrivacidad ? 'Guardando...' : 'Guardar preferencias de privacidad' }}
           </button>
         </footer>
@@ -557,7 +557,7 @@
       <div class="danger-zone">
 
         <header class="danger-zone__header">
-          <mat-icon class="danger-zone__icon">warning</mat-icon>
+          <app-icon class="danger-zone__icon" name="warning" size="28" />
           <div>
             <h3 class="danger-zone__title">Zona de peligro</h3>
             <p class="danger-zone__subtitle">Las acciones de esta sección son permanentes e irreversibles.</p>
@@ -574,7 +574,7 @@
             </span>
           </div>
           <button type="button" class="adm-btn adm-btn--danger-outlined" (click)="openBajaFlow()">
-            <mat-icon>delete_forever</mat-icon>
+            <app-icon name="delete_forever" size="17" />
             Dar de baja
           </button>
         </div>
@@ -583,7 +583,7 @@
         <div class="danger-confirm" *ngIf="bajaStep === 'confirm-word'" role="alertdialog" aria-modal="true"
           aria-labelledby="baja-title">
 
-          <mat-icon class="danger-confirm__icon">report_problem</mat-icon>
+          <app-icon class="danger-confirm__icon" name="report_problem" size="36" />
 
           <h4 id="baja-title" class="danger-confirm__title">
             Confirmar eliminación de la organización
@@ -627,7 +627,7 @@
               class="adm-btn adm-btn--danger"
               [disabled]="!bajaWordMatch"
               (click)="confirmarBaja()">
-              <mat-icon>delete_forever</mat-icon>
+              <app-icon name="delete_forever" size="17" />
               Confirmar eliminación definitiva
             </button>
           </div>
@@ -635,19 +635,19 @@
 
         <!-- Submitting -->
         <div class="danger-status" *ngIf="bajaStep === 'submitting'">
-          <mat-spinner diameter="32"></mat-spinner>
+          <app-loader [size]="32" />
           <p>Procesando solicitud de baja...</p>
         </div>
 
         <!-- Done -->
         <div class="danger-status danger-status--success" *ngIf="bajaStep === 'done'" role="status">
-          <mat-icon>check_circle</mat-icon>
+          <app-icon name="check_circle" size="32" />
           <p>La organización ha sido dada de baja exitosamente. Los datos serán eliminados conforme a la política de retención legal.</p>
         </div>
 
         <!-- Error -->
         <div class="danger-status danger-status--error" *ngIf="bajaStep === 'error'" role="alert">
-          <mat-icon>error</mat-icon>
+          <app-icon name="error" size="32" />
           <p>{{ bajaError }}</p>
           <button type="button" class="adm-btn adm-btn--ghost" (click)="cancelBaja()">Cerrar</button>
         </div>

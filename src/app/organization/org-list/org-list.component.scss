@@ -43,24 +43,17 @@
   p { margin: 0; font-size: 0.95rem; }
 }
 
-.error-state {
-  mat-icon { font-size: 48px; width: 48px; height: 48px; }
-}
-
 .empty-state {
   .empty-icon {
-    font-size: 64px;
-    width: 64px;
-    height: 64px;
     opacity: 0.25;
-    color: var(--mat-sys-on-surface, #1a1a1a);
+    color: var(--color-text-primary);
   }
 
   h2 {
     font-size: 1.25rem;
     font-weight: 600;
     margin: 0;
-    color: var(--mat-sys-on-surface, #1a1a1a);
+    color: var(--color-text-primary);
   }
 }
 
@@ -84,17 +77,37 @@
   }
 
   &:focus {
-    outline: 2px solid var(--mat-sys-primary, #1565c0);
+    outline: 2px solid var(--color-brand-primary);
     outline-offset: 2px;
   }
+}
 
-  .org-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    background: var(--mat-sys-surface-variant, #e8eaf6);
-  }
+.org-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.org-card-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.org-card-subtitle {
+  margin: 2px 0 0;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+.org-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--color-bg-surface);
+  flex-shrink: 0;
 }
 
 // ── Chips ─────────────────────────────────────────────────────────────────────
@@ -128,8 +141,6 @@
   border-radius: 12px;
   font-size: 0.75rem;
   font-weight: 500;
-
-  mat-icon { font-size: 14px; width: 14px; height: 14px; }
 
   &--incomplete {
     background: #fff3e0;

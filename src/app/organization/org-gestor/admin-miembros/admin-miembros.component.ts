@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { OrgMiembro, OrgAdminRol } from '../org-gestor.component';
-import { UserStateService } from 'shared-utils';
+import { UserStateService, MenuItem } from 'shared-utils';
 
 const ROL_OPTS: { codigo: OrgAdminRol; label: string }[] = [
   { codigo: 'ADMIN',       label: 'Administrador' },
@@ -149,5 +149,13 @@ export class AdminMiembrosComponent implements OnInit {
 
   rolBadgeColor(rol: OrgAdminRol): string | null {
     return rol === 'AUDITOR' ? '#A78BFA' : null;
+  }
+
+  /** Migrado a app-menu (Fase 2) — reemplaza mat-menu+matMenuTriggerFor. */
+  miembroMenuItems(m: OrgMiembro): MenuItem[] {
+    return [
+      { label: 'Cambiar rol', icon: 'manage_accounts', action: () => this.openChangeRol(m) },
+      { label: 'Remover', icon: 'person_remove', danger: true, action: () => this.openRemove(m) },
+    ];
   }
 }

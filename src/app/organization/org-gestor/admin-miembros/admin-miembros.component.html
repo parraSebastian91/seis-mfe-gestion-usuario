@@ -7,19 +7,19 @@
 
   <!-- Loading -->
   <div class="section-loading" *ngIf="loading">
-    <mat-spinner diameter="36"></mat-spinner>
+    <app-loader [size]="36" />
   </div>
 
   <!-- Error -->
   <div class="section-error" *ngIf="!loading && error">
-    <mat-icon>error_outline</mat-icon>
+    <app-icon name="error_outline" />
     <span>{{ error }}</span>
-    <button mat-button (click)="load()">Reintentar</button>
+    <button app-button variant="light" (click)="load()">Reintentar</button>
   </div>
 
   <!-- Empty -->
   <div class="section-empty" *ngIf="!loading && !error && miembros.length === 0">
-    <mat-icon>group_off</mat-icon>
+    <app-icon name="group_off" size="48" />
     <p>Esta organización no tiene miembros aún.</p>
   </div>
 
@@ -38,17 +38,11 @@
       </div>
       <app-badge [variant]="rolBadgeVariant(m.rolCodigo)" [color]="rolBadgeColor(m.rolCodigo)">{{ m.rolNombre }}</app-badge>
       <div class="miembro-actions">
-        <button mat-icon-button [matMenuTriggerFor]="menuMiembro" aria-label="Opciones">
-          <mat-icon>more_vert</mat-icon>
-        </button>
-        <mat-menu #menuMiembro="matMenu">
-          <button mat-menu-item (click)="openChangeRol(m)">
-            <mat-icon>manage_accounts</mat-icon> Cambiar rol
+        <app-menu [items]="miembroMenuItems(m)">
+          <button app-icon-button size="sm" aria-label="Opciones">
+            <app-icon name="more_vert" />
           </button>
-          <button mat-menu-item class="danger-item" (click)="openRemove(m)">
-            <mat-icon>person_remove</mat-icon> Remover
-          </button>
-        </mat-menu>
+        </app-menu>
       </div>
     </li>
   </ul>
@@ -63,19 +57,18 @@
       {{ changingRol.nombre }} {{ changingRol.apellido }}
     </p>
 
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Nuevo rol</mat-label>
-      <mat-select [(ngModel)]="newRol">
-        <mat-option *ngFor="let r of ROL_OPTS" [value]="r.codigo">{{ r.label }}</mat-option>
-      </mat-select>
-    </mat-form-field>
+    <app-form-field label="Nuevo rol" class="full-width">
+      <app-select [(ngModel)]="newRol">
+        <option *ngFor="let r of ROL_OPTS" [value]="r.codigo">{{ r.label }}</option>
+      </app-select>
+    </app-form-field>
 
     <p class="modal-error" *ngIf="rolError">{{ rolError }}</p>
 
     <div class="modal-actions">
-      <button mat-button [disabled]="savingRol" (click)="changingRol = null">Cancelar</button>
-      <button mat-flat-button color="primary" [disabled]="savingRol" (click)="saveRol()">
-        <mat-spinner *ngIf="savingRol" diameter="18"></mat-spinner>
+      <button app-button variant="light" [disabled]="savingRol" (click)="changingRol = null">Cancelar</button>
+      <button app-button variant="primary" [disabled]="savingRol" (click)="saveRol()">
+        <app-loader [size]="18" *ngIf="savingRol" />
         <span *ngIf="!savingRol">Guardar</span>
       </button>
     </div>
@@ -94,9 +87,9 @@
     <p class="modal-error" *ngIf="removeError">{{ removeError }}</p>
 
     <div class="modal-actions">
-      <button mat-button [disabled]="removing" (click)="removingMiembro = null">Cancelar</button>
-      <button mat-flat-button color="warn" [disabled]="removing" (click)="confirmRemove()">
-        <mat-spinner *ngIf="removing" diameter="18"></mat-spinner>
+      <button app-button variant="light" [disabled]="removing" (click)="removingMiembro = null">Cancelar</button>
+      <button app-button variant="danger" [disabled]="removing" (click)="confirmRemove()">
+        <app-loader [size]="18" *ngIf="removing" />
         <span *ngIf="!removing">Remover</span>
       </button>
     </div>

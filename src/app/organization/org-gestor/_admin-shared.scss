@@ -83,8 +83,6 @@ $shadow-md: var(--shadow-md, 0 4px 20px rgba(0,0,0,.40));
   border-radius: $radius-md;
   color: $danger;
   font-size: .875rem;
-
-  mat-icon { font-size: 20px; width: 20px; height: 20px; }
 }
 
 .section-empty {
@@ -96,11 +94,29 @@ $shadow-md: var(--shadow-md, 0 4px 20px rgba(0,0,0,.40));
   color: $text-muted;
   text-align: center;
 
-  mat-icon { font-size: 48px; width: 48px; height: 48px; opacity: .3; }
+  app-icon { opacity: .3; }
   p { margin: 0; font-size: .9rem; }
 }
 
 .full-width { width: 100%; }
+
+.plain-textarea {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-bg-elevated);
+  color: var(--color-text-primary);
+  font-size: .875rem;
+  font-family: var(--font-sans);
+  resize: vertical;
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-brand-primary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-brand-primary) 15%, transparent);
+  }
+}
 
 // =============================================================================
 // Modal
@@ -205,10 +221,4 @@ $shadow-md: var(--shadow-md, 0 4px 20px rgba(0,0,0,.40));
   &--rejected { background: rgba(239, 68, 68, .15);   color: #EF4444; }
   &--expired  { background: rgba(255,255,255, .06);    color: $text-muted; }
   &--default  { background: rgba(255,255,255, .06);    color: $text-muted; }
-}
-
-// ── Danger menu item ──────────────────────────────────────────────────────────
-::ng-deep .danger-item {
-  color: $danger !important;
-  mat-icon { color: $danger !important; }
 }

@@ -4,8 +4,8 @@
     <h2 class="section-title">Solicitudes de acceso</h2>
     <span class="section-count" *ngIf="pendingCount > 0">{{ pendingCount }} pendientes</span>
     <div class="section-header-actions">
-      <button mat-flat-button color="primary" class="token-btn" (click)="openTokenPanel()">
-        <mat-icon>link</mat-icon>
+      <button app-button variant="primary" class="token-btn" (click)="openTokenPanel()">
+        <app-icon name="link" size="18" />
         Generar código de enrolamiento
       </button>
     </div>
@@ -13,19 +13,19 @@
 
   <!-- Loading -->
   <div class="section-loading" *ngIf="loading">
-    <mat-spinner diameter="36"></mat-spinner>
+    <app-loader [size]="36" />
   </div>
 
   <!-- Error -->
   <div class="section-error" *ngIf="!loading && error">
-    <mat-icon>error_outline</mat-icon>
+    <app-icon name="error_outline" />
     <span>{{ error }}</span>
-    <button mat-button (click)="load()">Reintentar</button>
+    <button app-button variant="light" (click)="load()">Reintentar</button>
   </div>
 
   <!-- Empty -->
   <div class="section-empty" *ngIf="!loading && !error && solicitudes.length === 0">
-    <mat-icon>inbox</mat-icon>
+    <app-icon name="inbox" size="48" />
     <p>No hay solicitudes de acceso pendientes.</p>
   </div>
 
@@ -51,11 +51,11 @@
         </app-badge>
       </div>
       <div class="solicitud-actions" *ngIf="s.estado === 'PENDIENTE' && !s.estaExpirada">
-        <button mat-stroked-button color="warn" (click)="openResolve(s, 'RECHAZADA')">
-          <mat-icon>close</mat-icon> Rechazar
+        <button app-button variant="danger" (click)="openResolve(s, 'RECHAZADA')">
+          <app-icon name="close" size="18" /> Rechazar
         </button>
-        <button mat-flat-button color="primary" (click)="openResolve(s, 'APROBADA')">
-          <mat-icon>check</mat-icon> Aprobar
+        <button app-button variant="primary" (click)="openResolve(s, 'APROBADA')">
+          <app-icon name="check" size="18" /> Aprobar
         </button>
       </div>
     </li>
@@ -74,24 +74,20 @@
       — rol: <strong>{{ resolviendo.rolSolicitado }}</strong>
     </p>
 
-    <mat-form-field
-      *ngIf="decision === 'RECHAZADA'"
-      appearance="outline"
-      class="full-width">
-      <mat-label>Motivo del rechazo</mat-label>
-      <textarea matInput [(ngModel)]="motivoRechazo" rows="3"></textarea>
-    </mat-form-field>
+    <app-form-field *ngIf="decision === 'RECHAZADA'" label="Motivo del rechazo" class="full-width">
+      <textarea class="plain-textarea" [(ngModel)]="motivoRechazo" rows="3"></textarea>
+    </app-form-field>
 
     <p class="modal-error" *ngIf="saveError">{{ saveError }}</p>
 
     <div class="modal-actions">
-      <button mat-button [disabled]="saving" (click)="resolviendo = null">Cancelar</button>
+      <button app-button variant="light" [disabled]="saving" (click)="resolviendo = null">Cancelar</button>
       <button
-        mat-flat-button
-        [color]="decision === 'APROBADA' ? 'primary' : 'warn'"
+        app-button
+        [variant]="decision === 'APROBADA' ? 'primary' : 'danger'"
         [disabled]="saving"
         (click)="confirmResolve()">
-        <mat-spinner *ngIf="saving" diameter="18"></mat-spinner>
+        <app-loader [size]="18" *ngIf="saving" />
         <span *ngIf="!saving">{{ decision === 'APROBADA' ? 'Aprobar' : 'Rechazar' }}</span>
       </button>
     </div>
@@ -107,18 +103,17 @@
       Comparte el token por email o mensajería segura.
     </p>
 
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Rol a asignar</mat-label>
-      <mat-select [(ngModel)]="rolDestino">
-        <mat-option *ngFor="let r of ROL_OPTS" [value]="r">{{ r }}</mat-option>
-      </mat-select>
-    </mat-form-field>
+    <app-form-field label="Rol a asignar" class="full-width">
+      <app-select [(ngModel)]="rolDestino">
+        <option *ngFor="let r of ROL_OPTS" [value]="r">{{ r }}</option>
+      </app-select>
+    </app-form-field>
 
     <!-- Generated token display -->
     <div class="token-display" *ngIf="generatedToken">
       <code class="token-code">{{ generatedToken }}</code>
-      <button mat-icon-button (click)="copyToken()" appTooltip="Copiar token">
-        <mat-icon>content_copy</mat-icon>
+      <button app-icon-button size="sm" (click)="copyToken()" appTooltip="Copiar token">
+        <app-icon name="content_copy" />
       </button>
     </div>
     <p class="token-expira" *ngIf="tokenExpira">
@@ -128,13 +123,13 @@
     <p class="modal-error" *ngIf="tokenError">{{ tokenError }}</p>
 
     <div class="modal-actions">
-      <button mat-button (click)="showTokenPanel = false">Cerrar</button>
+      <button app-button variant="light" (click)="showTokenPanel = false">Cerrar</button>
       <button
-        mat-flat-button
-        color="primary"
+        app-button
+        variant="primary"
         [disabled]="generatingToken"
         (click)="generateToken()">
-        <mat-spinner *ngIf="generatingToken" diameter="18"></mat-spinner>
+        <app-loader [size]="18" *ngIf="generatingToken" />
         <span *ngIf="!generatingToken">
           {{ generatedToken ? 'Generar nuevo' : 'Generar token' }}
         </span>
