@@ -256,12 +256,6 @@
     flex-wrap: wrap;
 }
 
-.social-chip {
-    border: 1px solid var(--color-border);
-    background: var(--color-bg-elevated) !important;
-    color: var(--color-text-primary) !important;
-}
-
 /* Adaptación a Desktop */
 @media (min-width: 768px) {
     .identity-section {
@@ -285,23 +279,6 @@
         display: grid;
         grid-template-columns: minmax(280px, 340px) 1fr;
         gap: 24px;
-    }
-}
-
-/* Aplicación del Color Corporativo Dinámico */
-::ng-deep .mat-mdc-flat-button.mat-primary {
-    --mdc-flat-button-container-color: var(--color-brand-primary) !important;
-}
-
-.company-chip {
-    background-color: color-mix(in srgb, var(--color-brand-primary) 12%, var(--color-bg-surface)) !important;
-    color: var(--color-brand-primary) !important;
-
-    .chip-content {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
     }
 }
 
@@ -344,7 +321,8 @@
     align-items: start;
 }
 
-.form-grid mat-form-field {
+.form-grid mat-form-field,
+.form-grid app-form-field {
     width: 100%;
 }
 
@@ -429,25 +407,10 @@
     gap: 0.75rem;
     padding: 0.5rem 0 0.25rem;
 
-    mat-form-field {
+    mat-form-field,
+    app-form-field {
         flex: 1 1 180px;
     }
-}
-
-.social-chip.editable {
-    cursor: pointer;
-
-    &:hover {
-        background: color-mix(in srgb, var(--color-brand-primary) 12%, var(--color-bg-surface));
-    }
-}
-
-.chip-icon {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-    margin-right: 4px;
-    opacity: 0.7;
 }
 
 .text-muted {
@@ -455,53 +418,6 @@
     font-size: 0.85rem;
     padding: 0.5rem 0;
     margin: 0;
-}
-
-/* ── Strength meter (CA-09) ──────────────────────────────────────────────── */
-.strength-wrap {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 0 0 0.5rem;
-}
-
-.strength-bar {
-    display: flex;
-    gap: 4px;
-    flex: 1;
-}
-
-.bar-segment {
-    flex: 1;
-    height: 5px;
-    border-radius: 3px;
-    background: var(--color-border);
-    transition: background 220ms ease;
-
-    &.filled.danger {
-        background: var(--color-error);
-    }
-
-    &.filled.warning {
-        background: var(--color-warning);
-    }
-
-    &.filled.good {
-        background: color-mix(in srgb, var(--color-warning) 60%, var(--color-success));
-    }
-
-    &.filled.strong {
-        background: var(--color-success);
-    }
-}
-
-.strength-label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    white-space: nowrap;
-    color: var(--color-text-secondary);
-    min-width: 68px;
-    text-align: right;
 }
 
 /* ── Error / success messages ────────────────────────────────────────────── */

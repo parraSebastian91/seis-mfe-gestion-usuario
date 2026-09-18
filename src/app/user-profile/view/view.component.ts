@@ -27,18 +27,6 @@ const PATH_TYPES = {
 
 const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
-type StrengthLevel = 0 | 1 | 2 | 3 | 4;
-
-function calcStrength(value: string): StrengthLevel {
-  if (!value) return 0;
-  let score = 0;
-  if (value.length >= 8) score++;
-  if (/[A-Z]/.test(value)) score++;
-  if (/\d/.test(value)) score++;
-  if (/[^A-Za-z\d]/.test(value)) score++;
-  return Math.min(score, 4) as StrengthLevel;
-}
-
 const passwordMatchValidator: ValidatorFn = (group: AbstractControl) => {
   const np = group.get('newPassword')?.value ?? '';
   const cp = group.get('confirmPassword')?.value ?? '';
@@ -95,19 +83,6 @@ export class ViewComponent implements OnInit {
   showCurrentPw = false;
   showNewPw = false;
   showConfirmPw = false;
-  strengthLevel: StrengthLevel = 0;
-  readonly STRENGTH_CLASSES: Record<number, string> = {
-    1: 'danger',
-    2: 'warning',
-    3: 'good',
-    4: 'strong',
-  };
-  readonly STRENGTH_LABELS: Record<number, string> = {
-    1: 'Muy débil',
-    2: 'Débil',
-    3: 'Buena',
-    4: 'Fuerte',
-  };
   passwordForm!: FormGroup;
 
   defaultAsset = {
@@ -249,10 +224,6 @@ export class ViewComponent implements OnInit {
       },
       { validators: passwordMatchValidator },
     );
-
-    this.passwordForm.get('newPassword')!.valueChanges.subscribe((val) => {
-      this.strengthLevel = calcStrength(val ?? '');
-    });
   }
 
   ngOnInit(): void {
@@ -532,13 +503,11 @@ export class ViewComponent implements OnInit {
     this.passwordErrorMsg = '';
     this.passwordSuccessMsg = '';
     this.passwordForm.reset();
-    this.strengthLevel = 0;
   }
 
   cancelPasswordChange(): void {
     this.showPasswordForm = false;
     this.passwordForm.reset();
-    this.strengthLevel = 0;
   }
 
   async savePasswordChange(): Promise<void> {
@@ -558,7 +527,6 @@ export class ViewComponent implements OnInit {
       );
       this.passwordSuccessMsg = 'Contraseña actualizada correctamente.';
       this.passwordForm.reset();
-      this.strengthLevel = 0;
       setTimeout(() => this.cancelPasswordChange(), 2500);
     } catch (err: unknown) {
       const httpErr = err as { status?: number };
