@@ -379,7 +379,7 @@ export class ViewComponent implements OnInit {
   // ── CA-02 · Logout ────────────────────────────────────────────────────────
   async logout(): Promise<void> {
     try {
-      await firstValueFrom(this.http.get(environment.getEndpoint('api/auth/security/logout'), { withCredentials: true }));
+      await firstValueFrom(this.http.post(environment.getEndpoint('api/auth/security/logout'), {}, { withCredentials: true }));
     } catch {
       /* silent */
     }
