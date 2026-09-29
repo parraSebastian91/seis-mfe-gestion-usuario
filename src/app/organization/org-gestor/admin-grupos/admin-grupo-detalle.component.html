@@ -112,19 +112,20 @@
 </div>
 
 <!-- ── Remove confirm ────────────────────────────────────────────────────── -->
-<app-modal [open]="!!removingMiembro" (closed)="removingMiembro = null">
-  <div modal-title>¿Remover del grupo?</div>
+<app-confirm-dialog
+  [open]="!!removingMiembro"
+  title="¿Remover del grupo?"
+  confirmLabel="Remover"
+  loadingLabel="Removiendo…"
+  [danger]="true"
+  [loading]="removing"
+  [error]="removeError || null"
+  (confirmed)="confirmRemove()"
+  (cancelled)="removingMiembro = null">
+
   <p *ngIf="removingMiembro">
     Se removerá a
     <strong>{{ removingMiembro.nombre }} {{ removingMiembro.apellido }}</strong>
     del grupo. El miembro seguirá en la organización.
   </p>
-  <p class="modal-error" *ngIf="removeError">{{ removeError }}</p>
-  <div modal-actions>
-    <button app-button variant="light" [disabled]="removing" (click)="removingMiembro = null">Cancelar</button>
-    <button app-button variant="danger" [disabled]="removing" (click)="confirmRemove()">
-      <app-loader *ngIf="removing" [size]="18" />
-      <span *ngIf="!removing">Remover</span>
-    </button>
-  </div>
-</app-modal>
+</app-confirm-dialog>

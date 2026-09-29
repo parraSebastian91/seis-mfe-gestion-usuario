@@ -15,7 +15,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import {
   CardColaboradorComponent, CardComponent, CardTitleDirective, CardFooterDirective,
   SearchableCardSelectComponent, BadgeComponent, ModalComponent, ModalTitleDirective,
-  ModalActionsDirective, LoaderComponent, CheckboxComponent, SlideToggleComponent,
+  ModalActionsDirective, ConfirmDialogComponent, LoaderComponent, CheckboxComponent, SlideToggleComponent,
   TooltipDirective, FormFieldComponent, FormFieldErrorDirective, InputComponent,
   InputSuffixDirective, SelectComponent, ButtonComponent, IconComponent, IconButtonComponent,
   MenuComponent,
@@ -65,6 +65,9 @@ import { AdmOrganizacionComponent } from './org-gestor/adm-organizacion/adm-orga
     ModalComponent,
     ModalTitleDirective,
     ModalActionsDirective,
+    // Shell de los 6 diálogos de org-gestor, que reimplementaban
+    // .modal-backdrop/.modal-panel desde _admin-shared.scss.
+    ConfirmDialogComponent,
     LoaderComponent,
     CheckboxComponent,
     SlideToggleComponent,

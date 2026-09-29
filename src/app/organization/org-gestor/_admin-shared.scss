@@ -119,67 +119,22 @@ $shadow-md: var(--shadow-md, 0 4px 20px rgba(0,0,0,.40));
 }
 
 // =============================================================================
-// Modal
+// Modal — solo lo que sobrevive
+// El shell (.modal-backdrop/.modal-panel/.modal-title/.modal-body/
+// .modal-actions y el keyframe modalIn) se fue: los 6 diálogos de org-gestor
+// componen app-confirm-dialog / app-modal de shared-utils, que ya lo traen.
+// Quedan dos utilidades del cuerpo que el compartido no cubre.
 // =============================================================================
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, .60);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 16px;
-  backdrop-filter: blur(2px);
-}
-
-.modal-panel {
-  background: $bg-elevated;
-  border: 1px solid $border;
-  border-radius: $radius-lg;
-  padding: 24px;
-  width: 100%;
-  max-width: 440px;
-  box-shadow: $shadow-md;
-  animation: modalIn .15s ease-out;
-}
-
-.modal-title {
-  font-size: 1rem;
-  font-weight: 700;
-  color: $text;
-  margin: 0 0 4px;
-}
-
 .modal-subtitle {
   font-size: .85rem;
   color: $text-muted;
   margin: 0 0 16px;
 }
 
-.modal-body {
-  font-size: .875rem;
-  color: $text-muted;
-  margin: 0 0 16px;
-  line-height: 1.6;
-}
-
 .modal-error {
   font-size: .8rem;
   color: $danger;
   margin: 8px 0 0;
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 20px;
-}
-
-@keyframes modalIn {
-  from { opacity: 0; transform: translateY(8px) scale(.98); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 // =============================================================================

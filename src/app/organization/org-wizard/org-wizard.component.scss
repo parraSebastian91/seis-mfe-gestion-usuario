@@ -826,46 +826,9 @@ $input-h:       44px;
 }
 
 // ── Modal overlay / card ──────────────────────────────────────
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.65);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 16px;
-  backdrop-filter: blur(2px);
-}
-
-.modal-card {
-  background: #1E2A8A;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: $radius-lg;
-  width: 100%;
-  max-width: 480px;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 18px 20px 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.modal-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: $text;
-}
-
+// El shell del modal de ingreso (.modal-overlay/.modal-card/.modal-header/
+// .modal-title y el .modal-footer) lo aporta app-modal de shared-utils.
 .modal-body {
-  padding: 20px 20px 8px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -873,8 +836,7 @@ $input-h:       44px;
   &--success {
     align-items: center;
     text-align: center;
-    padding-top: 28px;
-    padding-bottom: 20px;
+    padding: 8px 0;
   }
 }
 
@@ -882,7 +844,7 @@ $input-h:       44px;
   font-size: 48px !important;
   width: 48px !important;
   height: 48px !important;
-  color: #66bb6a;
+  color: var(--color-success);
 }
 
 .modal-desc {
@@ -896,9 +858,3 @@ $input-h:       44px;
   &--muted { color: rgba(255, 255, 255, 0.45); font-size: 0.8rem; }
 }
 
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  padding: 14px 20px 18px;
-}

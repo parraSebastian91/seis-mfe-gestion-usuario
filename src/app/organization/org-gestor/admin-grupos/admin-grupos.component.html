@@ -68,59 +68,50 @@
 </div>
 
 <!-- ── Create / Edit modal ───────────────────────────────────────────────── -->
-<div class="modal-backdrop" *ngIf="showModal" (click)="showModal = false">
-  <div class="modal-panel" (click)="$event.stopPropagation()">
-    <h3 class="modal-title">{{ editingGrupo ? 'Editar grupo' : 'Nuevo grupo' }}</h3>
+<app-confirm-dialog
+  [open]="showModal"
+  [title]="editingGrupo ? 'Editar grupo' : 'Nuevo grupo'"
+  [confirmLabel]="editingGrupo ? 'Guardar' : 'Crear'"
+  loadingLabel="Guardando…"
+  [loading]="saving"
+  [confirmDisabled]="grupoForm.invalid"
+  [error]="formError || null"
+  (confirmed)="saveGrupo()"
+  (cancelled)="showModal = false">
 
-    <form [formGroup]="grupoForm">
-      <app-form-field label="Nombre del grupo" class="full-width">
-        <app-input formControlName="nombre" />
-      </app-form-field>
+  <form [formGroup]="grupoForm">
+    <app-form-field label="Nombre del grupo" class="full-width">
+      <app-input formControlName="nombre" />
+    </app-form-field>
 
-      <app-form-field label="Descripción (opcional)" class="full-width">
-        <textarea class="plain-textarea" formControlName="descripcion" rows="2"></textarea>
-      </app-form-field>
+    <app-form-field label="Descripción (opcional)" class="full-width">
+      <textarea class="plain-textarea" formControlName="descripcion" rows="2"></textarea>
+    </app-form-field>
 
-      <app-form-field label="Líder del grupo" class="full-width" *ngIf="!editingGrupo">
-        <app-select formControlName="liderUuid">
-          <option *ngFor="let m of miembrosOrg" [value]="m.usuarioUuid">
-            {{ m.nombre }} {{ m.apellido }}
-          </option>
-        </app-select>
-      </app-form-field>
-    </form>
-
-    <p class="modal-error" *ngIf="formError">{{ formError }}</p>
-
-    <div class="modal-actions">
-      <button app-button variant="light" [disabled]="saving" (click)="showModal = false">Cancelar</button>
-      <button
-        app-button
-        variant="primary"
-        [disabled]="saving || grupoForm.invalid"
-        (click)="saveGrupo()">
-        <app-loader [size]="18" *ngIf="saving" />
-        <span *ngIf="!saving">{{ editingGrupo ? 'Guardar' : 'Crear' }}</span>
-      </button>
-    </div>
-  </div>
-</div>
+    <app-form-field label="Líder del grupo" class="full-width" *ngIf="!editingGrupo">
+      <app-select formControlName="liderUuid">
+        <option *ngFor="let m of miembrosOrg" [value]="m.usuarioUuid">
+          {{ m.nombre }} {{ m.apellido }}
+        </option>
+      </app-select>
+    </app-form-field>
+  </form>
+</app-confirm-dialog>
 
 <!-- ── Delete confirm ────────────────────────────────────────────────────── -->
-<div class="modal-backdrop" *ngIf="deletingGrupo" (click)="deletingGrupo = null">
-  <div class="modal-panel" (click)="$event.stopPropagation()">
-    <h3 class="modal-title">¿Eliminar grupo?</h3>
-    <p class="modal-body">
-      Se eliminará el grupo <strong>{{ deletingGrupo.nombre }}</strong>
-      y sus {{ deletingGrupo.miembros.length }} miembros serán desasociados del grupo.
-    </p>
-    <p class="modal-error" *ngIf="deleteError">{{ deleteError }}</p>
-    <div class="modal-actions">
-      <button app-button variant="light" [disabled]="deleting" (click)="deletingGrupo = null">Cancelar</button>
-      <button app-button variant="danger" [disabled]="deleting" (click)="confirmDelete()">
-        <app-loader [size]="18" *ngIf="deleting" />
-        <span *ngIf="!deleting">Eliminar</span>
-      </button>
-    </div>
-  </div>
-</div>
+<app-confirm-dialog
+  [open]="!!deletingGrupo"
+  title="¿Eliminar grupo?"
+  confirmLabel="Eliminar"
+  loadingLabel="Eliminando…"
+  [danger]="true"
+  [loading]="deleting"
+  [error]="deleteError || null"
+  (confirmed)="confirmDelete()"
+  (cancelled)="deletingGrupo = null">
+
+  <p *ngIf="deletingGrupo">
+    Se eliminará el grupo <strong>{{ deletingGrupo.nombre }}</strong>
+    y sus {{ deletingGrupo.miembros.length }} miembros serán desasociados del grupo.
+  </p>
+</app-confirm-dialog>

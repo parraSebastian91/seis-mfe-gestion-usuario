@@ -64,76 +64,71 @@
 </div>
 
 <!-- ── Resolve modal ──────────────────────────────────────────────────────── -->
-<div class="modal-backdrop" *ngIf="resolviendo" (click)="resolviendo = null">
-  <div class="modal-panel" (click)="$event.stopPropagation()">
-    <h3 class="modal-title">
-      {{ decision === 'APROBADA' ? 'Aprobar solicitud' : 'Rechazar solicitud' }}
-    </h3>
-    <p class="modal-subtitle">
-      {{ resolviendo.solicitanteNombre }} {{ resolviendo.solicitanteApellido }}
-      — rol: <strong>{{ resolviendo.rolSolicitado }}</strong>
-    </p>
+<app-confirm-dialog
+  [open]="!!resolviendo"
+  [title]="decision === 'APROBADA' ? 'Aprobar solicitud' : 'Rechazar solicitud'"
+  [confirmLabel]="decision === 'APROBADA' ? 'Aprobar' : 'Rechazar'"
+  loadingLabel="Guardando…"
+  [danger]="decision === 'RECHAZADA'"
+  [loading]="saving"
+  [error]="saveError || null"
+  (confirmed)="confirmResolve()"
+  (cancelled)="resolviendo = null">
 
-    <app-form-field *ngIf="decision === 'RECHAZADA'" label="Motivo del rechazo" class="full-width">
-      <textarea class="plain-textarea" [(ngModel)]="motivoRechazo" rows="3"></textarea>
-    </app-form-field>
+  <p class="modal-subtitle" *ngIf="resolviendo">
+    {{ resolviendo.solicitanteNombre }} {{ resolviendo.solicitanteApellido }}
+    — rol: <strong>{{ resolviendo.rolSolicitado }}</strong>
+  </p>
 
-    <p class="modal-error" *ngIf="saveError">{{ saveError }}</p>
+  <app-form-field *ngIf="decision === 'RECHAZADA'" label="Motivo del rechazo" class="full-width">
+    <textarea class="plain-textarea" [(ngModel)]="motivoRechazo" rows="3"></textarea>
+  </app-form-field>
+</app-confirm-dialog>
 
-    <div class="modal-actions">
-      <button app-button variant="light" [disabled]="saving" (click)="resolviendo = null">Cancelar</button>
-      <button
-        app-button
-        [variant]="decision === 'APROBADA' ? 'primary' : 'danger'"
-        [disabled]="saving"
-        (click)="confirmResolve()">
-        <app-loader [size]="18" *ngIf="saving" />
-        <span *ngIf="!saving">{{ decision === 'APROBADA' ? 'Aprobar' : 'Rechazar' }}</span>
-      </button>
-    </div>
+<!-- ── Token panel ────────────────────────────────────────────────────────────
+     No es una confirmación: "Generar token" no cierra el panel, se puede
+     generar varias veces. Por eso compone app-modal directo y no ConfirmDialog. -->
+<app-modal
+  [open]="showTokenPanel"
+  maxWidth="500px"
+  (closed)="showTokenPanel = false">
+
+  <div modal-title>Código de enrolamiento</div>
+
+  <p>
+    Genera un token que permite a un colaborador solicitar acceso directamente.
+    Comparte el token por email o mensajería segura.
+  </p>
+
+  <app-form-field label="Rol a asignar" class="full-width">
+    <app-select [(ngModel)]="rolDestino">
+      <option *ngFor="let r of ROL_OPTS" [value]="r">{{ r }}</option>
+    </app-select>
+  </app-form-field>
+
+  <div class="token-display" *ngIf="generatedToken">
+    <code class="token-code">{{ generatedToken }}</code>
+    <button app-icon-button size="sm" (click)="copyToken()" appTooltip="Copiar token">
+      <app-icon name="content_copy" />
+    </button>
   </div>
-</div>
+  <p class="token-expira" *ngIf="tokenExpira">
+    Expira: {{ formatDate(tokenExpira) }}
+  </p>
 
-<!-- ── Token panel ────────────────────────────────────────────────────────── -->
-<div class="modal-backdrop" *ngIf="showTokenPanel" (click)="showTokenPanel = false">
-  <div class="modal-panel token-panel" (click)="$event.stopPropagation()">
-    <h3 class="modal-title">Código de enrolamiento</h3>
-    <p class="modal-body">
-      Genera un token que permite a un colaborador solicitar acceso directamente.
-      Comparte el token por email o mensajería segura.
-    </p>
+  <p class="modal-error" *ngIf="tokenError">{{ tokenError }}</p>
 
-    <app-form-field label="Rol a asignar" class="full-width">
-      <app-select [(ngModel)]="rolDestino">
-        <option *ngFor="let r of ROL_OPTS" [value]="r">{{ r }}</option>
-      </app-select>
-    </app-form-field>
-
-    <!-- Generated token display -->
-    <div class="token-display" *ngIf="generatedToken">
-      <code class="token-code">{{ generatedToken }}</code>
-      <button app-icon-button size="sm" (click)="copyToken()" appTooltip="Copiar token">
-        <app-icon name="content_copy" />
-      </button>
-    </div>
-    <p class="token-expira" *ngIf="tokenExpira">
-      Expira: {{ formatDate(tokenExpira) }}
-    </p>
-
-    <p class="modal-error" *ngIf="tokenError">{{ tokenError }}</p>
-
-    <div class="modal-actions">
-      <button app-button variant="light" (click)="showTokenPanel = false">Cerrar</button>
-      <button
-        app-button
-        variant="primary"
-        [disabled]="generatingToken"
-        (click)="generateToken()">
-        <app-loader [size]="18" *ngIf="generatingToken" />
-        <span *ngIf="!generatingToken">
-          {{ generatedToken ? 'Generar nuevo' : 'Generar token' }}
-        </span>
-      </button>
-    </div>
+  <div modal-actions>
+    <button app-button variant="light" (click)="showTokenPanel = false">Cerrar</button>
+    <button
+      app-button
+      variant="primary"
+      [disabled]="generatingToken"
+      (click)="generateToken()">
+      <app-loader [size]="18" *ngIf="generatingToken" />
+      <span *ngIf="!generatingToken">
+        {{ generatedToken ? 'Generar nuevo' : 'Generar token' }}
+      </span>
+    </button>
   </div>
-</div>
+</app-modal>

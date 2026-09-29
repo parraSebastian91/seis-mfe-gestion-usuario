@@ -465,47 +465,45 @@
     </div>
   </form>
 
-  <!-- Modal: Solicitar ingreso a organización existente -->
-  <div *ngIf="showJoinModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="join-modal-title" (click)="closeJoinModal()">
-    <div class="modal-card" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <span class="modal-title" id="join-modal-title">Solicitar ingreso a la organización</span>
-        <button type="button" class="btn btn--icon" aria-label="Cerrar" (click)="closeJoinModal()">
-          <app-icon name="close" size="18" />
-        </button>
-      </div>
+  <!-- Modal: Solicitar ingreso a organización existente.
+       El shell (backdrop, panel, header con título y ×) lo aporta app-modal;
+       las dos vistas —confirmar y éxito— conviven en el cuerpo y en el slot de
+       acciones, como antes. -->
+  <app-modal
+    [open]="showJoinModal"
+    [closeDisabled]="joinSending"
+    maxWidth="480px"
+    (closed)="closeJoinModal()">
 
-      <ng-container *ngIf="!joinSuccess">
-        <div class="modal-body">
-          <p class="modal-desc">
-            Vas a enviar una solicitud para unirte a
-            <strong>{{ rutYaRegistrado?.razonSocial }}</strong>.
-            Un administrador de la organización deberá aprobarla antes de que puedas operar.
-          </p>
-          <p class="modal-desc modal-desc--muted">
-            Si no perteneces a esta organización, utiliza un RUT diferente para crear la tuya.
-          </p>
-          <p *ngIf="joinError" class="save-error" role="alert">{{ joinError }}</p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn--ghost" (click)="closeJoinModal()" [disabled]="joinSending">Cancelar</button>
-          <button type="button" class="btn btn--primary" (click)="requestJoinOrg()" [disabled]="joinSending">
-            <span *ngIf="joinSending" class="spinner sm"></span>
-            <span *ngIf="!joinSending">Enviar solicitud</span>
-          </button>
-        </div>
-      </ng-container>
+    <div modal-title>Solicitar ingreso a la organización</div>
 
-      <ng-container *ngIf="joinSuccess">
-        <div class="modal-body modal-body--success">
-          <app-icon class="modal-success-icon" name="check_circle" size="48" />
-          <p class="modal-desc">Tu solicitud fue enviada correctamente. El administrador de la organización será notificado.</p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn--primary" (click)="closeJoinModal()">Cerrar</button>
-        </div>
-      </ng-container>
+    <div class="modal-body" *ngIf="!joinSuccess">
+      <p class="modal-desc">
+        Vas a enviar una solicitud para unirte a
+        <strong>{{ rutYaRegistrado?.razonSocial }}</strong>.
+        Un administrador de la organización deberá aprobarla antes de que puedas operar.
+      </p>
+      <p class="modal-desc modal-desc--muted">
+        Si no perteneces a esta organización, utiliza un RUT diferente para crear la tuya.
+      </p>
+      <p *ngIf="joinError" class="save-error" role="alert">{{ joinError }}</p>
     </div>
-  </div>
+
+    <div class="modal-body modal-body--success" *ngIf="joinSuccess">
+      <app-icon class="modal-success-icon" name="check_circle" size="48" />
+      <p class="modal-desc">Tu solicitud fue enviada correctamente. El administrador de la organización será notificado.</p>
+    </div>
+
+    <div modal-actions>
+      <ng-container *ngIf="!joinSuccess">
+        <button app-button variant="light" type="button" (click)="closeJoinModal()" [disabled]="joinSending">Cancelar</button>
+        <button app-button variant="primary" type="button" (click)="requestJoinOrg()" [disabled]="joinSending">
+          <app-loader *ngIf="joinSending" [size]="18" />
+          <span *ngIf="!joinSending">Enviar solicitud</span>
+        </button>
+      </ng-container>
+      <button app-button variant="primary" type="button" *ngIf="joinSuccess" (click)="closeJoinModal()">Cerrar</button>
+    </div>
+  </app-modal>
 
 </div>
